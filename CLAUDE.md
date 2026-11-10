@@ -3,8 +3,8 @@
 ## Project
 - **Engine**: Unity 6000.3.9f1 (Unity 6), URP 17.3, Input System(새 입력만)
 - **Platform**: Windows
-- **Type**: 1인칭 3D 중세 판타지(기지 운영·용병 보고 판단·주문 그리기 전투, 가제 전초기지)
-- **기획 문서**: `d:\obsidian\Vault\1_Projects\전초기지\`(시작은 `docs/design/README.md`, 수치 원본은 `docs/prototype/outpost.html`)
+- **Type**: 1인칭 3D 중세 판타지(용병 파티 의뢰·탐험·요소 조합 주문 그리기 전투, 가제 전초기지)
+- **기획 문서**: `d:\obsidian\Vault\1_Projects\How to live as a mage\`(시작은 `docs/design/README.md`. `docs/prototype/outpost.html`은 v1 기지 운영판, 현장 전투·그리기 수치만 참고)
 - **Unity MCP**: `unity-editor-mcp`. 에디터는 Unity Hub나 터미널 탭에서 열 것
 
 ## 4 Principles (Discipline)
