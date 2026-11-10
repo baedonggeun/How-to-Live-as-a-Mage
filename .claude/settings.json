@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "mcp__unity-editor-mcp__animation_animator_get_controller",
+      "mcp__unity-editor-mcp__animation_clip_get",
+      "mcp__unity-editor-mcp__animation_timeline_get",
+      "mcp__unity-editor-mcp__asset_find",
+      "mcp__unity-editor-mcp__asset_get_import_settings",
+      "mcp__unity-editor-mcp__asset_read_text",
+      "mcp__unity-editor-mcp__authoring_get_root",
+      "mcp__unity-editor-mcp__build_get_settings",
+      "mcp__unity-editor-mcp__build_list_platforms",
+      "mcp__unity-editor-mcp__build_list_profiles",
+      "mcp__unity-editor-mcp__build_status",
+      "mcp__unity-editor-mcp__build_target_list",
+      "mcp__unity-editor-mcp__build_target_switch_status",
+      "mcp__unity-editor-mcp__component_get_fields",
+      "mcp__unity-editor-mcp__component_get_properties",
+      "mcp__unity-editor-mcp__console_get",
+      "mcp__unity-editor-mcp__console_status",
+      "mcp__unity-editor-mcp__diagnostics_audit_status",
+      "mcp__unity-editor-mcp__diagnostics_get_performance",
+      "mcp__unity-editor-mcp__diagnostics_memory_snapshot_status",
+      "mcp__unity-editor-mcp__diagnostics_profiler_record_status",
+      "mcp__unity-editor-mcp__editor_playmode_list_instances",
+      "mcp__unity-editor-mcp__editor_search",
+      "mcp__unity-editor-mcp__editor_status",
+      "mcp__unity-editor-mcp__gameobject_find",
+      "mcp__unity-editor-mcp__gameobject_get_selection",
+      "mcp__unity-editor-mcp__job_status",
+      "mcp__unity-editor-mcp__job_wait",
+      "mcp__unity-editor-mcp__job_wait_status",
+      "mcp__unity-editor-mcp__lighting_bake_status",
+      "mcp__unity-editor-mcp__lighting_get_settings",
+      "mcp__unity-editor-mcp__material_get_properties",
+      "mcp__unity-editor-mcp__material_get_shader_properties",
+      "mcp__unity-editor-mcp__material_list_shaders",
+      "mcp__unity-editor-mcp__navmesh_bake_status",
+      "mcp__unity-editor-mcp__navmesh_get_settings",
+      "mcp__unity-editor-mcp__occlusion_bake_status",
+      "mcp__unity-editor-mcp__package_list",
+      "mcp__unity-editor-mcp__package_search",
+      "mcp__unity-editor-mcp__package_status",
+      "mcp__unity-editor-mcp__pipeline_list_commands",
+      "mcp__unity-editor-mcp__pipeline_progress",
+      "mcp__unity-editor-mcp__runtime_status",
+      "mcp__unity-editor-mcp__scene_get_hierarchy",
+      "mcp__unity-editor-mcp__scene_list_open",
+      "mcp__unity-editor-mcp__script_methodreload_status",
+      "mcp__unity-editor-mcp__script_recompile_status",
+      "mcp__unity-editor-mcp__settings_audio_get",
+      "mcp__unity-editor-mcp__settings_graphics_get",
+      "mcp__unity-editor-mcp__settings_input_get",
+      "mcp__unity-editor-mcp__settings_physics_get",
+      "mcp__unity-editor-mcp__settings_player_get",
+      "mcp__unity-editor-mcp__settings_quality_get",
+      "mcp__unity-editor-mcp__settings_runtime_pipeline_get",
+      "mcp__unity-editor-mcp__settings_tags_layers_get",
+      "mcp__unity-editor-mcp__settings_time_get",
+      "mcp__unity-editor-mcp__test_list",
+      "mcp__unity-editor-mcp__test_status",
+      "Bash(git status *)",
+      "Bash(git status)",
+      "Bash(git log *)",
+      "Bash(git diff *)",
+      "Bash(git diff)",
+      "Bash(git branch *)",
+      "Bash(git show *)",
+      "Bash(git rev-parse *)",
+      "Bash(git revert *)",
+      "Bash(git add *)",
+      "Bash(git add)",
+      "Bash(git commit *)",
+      "Bash(git commit)"
+    ],
+    "deny": [
+      "Bash(git commit --no-verify*)",
+      "Bash(git push *)",
+      "Bash(git push)",
+      "Bash(git rebase -i*)",
+      "Bash(git reset --hard*)",
+      "Bash(git checkout -- *)",
+      "Bash(git clean -f*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-init.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/response-remind.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/check-suffix-hint.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/notify-user.sh",
+            "timeout": 15,
+            "async": true
+          }
+        ]
+      }
+    ]
+  }
+}
