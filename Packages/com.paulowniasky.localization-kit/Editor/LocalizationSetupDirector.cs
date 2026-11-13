@@ -78,6 +78,7 @@ namespace PaulowniaSky.LocalizationKit
             EnsureFolders(setup.OutputFolder);
             // 활성 Localization 설정
             var settings = EnsureSettings(setup, log);
+            EnsureFallbackEnabled(settings, log);
             // 셋업 목록 순서의 Locale
             var locales = EnsureLocales(setup, log);
             EnsureSelectors(settings, setup, log);
@@ -171,6 +172,25 @@ namespace PaulowniaSky.LocalizationKit
             LocalizationEditorSettings.ActiveLocalizationSettings = settings;
             log.AppendLine($"Localization 설정 생성: {path}");
             return settings;
+        }
+        #endregion
+
+        #region EnsureFallbackEnabled - 번역이 없을 때 폴백 언어를 보게 켜기
+        /// <param name="settings">활성 Localization 설정</param>
+        /// <param name="log">실행 기록</param>
+        static void EnsureFallbackEnabled(LocalizationSettings settings, StringBuilder log)
+        {
+            // 문자열 테이블 데이터베이스 (기본값은 폴백 꺼짐이라 Locale 폴백 메타데이터가 무시됨)
+            var stringDatabase = settings.GetStringDatabase();
+            // 에셋 테이블 데이터베이스 (문자열과 같은 규칙으로 맞춤)
+            var assetDatabase = settings.GetAssetDatabase();
+            if (stringDatabase.UseFallback && assetDatabase.UseFallback)
+                return;
+
+            stringDatabase.UseFallback = true;
+            assetDatabase.UseFallback = true;
+            EditorUtility.SetDirty(settings);
+            log.AppendLine("폴백 켬: 번역이 없으면 Locale 폴백 순서대로 찾음");
         }
         #endregion
 
