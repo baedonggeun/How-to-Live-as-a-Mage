@@ -80,3 +80,9 @@ crashlytics-build.properties
 # OS
 .DS_Store
 Thumbs.db
+
+# 개인 에디터 도구 (Asset Store, 레포에 안 올림)
+/[Aa]ssets/vFolders/
+/[Aa]ssets/vFolders.meta
+/[Aa]ssets/vTabs/
+/[Aa]ssets/vTabs.meta
