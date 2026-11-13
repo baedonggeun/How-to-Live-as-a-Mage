@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 779a65c037339c1459ea4a02d1ba978a, type: 3}
+  m_Name: LocalizationSetup
+  m_EditorClassIdentifier: PaulowniaSky.LocalizationKit.Editor::PaulowniaSky.LocalizationKit.LocalizationSetupSO
+  m_SourceLocaleCode: ko
+  m_FallbackLocaleCode: en
+  m_Locales:
+  - m_Code: ko
+    m_NativeName: "\uD55C\uAD6D\uC5B4"
+    m_Font: {fileID: 12800000, guid: 7726efe8163f6a042a6b671b97b154f4, type: 3}
+  - m_Code: en
+    m_NativeName: English
+    m_Font: {fileID: 12800000, guid: 5f84c6c1655e21f43a8bc9c738875a6c, type: 3}
+  - m_Code: ja
+    m_NativeName: "\u65E5\u672C\u8A9E"
+    m_Font: {fileID: 12800000, guid: 1b2c99b10f2dc8641ae4a8142dc24229, type: 3}
+  - m_Code: zh-Hans
+    m_NativeName: "\u7B80\u4F53\u4E2D\u6587"
+    m_Font: {fileID: 12800000, guid: ed3c37995e916224d88d2f6e9b62ccc0, type: 3}
+  - m_Code: zh-Hant
+    m_NativeName: "\u7E41\u9AD4\u4E2D\u6587"
+    m_Font: {fileID: 12800000, guid: 5b92c1100391ab14a8dce5fd1189db95, type: 3}
+  - m_Code: ru
+    m_NativeName: "\u0420\u0443\u0441\u0441\u043A\u0438\u0439"
+    m_Font: {fileID: 12800000, guid: 5f84c6c1655e21f43a8bc9c738875a6c, type: 3}
+  - m_Code: de
+    m_NativeName: Deutsch
+    m_Font: {fileID: 12800000, guid: 5f84c6c1655e21f43a8bc9c738875a6c, type: 3}
+  - m_Code: fr
+    m_NativeName: "Fran\xE7ais"
+    m_Font: {fileID: 12800000, guid: 5f84c6c1655e21f43a8bc9c738875a6c, type: 3}
+  - m_Code: es
+    m_NativeName: "Espa\xF1ol"
+    m_Font: {fileID: 12800000, guid: 5f84c6c1655e21f43a8bc9c738875a6c, type: 3}
+  - m_Code: pt-BR
+    m_NativeName: "Portugu\xEAs (Brasil)"
+    m_Font: {fileID: 12800000, guid: 5f84c6c1655e21f43a8bc9c738875a6c, type: 3}
+  - m_Code: it
+    m_NativeName: Italiano
+    m_Font: {fileID: 12800000, guid: 5f84c6c1655e21f43a8bc9c738875a6c, type: 3}
+  - m_Code: pl
+    m_NativeName: Polski
+    m_Font: {fileID: 12800000, guid: 5f84c6c1655e21f43a8bc9c738875a6c, type: 3}
+  - m_Code: tr
+    m_NativeName: "T\xFCrk\xE7e"
+    m_Font: {fileID: 12800000, guid: 5f84c6c1655e21f43a8bc9c738875a6c, type: 3}
+  m_OutputFolder: Assets/Localization
+  m_StringTableName: UI

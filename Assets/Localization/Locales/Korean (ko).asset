@@ -15,11 +15,16 @@ MonoBehaviour:
   m_Identifier:
     m_Code: ko
   m_Metadata:
-    m_Items: []
+    m_Items:
+    - rid: 2778219889286185441
   m_LocaleName: Korean (ko)
   m_CustomFormatCultureCode: 
   m_UseCustomFormatter: 0
-  m_SortOrder: 1
+  m_SortOrder: 0
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 2778219889286185441
+      type: {class: LocaleNativeNameEntry, ns: PaulowniaSky.LocalizationKit, asm: PaulowniaSky.LocalizationKit}
+      data:
+        m_Name: "\uD55C\uAD6D\uC5B4"

@@ -15,11 +15,21 @@ MonoBehaviour:
   m_Identifier:
     m_Code: ja
   m_Metadata:
-    m_Items: []
+    m_Items:
+    - rid: 2778219889286185435
+    - rid: 2778219889286185436
   m_LocaleName: Japanese (ja)
   m_CustomFormatCultureCode: 
   m_UseCustomFormatter: 0
   m_SortOrder: 2
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 2778219889286185435
+      type: {class: LocaleNativeNameEntry, ns: PaulowniaSky.LocalizationKit, asm: PaulowniaSky.LocalizationKit}
+      data:
+        m_Name: "\u65E5\u672C\u8A9E"
+    - rid: 2778219889286185436
+      type: {class: FallbackLocale, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Locale: {fileID: 11400000, guid: 88bb9ad830dde244dbda3daef6b38758, type: 2}

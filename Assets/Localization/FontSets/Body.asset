@@ -20,3 +20,36 @@ MonoBehaviour:
   - m_LocaleCode: ja
     m_Font: {fileID: 11400000, guid: fb429a0a2723ddf42963f88de33b633b, type: 2}
     m_Material: {fileID: 0}
+  - m_LocaleCode: en
+    m_Font: {fileID: 11400000, guid: 2cc9700ca606eaa49ba0a732468327f2, type: 2}
+    m_Material: {fileID: 0}
+  - m_LocaleCode: zh-Hans
+    m_Font: {fileID: 11400000, guid: 5664785d683253f4bbae3e06b9a30598, type: 2}
+    m_Material: {fileID: 0}
+  - m_LocaleCode: zh-Hant
+    m_Font: {fileID: 11400000, guid: 48dcca5ab167a9f4fb444059f42348e3, type: 2}
+    m_Material: {fileID: 0}
+  - m_LocaleCode: ru
+    m_Font: {fileID: 11400000, guid: 2cc9700ca606eaa49ba0a732468327f2, type: 2}
+    m_Material: {fileID: 0}
+  - m_LocaleCode: de
+    m_Font: {fileID: 11400000, guid: 2cc9700ca606eaa49ba0a732468327f2, type: 2}
+    m_Material: {fileID: 0}
+  - m_LocaleCode: fr
+    m_Font: {fileID: 11400000, guid: 2cc9700ca606eaa49ba0a732468327f2, type: 2}
+    m_Material: {fileID: 0}
+  - m_LocaleCode: es
+    m_Font: {fileID: 11400000, guid: 2cc9700ca606eaa49ba0a732468327f2, type: 2}
+    m_Material: {fileID: 0}
+  - m_LocaleCode: pt-BR
+    m_Font: {fileID: 11400000, guid: 2cc9700ca606eaa49ba0a732468327f2, type: 2}
+    m_Material: {fileID: 0}
+  - m_LocaleCode: it
+    m_Font: {fileID: 11400000, guid: 2cc9700ca606eaa49ba0a732468327f2, type: 2}
+    m_Material: {fileID: 0}
+  - m_LocaleCode: pl
+    m_Font: {fileID: 11400000, guid: 2cc9700ca606eaa49ba0a732468327f2, type: 2}
+    m_Material: {fileID: 0}
+  - m_LocaleCode: tr
+    m_Font: {fileID: 11400000, guid: 2cc9700ca606eaa49ba0a732468327f2, type: 2}
+    m_Material: {fileID: 0}
