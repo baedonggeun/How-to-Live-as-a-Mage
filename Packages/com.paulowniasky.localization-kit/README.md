@@ -7,6 +7,7 @@ Unity Localization(`com.unity.localization`) 위에 얹는 다국어 키트.
 - 언어별 폰트 교체
 - 언어 선택 드롭다운 (샘플 프리팹)
 - 누락 번역·누락 글자 검사
+- 언어 순서는 Project Settings > Localization > Available Locales에서 드래그로 바꿈. 셋업 메뉴는 새로 만드는 언어만 기존 언어 뒤에 붙임
 - Dynamic 폰트 에셋은 저장 직전에 아틀라스를 비움 (Clear Dynamic Data On Build가 켜진 것만). 에디터에서 그린 글자가 파일에 안 남아서 git diff가 생기지 않음
 
 ## 설치

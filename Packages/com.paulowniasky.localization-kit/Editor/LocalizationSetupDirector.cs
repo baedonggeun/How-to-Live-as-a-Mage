@@ -194,7 +194,7 @@ namespace PaulowniaSky.LocalizationKit
         }
         #endregion
 
-        #region EnsureLocales - 언어마다 Locale 만들기, 순서·표시 이름·폴백 맞추기
+        #region EnsureLocales - 언어마다 Locale 만들기, 새 Locale 순서·표시 이름·폴백 맞추기
         /// <param name="setup">셋업 값</param>
         /// <param name="log">실행 기록</param>
         /// <returns>셋업 목록 순서의 Locale</returns>
@@ -202,6 +202,8 @@ namespace PaulowniaSky.LocalizationKit
         {
             // 셋업 목록 순서의 Locale
             var locales = new List<Locale>();
+            // 이번 실행에서 새로 만든 Locale (순서는 이것만 정함. 기존 순서는 Project Settings에서 바꾼 대로 둠)
+            var created = new HashSet<Locale>();
             foreach (var entry in setup.Locales)
             {
                 // 이미 있는 이 코드의 Locale (없으면 null)
@@ -217,10 +219,14 @@ namespace PaulowniaSky.LocalizationKit
                     var path = $"{setup.OutputFolder}/Locales/{locale.LocaleName}.asset";
                     AssetDatabase.CreateAsset(locale, path);
                     LocalizationEditorSettings.AddLocale(locale);
+                    created.Add(locale);
                     log.AppendLine($"Locale 생성: {path}");
                 }
                 locales.Add(locale);
             }
+
+            // 새 Locale이 받을 순서 (기존 Locale 맨 뒤부터 셋업 목록 순서대로)
+            var nextOrder = NextSortOrder(created);
 
             // 원문 언어 Locale (최종 폴백)
             var source = locales[setup.IndexOf(setup.SourceLocaleCode)];
@@ -237,9 +243,9 @@ namespace PaulowniaSky.LocalizationKit
 
                 // 이번에 바뀐 게 있는지
                 var changed = false;
-                if (locale.SortOrder != (ushort)i)
+                if (created.Contains(locale))
                 {
-                    locale.SortOrder = (ushort)i;
+                    locale.SortOrder = nextOrder++;
                     changed = true;
                 }
                 changed |= SetNativeName(locale, entry.NativeName);
@@ -248,9 +254,25 @@ namespace PaulowniaSky.LocalizationKit
                 if (!changed)
                     continue;
                 EditorUtility.SetDirty(locale);
-                log.AppendLine($"Locale 갱신: {entry.Code} (순서 {i}, 표시 이름 {entry.NativeName}, 폴백 {(target != null ? target.Identifier.Code : "없음")})");
+                log.AppendLine($"Locale 갱신: {entry.Code} (순서 {locale.SortOrder}, 표시 이름 {entry.NativeName}, 폴백 {(target != null ? target.Identifier.Code : "없음")})");
             }
             return locales;
+        }
+        #endregion
+
+        #region NextSortOrder - 새 Locale이 받을 첫 순서
+        /// <param name="created">이번 실행에서 새로 만든 Locale</param>
+        /// <returns>기존 Locale의 가장 뒤 순서 + 1. 기존 Locale이 없으면 0</returns>
+        static ushort NextSortOrder(HashSet<Locale> created)
+        {
+            // 기존 Locale 중 가장 뒤 순서 (없으면 -1)
+            var last = -1;
+            foreach (var locale in LocalizationEditorSettings.GetLocales())
+            {
+                if (!created.Contains(locale) && locale.SortOrder > last)
+                    last = locale.SortOrder;
+            }
+            return (ushort)Math.Min(last + 1, ushort.MaxValue);
         }
         #endregion
 

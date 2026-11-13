@@ -20,7 +20,7 @@ namespace PaulowniaSky.LocalizationKit
         /// <summary>번역 없는 언어가 먼저 볼 언어 코드. OS 언어로 못 정할 때 시작 언어도 이것</summary>
         [SerializeField] string m_FallbackLocaleCode = "en";
 
-        /// <summary>셋업할 언어 목록. 이 순서가 언어 선택 UI 순서</summary>
+        /// <summary>셋업할 언어 목록. 새로 만드는 언어는 이 순서로 붙음 (이후 순서는 Project Settings > Localization에서 바꿈)</summary>
         [SerializeField] List<LocaleSetupEntry> m_Locales = new List<LocaleSetupEntry>();
 
         /// <summary>설정·Locale·테이블·폰트 에셋을 만들 폴더 (Assets/ 아래)</summary>
