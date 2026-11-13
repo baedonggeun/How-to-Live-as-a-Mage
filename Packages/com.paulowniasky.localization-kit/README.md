@@ -40,8 +40,15 @@ Unity Localization(`com.unity.localization`) 위에 얹는 다국어 키트.
 - `Group '...' has bundle naming style 'OnlyHash' ...` (Localization이 띄움): Addressables가 Windows 경로 길이 제한을 피하려고 일부러 해시만 쓴 짧은 이름(OnlyHash)을 씀. 경고 문구의 "긴 파일 이름"은 OnlyHash에 해당 안 됨
 
 ## 설치
-지금은 How-to-Live-as-a-Mage 안에서 embedded 패키지로 개발 중. 분리 후엔 git URL로 설치.
-폰트가 Git LFS라서 받는 PC에 git-lfs 필요.
+1. git-lfs 설치 (폰트가 Git LFS). 비공개 레포라 이 레포에 접근되는 GitHub 계정으로 git 로그인돼 있어야 함
+2. Package Manager > + > Install package from git URL:
+   `https://github.com/baedonggeun/paulowniasky-localization-kit.git#v0.1.0`
+   (또는 `Packages/manifest.json` dependencies에 `"com.paulowniasky.localization-kit": "https://github.com/baedonggeun/paulowniasky-localization-kit.git#v0.1.0"`)
+3. Tools > PaulowniaSky > Localization Kit > Setup Project. TMP 기본 리소스가 없으면 먼저 임포트하니까 끝나면 한 번 더 실행
+
+## 개발
+원본은 How-to-Live-as-a-Mage 레포의 `Packages/com.paulowniasky.localization-kit` (embedded). 고친 뒤 그 레포에서 `git subtree push --prefix=Packages/com.paulowniasky.localization-kit kit main` → 새 버전 태그.
+이 레포에 직접 커밋하면 subtree push가 막힘.
 
 ## 폰트 라이선스
 `Fonts/`의 Noto 폰트는 SIL Open Font License 1.1. 라이선스 파일 동봉.
