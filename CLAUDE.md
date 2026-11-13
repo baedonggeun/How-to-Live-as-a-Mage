@@ -32,6 +32,17 @@
 - **자가 점검**: 새 클래스 작성/리네이밍 시 위 표 자가 점검. 위배 시 명명/책임 재배치 후 진행
 - **신규 접미사 도입**: 위 표 외 접미사가 필요하면 본 표 확장. 즉흥 명명 금지
 
+## 다국어 (PaulowniaSky Localization Kit)
+- 화면에 보이는 글자 하드코딩 금지 (코드·프리팹·SO). String Table 키로만 넣음
+- UI 텍스트: `Assets/Localization/Prefabs/LocalizedText.prefab` (키 연결 + 언어별 폰트 교체 포함)
+- SO·컴포넌트의 표시용 문자열 필드: `string` 대신 `LocalizedString`
+- 키: `{영역}.{대상}[.{속성}]`, 소문자·`_` (예: `common.confirm`, `item.heal_potion.name`, `quest.forest_01.desc`)
+- 문장 속 값은 자리표시자(`{0}`)로. 문자열 이어 붙이기 금지 (언어마다 어순이 다름). 이름 자리표시자(`{gold}`)·복수형은 그 항목 Smart 켬
+- 비교·파싱·키 조합: `StringComparison.Ordinal`, `CultureInfo.InvariantCulture` (터키어 i 같은 문화권 차이 방지)
+- 텍스트 원본: `Assets/Localization/CSV/{테이블 이름}.csv`. 고친 뒤 `Tools > PaulowniaSky > Localization Kit > Import Tables from CSV` → Check Missing Translations·Check Missing Glyphs. 테이블 창에서 직접 고쳤으면 Export Tables to CSV로 CSV도 맞춤
+- 언어 선택 UI: 키트 샘플(Package Manager > Samples > Language Dropdown)을 가져와서 꾸밈
+- 키트: `Packages/com.paulowniasky.localization-kit/` (embedded). 사용법은 그 README
+
 ## 응답 규칙 (항상 적용)
 
 ### 말투
