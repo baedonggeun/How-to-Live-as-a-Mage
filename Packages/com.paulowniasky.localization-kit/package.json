@@ -1,0 +1,14 @@
+{
+  "name": "com.paulowniasky.localization-kit",
+  "version": "0.1.0",
+  "displayName": "PaulowniaSky Localization Kit",
+  "description": "Unity Localization 위에 얹는 다국어 키트. 셋업 자동화, 언어별 폰트 교체, 언어 선택 드롭다운, 누락 검사.",
+  "unity": "6000.3",
+  "author": {
+    "name": "PaulowniaSky"
+  },
+  "dependencies": {
+    "com.unity.localization": "1.5.14",
+    "com.unity.ugui": "2.0.0"
+  }
+}

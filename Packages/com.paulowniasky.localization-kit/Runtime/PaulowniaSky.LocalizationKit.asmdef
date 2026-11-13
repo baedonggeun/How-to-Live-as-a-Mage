@@ -1,0 +1,11 @@
+{
+    "name": "PaulowniaSky.LocalizationKit",
+    "rootNamespace": "PaulowniaSky.LocalizationKit",
+    "references": [
+        "Unity.Localization",
+        "Unity.ResourceManager",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
+    ],
+    "autoReferenced": true
+}

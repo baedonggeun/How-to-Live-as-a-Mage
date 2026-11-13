@@ -1,0 +1,23 @@
+{
+    "name": "PaulowniaSky.LocalizationKit.Tests.Editor",
+    "rootNamespace": "PaulowniaSky.LocalizationKit.Tests",
+    "references": [
+        "PaulowniaSky.LocalizationKit",
+        "PaulowniaSky.LocalizationKit.Editor",
+        "Unity.Localization",
+        "Unity.TextMeshPro",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ]
+}
