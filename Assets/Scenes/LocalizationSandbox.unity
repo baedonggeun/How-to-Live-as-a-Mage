@@ -395,6 +395,7 @@ GameObject:
   - component: {fileID: 599331786}
   - component: {fileID: 599331785}
   - component: {fileID: 599331784}
+  - component: {fileID: 599331787}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -561,6 +562,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 599331782}
   m_CullTransparentMesh: 1
+--- !u!114 &599331787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 599331782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12a7aaab2beca8c4eb37e1264478af7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PaulowniaSky.LocalizationKit::PaulowniaSky.LocalizationKit.LocaleFontUIBinder
+  m_FontSet: {fileID: 11400000, guid: e92b8e311d1b8cc47981c5075addb3ef, type: 2}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
