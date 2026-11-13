@@ -18,15 +18,18 @@ MonoBehaviour:
   - m_Id: 52668563456
     m_Key: common.confirm
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 2778219889286185479
   - m_Id: 58301513728
     m_Key: common.cancel
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 2778219889286185480
   - m_Id: 62218993664
     m_Key: common.loading
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 2778219889286185481
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
@@ -38,3 +41,15 @@ MonoBehaviour:
       type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
       data:
         m_CustomEpoch: 1794547119128
+    - rid: 2778219889286185479
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD655\uC778 \uBC84\uD2BC"
+    - rid: 2778219889286185480
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uCDE8\uC18C \uBC84\uD2BC"
+    - rid: 2778219889286185481
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uBD88\uB7EC\uC624\uB294 \uC911 \uD45C\uC2DC"
