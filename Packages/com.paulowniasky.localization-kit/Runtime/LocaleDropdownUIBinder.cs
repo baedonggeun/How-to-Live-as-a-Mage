@@ -73,7 +73,7 @@ namespace PaulowniaSky.LocalizationKit
             // 드롭다운에 보일 언어 이름
             var names = new List<string>(locales.Count);
             foreach (var locale in locales)
-                names.Add(locale.LocaleName);
+                names.Add(GetDisplayName(locale));
 
             m_Dropdown.ClearOptions();
             m_Dropdown.AddOptions(names);
@@ -119,6 +119,17 @@ namespace PaulowniaSky.LocalizationKit
             var index = LocalizationSettings.AvailableLocales.Locales.IndexOf(locale);
             if (index >= 0)
                 m_Dropdown.SetValueWithoutNotify(index);
+        }
+        #endregion
+
+        #region GetDisplayName - 언어 목록에 보일 이름
+        /// <summary>셋업 메뉴가 붙인 그 언어 글자 이름(LocaleNativeNameEntry). 없으면 Locale 이름</summary>
+        /// <param name="locale">이름을 얻을 언어</param>
+        static string GetDisplayName(Locale locale)
+        {
+            // 그 언어 글자 이름 메타데이터 (없으면 null)
+            var nativeName = locale.Metadata.GetMetadata<LocaleNativeNameEntry>();
+            return nativeName != null && !string.IsNullOrEmpty(nativeName.Name) ? nativeName.Name : locale.LocaleName;
         }
         #endregion
     }
