@@ -28,6 +28,14 @@ Unity Localization(`com.unity.localization`) 위에 얹는 다국어 키트.
 5. 엑셀은 "CSV UTF-8(쉼표로 분리)"로 저장. 그냥 "CSV"는 한글이 깨짐
 6. 가져온 뒤 Check Missing Glyphs로 폰트에 없는 글자 확인
 
+## 샘플: 언어 선택 드롭다운
+1. Package Manager > PaulowniaSky Localization Kit > Samples > Language Dropdown > Import
+2. `Assets/Samples/PaulowniaSky Localization Kit/{버전}/Language Dropdown/LanguageDropdown.prefab`을 Canvas 아래에 놓음
+3. 스프라이트·색·크기·폰트를 게임 UI에 맞게 바꿈. 같은 오브젝트의 `LocaleDropdownUIBinder`만 남기면 됨
+- 언어 이름은 그 언어로 표시 (Locale의 Native Name 메타데이터)
+- 폰트는 비워 둠 → 프로젝트의 TMP 기본 폰트를 씀. 목록의 다른 문자는 TMP 전역 폴백 폰트로 그림
+- 씬에 EventSystem 필요 (Input System이면 Input System UI Input Module)
+
 ## 무시해도 되는 경고
 - `Group '...' has bundle naming style 'OnlyHash' ...` (Localization이 띄움): Addressables가 Windows 경로 길이 제한을 피하려고 일부러 해시만 쓴 짧은 이름(OnlyHash)을 씀. 경고 문구의 "긴 파일 이름"은 OnlyHash에 해당 안 됨
 

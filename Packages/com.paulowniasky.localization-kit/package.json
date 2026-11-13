@@ -10,5 +10,12 @@
   "dependencies": {
     "com.unity.localization": "1.5.14",
     "com.unity.ugui": "2.0.0"
-  }
+  },
+  "samples": [
+    {
+      "displayName": "Language Dropdown",
+      "description": "언어 선택 드롭다운 프리팹 (TMP 기본 드롭다운 + LocaleDropdownUIBinder). 가져와서 게임 UI에 맞게 꾸며 씀.",
+      "path": "Samples~/LanguageDropdown"
+    }
+  ]
 }

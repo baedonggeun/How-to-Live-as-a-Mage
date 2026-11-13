@@ -9,3 +9,4 @@
 - 저장 직전 Dynamic 폰트 아틀라스 비우기 (`DynamicFontSaveHandler`)
 - CSV 내보내기·가져오기 (`LocalizationCsvDirector`)
 - 누락 번역·누락 글자 검사 (`MissingTranslationDetector`, `GlyphCoverageDetector`)
+- 샘플: 언어 선택 드롭다운 프리팹 (`Samples~/LanguageDropdown`)
