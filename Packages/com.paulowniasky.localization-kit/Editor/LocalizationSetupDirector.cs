@@ -99,7 +99,7 @@ namespace PaulowniaSky.LocalizationKit
 
         #region FindOrCreateSetup - 셋업 값 에셋 찾기, 없으면 기본값으로 만들기
         /// <returns>프로젝트의 셋업 값 에셋</returns>
-        static LocalizationSetupSO FindOrCreateSetup()
+        internal static LocalizationSetupSO FindOrCreateSetup()
         {
             // 프로젝트에 있는 셋업 값 에셋 GUID
             var guids = AssetDatabase.FindAssets($"t:{nameof(LocalizationSetupSO)}");
