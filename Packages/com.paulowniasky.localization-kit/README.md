@@ -2,6 +2,8 @@
 
 Unity Localization(`com.unity.localization`) 위에 얹는 다국어 키트.
 
+자세한 사용법: [설명서](Documentation~/index.md)
+
 ## 기능 (v0.1)
 - 셋업 메뉴: 설정·언어·테이블·폰트 에셋·TMP 설정·텍스트 프리팹 한 번에 생성
 - 언어별 폰트 교체

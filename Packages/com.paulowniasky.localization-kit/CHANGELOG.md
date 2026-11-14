@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+### 추가
+- 설명서 (`Documentation~/index.md`)
+
 ## [0.1.0] - 2026-11-13
 ### 추가
 - 패키지 뼈대, Noto 폰트 5종
