@@ -39,7 +39,7 @@
 - 키: `{영역}.{대상}[.{속성}]`, 소문자·`_` (예: `common.confirm`, `item.heal_potion.name`, `quest.forest_01.desc`)
 - 문장 속 값은 자리표시자(`{0}`)로. 문자열 이어 붙이기 금지 (언어마다 어순이 다름). 이름 자리표시자(`{gold}`)·복수형은 그 항목 Smart 켬
 - 비교·파싱·키 조합: `StringComparison.Ordinal`, `CultureInfo.InvariantCulture` (터키어 i 같은 문화권 차이 방지)
-- 텍스트 원본: `Assets/Localization/CSV/{테이블 이름}.csv`. 고친 뒤 `Tools > PaulowniaSky > Localization Kit > Import Tables from CSV` → Check Missing Translations·Check Missing Glyphs. 테이블 창에서 직접 고쳤으면 Export Tables to CSV로 CSV도 맞춤
+- 텍스트 원본: Google 시트 'How to Live as a Mage Localization' (탭 하나 = String Table 하나, 탭 이름 = 테이블 이름). 고친 뒤 탭을 CSV로 받아 `Assets/Localization/CSV/{테이블 이름}.csv`에 덮어씀 → `Tools > PaulowniaSky > Localization Kit > Import Tables from CSV` → Check Missing Translations·Check Missing Glyphs. CSV·테이블 창은 직접 고치지 않음 (고쳤으면 시트에도 옮김)
 - 언어 선택 UI: 키트 샘플(Package Manager > Samples > Language Dropdown)을 가져와서 꾸밈
 - 키트: `Packages/com.paulowniasky.localization-kit/` (embedded). 사용법은 그 README
 
