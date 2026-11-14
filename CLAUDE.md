@@ -18,7 +18,7 @@
 ### UI 4축
 | Suffix | Role | Examples |
 |--------|------|----------|
-| **View** | prefab 자식 참조 dumb holder (로직 없음) | QueueSlotView, EnemyStatusItemView |
+| **View** | prefab 자식 참조 dumb holder (로직 없음). 필드는 `[SerializeField] private` + 읽기 전용 프로퍼티 | QueueSlotView, EnemyStatusItemView |
 | **UIBinder** | UI 데이터 바인딩 (이벤트 → UI) | InventoryUIBinder, QueueUIBinder |
 | **Controller** | 로직 위주 (연출 혼합 허용) | PlayerTurnController, GachaController |
 | **Sequence** | 순수 연출 (비즈니스 로직 없음) | MapSequence, SynergyCounterShakeSequence |

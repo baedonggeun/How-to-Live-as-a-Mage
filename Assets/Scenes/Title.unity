@@ -151,7 +151,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff965a3fba0fc044a96e7c90a5c61a55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Mage::Mage.TitleView
-  NewGameButton: {fileID: 1275651253}
+  _newGameButton: {fileID: 1275651253}
 --- !u!114 &148810003
 MonoBehaviour:
   m_ObjectHideFlags: 0

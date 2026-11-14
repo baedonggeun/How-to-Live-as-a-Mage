@@ -151,8 +151,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a94da1d089173294dae779e29a4aee18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Mage::Mage.CharacterCreationView
-  NameInput: {fileID: 1365553493}
-  ConfirmButton: {fileID: 1275651253}
+  _nameInput: {fileID: 1365553493}
+  _confirmButton: {fileID: 1275651253}
 --- !u!114 &148810003
 MonoBehaviour:
   m_ObjectHideFlags: 0

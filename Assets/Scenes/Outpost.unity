@@ -761,9 +761,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 473bb6ef04af18546bc1d1f37c2c5b2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Mage::Mage.HubView
-  PartyText: {fileID: 1782808363}
-  RecruitButton: {fileID: 665481887}
-  DepartButton: {fileID: 1088141642}
+  _partyText: {fileID: 1782808363}
+  _recruitButton: {fileID: 665481887}
+  _departButton: {fileID: 1088141642}
 --- !u!114 &1754835600
 MonoBehaviour:
   m_ObjectHideFlags: 0

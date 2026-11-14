@@ -376,7 +376,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2b15226a9b73684ea6a0315b05e885a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Mage::Mage.FieldDebugView
-  InfoText: {fileID: 520547762}
+  _infoText: {fileID: 520547762}
 --- !u!114 &939134347
 MonoBehaviour:
   m_ObjectHideFlags: 0
