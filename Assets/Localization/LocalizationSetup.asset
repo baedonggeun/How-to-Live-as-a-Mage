@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 779a65c037339c1459ea4a02d1ba978a, type: 3}
   m_Name: LocalizationSetup
   m_EditorClassIdentifier: PaulowniaSky.LocalizationKit.Editor::PaulowniaSky.LocalizationKit.LocalizationSetupSO
-  m_SourceLocaleCode: ko
+  m_SourceLocaleCode: en
   m_FallbackLocaleCode: en
   m_Locales:
   - m_Code: ko
