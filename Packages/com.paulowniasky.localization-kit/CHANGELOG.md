@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.1.1] - 2026-11-14
 ### 추가
 - 설명서 (`Documentation~/index.md`)
 
