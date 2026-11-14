@@ -5,7 +5,69 @@ Unity Localization(`com.unity.localization`) 위에 얹는 다국어 키트 사�
 - 필요: Unity 6000.3 이상. Localization 1.5.14와 uGUI(TextMeshPro) 2.0.0은 의존성으로 같이 들어옴
 - 메뉴는 전부 `Tools > PaulowniaSky > Localization Kit` 아래
 - 경로는 출력 폴더 기본값(`Assets/Localization`) 기준
-- 처음이면 1 → 2 → 3 순서로 봄
+- 처음이면 '처음 쓰는 법'만 따라 하면 됨. 1~10장은 자세한 설명
+
+## 처음 쓰는 법
+"확인" 버튼 글자 하나를 처음부터 끝까지 만드는 순서. 이것만 따라 하면 기본은 다 됨.
+
+**이 키트가 하는 일**: 화면 글자마다 이름표(키)를 붙이고, 이름표마다 언어별 번역을 적어 둠. 그러면 게임이 고른 언어에 맞게 글자와 폰트를 알아서 바꿈.
+
+### 처음 한 번만
+**1. 설치**
+- 먼저 git-lfs를 설치하고 GitHub에 로그인 (키트 레포가 비공개라서)
+- Window > Package Manager → 왼쪽 위 **+** → **Install package from git URL** → 아래 주소 넣고 Install
+  `https://github.com/baedonggeun/paulowniasky-localization-kit.git#v0.1.1`
+
+**2. 셋업**
+- 메뉴 **Tools > PaulowniaSky > Localization Kit > Setup Project** 클릭
+- 중간에 멈추면 한 번 더 클릭 (처음엔 TMP 기본 파일부터 깔고 멈춤)
+- 끝나면 `Assets/Localization` 폴더가 생김. 13개 언어와 언어별 폰트까지 준비됨
+
+### 글자 하나 넣어 보기
+**3. 번역 적기**
+- 같은 메뉴의 **Export Tables to CSV** → `Assets/Localization/CSV/UI.csv`가 생김
+- 엑셀로 열어서 줄 하나 추가
+
+  | Key | ko | en | ja |
+  |---|---|---|---|
+  | common.confirm | 확인 | Confirm | 確認 |
+
+  - Key는 글자 이름표. 소문자로 `어디.무엇` 모양 (예: `common.confirm`, `shop.title`)
+  - 모르는 언어 칸은 비워 둬도 됨. 그 언어에선 영어로 보임
+  - Comment 칸은 번역하는 사람용 메모라 비워도 됨
+- **CSV UTF-8**로 저장 (그냥 CSV로 저장하면 한글이 깨짐) → 메뉴 **Import Tables from CSV**
+- 구글 시트에서 작업하면: 파일 > 다운로드 > CSV로 받고, 이름을 `UI.csv`로 바꿔 `Assets/Localization/CSV/`에 덮어씀 → Import
+
+**4. 화면에 놓기**
+- `Assets/Localization/Prefabs/LocalizedText`를 Canvas 안에 끌어다 놓음
+- Inspector의 **Localize String Event** > String Reference에서 `UI` → `common.confirm` 고름
+
+**5. 확인**
+- Play 누르면 글자가 나옴
+- Game 뷰 위쪽 툴바의 언어 메뉴에서 **English (en)**을 고르면 "Confirm"으로 바뀜. 폰트도 같이 바뀜
+
+### 플레이어가 언어 고르게 하기
+**6. 언어 선택 드롭다운**
+- Package Manager → PaulowniaSky Localization Kit → **Samples** → Language Dropdown → **Import**
+- 가져온 `LanguageDropdown` 프리팹을 Canvas 안에 놓으면 끝
+- 처음 켜면 컴퓨터 언어로 시작함. 플레이어가 고른 언어는 다음 실행 때도 기억함
+
+### 번역 고칠 때마다
+**7. 검사**
+- **Check Missing Translations**: 번역이 빠진 칸을 알려 줌
+- **Check Missing Glyphs**: 폰트에 없어서 □로 나올 글자를 알려 줌
+
+### 지킬 것 3개
+- 화면 글자는 직접 치지 말고 항상 LocalizedText 프리팹과 키로 넣음
+- 번역 원본은 CSV. CSV를 고쳤으면 Import
+- 문장에 숫자 같은 값이 들어가면 `{0}`을 씀 (예: `{0} 골드`). 문장을 `+`로 이어 붙이지 않음. 언어마다 어순이 달라서
+
+### 헷갈리기 쉬운 것
+- 프리팹 **파일**을 복사하는 게 아님. 같은 LocalizedText를 씬에 여러 번 놓고, 놓은 것마다 키만 다르게 고름 (씬에서 Ctrl+D로 복제해도 됨)
+- CSV 파일 하나 = 테이블 하나. 새 파일(`Item.csv` 등)은 같은 이름의 테이블을 먼저 만들어야 Import에 들어감 (3장 "테이블 추가")
+- 구글 시트는 탭 하나 = 테이블 하나. 탭 이름을 테이블 이름으로 맞춰 두면 안 헷갈림
+
+자세한 건 아래 1~10장.
 
 ## 1. 설치·셋업
 
