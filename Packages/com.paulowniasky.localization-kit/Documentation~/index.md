@@ -16,7 +16,7 @@ Unity Localization(`com.unity.localization`) 위에 얹는 다국어 키트 사�
 **1. 설치**
 - 먼저 git-lfs를 설치하고 GitHub에 로그인 (키트 레포가 비공개라서)
 - Window > Package Manager → 왼쪽 위 **+** → **Install package from git URL** → 아래 주소 넣고 Install
-  `https://github.com/baedonggeun/paulowniasky-localization-kit.git#v0.1.2`
+  `https://github.com/baedonggeun/paulowniasky-localization-kit.git#v0.1.3`
 
 **2. 셋업**
 - 메뉴 **Tools > PaulowniaSky > Localization Kit > Setup Project** 클릭
@@ -75,9 +75,9 @@ Unity Localization(`com.unity.localization`) 위에 얹는 다국어 키트 사�
 1. git-lfs 설치 (폰트가 Git LFS)
 2. 키트 레포가 비공개라, 이 레포에 접근되는 GitHub 계정으로 git 로그인
 3. Package Manager > + > Install package from git URL에 입력:
-   `https://github.com/baedonggeun/paulowniasky-localization-kit.git#v0.1.2`
-   - 또는 `Packages/manifest.json`의 dependencies에 `"com.paulowniasky.localization-kit": "https://github.com/baedonggeun/paulowniasky-localization-kit.git#v0.1.2"`
-   - 끝의 `#v0.1.2`이 버전 태그. 새 버전으로 올릴 땐 이 부분만 바꿈
+   `https://github.com/baedonggeun/paulowniasky-localization-kit.git#v0.1.3`
+   - 또는 `Packages/manifest.json`의 dependencies에 `"com.paulowniasky.localization-kit": "https://github.com/baedonggeun/paulowniasky-localization-kit.git#v0.1.3"`
+   - 끝의 `#v0.1.3`이 버전 태그. 새 버전으로 올릴 땐 이 부분만 바꿈
 
 ### 셋업
 1. Setup Project 실행

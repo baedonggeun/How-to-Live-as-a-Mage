@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.1.3] - 2026-11-16
 ### 고침
 - 에디터를 닫으면 Dynamic 폰트 에셋에 커닝·합자 기록이 남아 git diff가 생기던 문제. TMP가 종료 때 글자표·아틀라스만 비워서, 저장 직전 비우기가 이미 빈 걸로 보고 건너뛰었음 (`DynamicFontSaveHandler`)
 
