@@ -35,8 +35,8 @@ namespace PaulowniaSky.LocalizationKit
 
         #region ShouldClear - 비울 대상인지
         /// <param name="fontAsset">검사할 폰트 에셋</param>
-        /// <returns>Dynamic이고, 빌드 때 비우게 돼 있고, 그린 글자가 남아 있으면 true</returns>
-        static bool ShouldClear(TMP_FontAsset fontAsset)
+        /// <returns>Dynamic이고, 빌드 때 비우게 돼 있고, 그린 글자나 폰트 기능 기록이 남아 있으면 true</returns>
+        public static bool ShouldClear(TMP_FontAsset fontAsset)
         {
             if (fontAsset.atlasPopulationMode != AtlasPopulationMode.Dynamic
                 && fontAsset.atlasPopulationMode != AtlasPopulationMode.DynamicOS)
@@ -47,8 +47,18 @@ namespace PaulowniaSky.LocalizationKit
             if (clearOnBuild == null || !clearOnBuild.boolValue)
                 return false;
 
-            // 이미 비어 있으면 안 건드림 (비운 상태는 글리프 0개, 아틀라스 1×1)
-            return fontAsset.glyphTable.Count > 0 || (fontAsset.atlasTexture != null && fontAsset.atlasTexture.width > 1);
+            // 커닝·합자·mark 기록 표. TMP는 에디터 종료·빌드 때 글자표·아틀라스만 비워서 이 표만 남을 수 있음
+            var features = fontAsset.fontFeatureTable;
+            // 기록이 남았는지 (ClearFontAssetData가 비우는 4개만 봄)
+            var hasFeatures = features != null
+                && (features.glyphPairAdjustmentRecords?.Count > 0
+                    || features.ligatureRecords?.Count > 0
+                    || features.MarkToBaseAdjustmentRecords?.Count > 0
+                    || features.MarkToMarkAdjustmentRecords?.Count > 0);
+
+            // 이미 비어 있으면 안 건드림 (비운 상태는 글리프 0개, 기능 기록 0개, 아틀라스 1×1)
+            return fontAsset.glyphTable.Count > 0 || hasFeatures
+                || (fontAsset.atlasTexture != null && fontAsset.atlasTexture.width > 1);
         }
         #endregion
     }
