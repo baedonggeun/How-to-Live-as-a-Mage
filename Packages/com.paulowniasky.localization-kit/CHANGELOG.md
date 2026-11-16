@@ -4,6 +4,9 @@
 ### 추가
 - 셋업 값 Use System Locale. 끄면 처음 실행 때 OS 언어 대신 폴백 언어로 시작 (고른 언어는 계속 기억)
 
+### 고침
+- 원문 언어를 바꾼 뒤 Setup Project를 돌리면 새 기본 폰트가 TMP 전역 폴백에도 남던 문제 (`EnsureTmpSettings`)
+
 ## [0.1.3] - 2026-11-16
 ### 고침
 - 에디터를 닫으면 Dynamic 폰트 에셋에 커닝·합자 기록이 남아 git diff가 생기던 문제. TMP가 종료 때 글자표·아틀라스만 비워서, 저장 직전 비우기가 이미 빈 걸로 보고 건너뛰었음 (`DynamicFontSaveHandler`)

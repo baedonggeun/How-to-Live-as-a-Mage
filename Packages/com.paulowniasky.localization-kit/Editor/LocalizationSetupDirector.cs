@@ -535,6 +535,12 @@ namespace PaulowniaSky.LocalizationKit
 
             // 전역 폴백: 기본 폰트 말고 모든 폰트 에셋 (언어 바뀌는 순간, 플레이어 입력, 언어 이름 표시용)
             var fallbacks = serialized.FindProperty("m_fallbackFontAssets");
+            // 원문 언어를 바꾸면 새 기본 폰트가 폴백에 남아 있음 → 뺌 (기본 폰트는 TMP가 폴백 다음에 따로 찾음)
+            for (var i = fallbacks.arraySize - 1; i >= 0; i--)
+            {
+                if (fallbacks.GetArrayElementAtIndex(i).objectReferenceValue == defaultFont)
+                    fallbacks.DeleteArrayElementAtIndex(i);
+            }
             foreach (var entry in setup.Locales)
             {
                 if (!fontAssets.TryGetValue(entry.Font, out var fontAsset) || fontAsset == defaultFont || Contains(fallbacks, fontAsset))
