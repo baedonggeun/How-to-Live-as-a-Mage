@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bbedcd2bfb6cff47869e7827ffc5e23, type: 3}
   m_Name: Body
   m_EditorClassIdentifier: PaulowniaSky.LocalizationKit::PaulowniaSky.LocalizationKit.LocaleFontSetSO
-  m_DefaultFont: {fileID: 11400000, guid: 315441fa5e6891a4d91262189bdbdc30, type: 2}
+  m_DefaultFont: {fileID: 11400000, guid: 2cc9700ca606eaa49ba0a732468327f2, type: 2}
   m_Entries:
   - m_LocaleCode: ko
     m_Font: {fileID: 11400000, guid: 315441fa5e6891a4d91262189bdbdc30, type: 2}
