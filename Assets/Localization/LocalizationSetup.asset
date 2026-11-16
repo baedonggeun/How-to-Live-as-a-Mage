@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: PaulowniaSky.LocalizationKit.Editor::PaulowniaSky.LocalizationKit.LocalizationSetupSO
   m_SourceLocaleCode: en
   m_FallbackLocaleCode: en
+  m_UseSystemLocale: 0
   m_Locales:
   - m_Code: ko
     m_NativeName: "\uD55C\uAD6D\uC5B4"
