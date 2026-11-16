@@ -112,6 +112,7 @@ TMP Settings도 맞춤: 기본 폰트 = 원문 언어 폰트, 전역 폴백 = �
 |---|---|
 | Source Locale Code | 원문 언어. 번역 기준이고 마지막 폴백 |
 | Fallback Locale Code | 번역 없는 언어가 먼저 볼 언어. OS 언어로 못 정할 때 시작 언어도 이것 |
+| Use System Locale | 처음 실행 때(고른 언어가 없을 때) OS 언어로 시작. 끄면 폴백 언어로 시작 (고른 언어는 계속 기억) |
 | Locales | 언어마다 Code, Native Name(드롭다운에 보일 그 언어 글자 이름), Font(폰트 파일) |
 | Output Folder | 만들 위치 (Assets/ 아래) |
 | String Table Name | 만들 String Table 이름 |
@@ -218,7 +219,7 @@ m_LocalizeEvent.RefreshString();
 위에서부터 처음 정해지는 언어로 시작:
 1. 명령줄 인자 `-language=ja`
 2. 지난번 고른 언어 (PlayerPrefs. 언어를 바꿀 때마다 자동 저장)
-3. OS 언어 (프로젝트에 있는 언어면)
+3. OS 언어 (프로젝트에 있는 언어면. 셋업 값 Use System Locale을 끄면 건너뜀)
 4. 폴백 언어 (기본 en)
 
 ### 번역 없는 칸

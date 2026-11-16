@@ -337,29 +337,35 @@ namespace PaulowniaSky.LocalizationKit
         {
             // 시작 언어 셀렉터 목록 (위에서부터 물어봄)
             var selectors = settings.GetStartupLocaleSelectors();
-            if (IsSelectorOrderCorrect(selectors, setup.FallbackLocaleCode))
+            if (IsSelectorOrderCorrect(selectors, setup.FallbackLocaleCode, setup.UseSystemLocale))
                 return;
 
             selectors.Clear();
             selectors.Add(new CommandLineLocaleSelector());
             selectors.Add(new PlayerPrefLocaleSelector());
-            selectors.Add(new SystemLocaleSelector());
+            if (setup.UseSystemLocale)
+                selectors.Add(new SystemLocaleSelector());
             selectors.Add(new SpecificLocaleSelector { LocaleId = new LocaleIdentifier(setup.FallbackLocaleCode) });
             EditorUtility.SetDirty(settings);
-            log.AppendLine($"셀렉터 순서: 명령줄 → 마지막 선택 → OS 언어 → {setup.FallbackLocaleCode}");
+            log.AppendLine(setup.UseSystemLocale
+                ? $"셀렉터 순서: 명령줄 → 마지막 선택 → OS 언어 → {setup.FallbackLocaleCode}"
+                : $"셀렉터 순서: 명령줄 → 마지막 선택 → {setup.FallbackLocaleCode}");
         }
         #endregion
 
         #region IsSelectorOrderCorrect - 셀렉터가 이미 정한 순서인지
         /// <param name="selectors">지금 셀렉터 목록</param>
         /// <param name="fallbackCode">마지막 셀렉터가 고를 언어 코드</param>
-        static bool IsSelectorOrderCorrect(List<IStartupLocaleSelector> selectors, string fallbackCode)
+        /// <param name="useSystemLocale">OS 언어 셀렉터가 있어야 하는지</param>
+        static bool IsSelectorOrderCorrect(List<IStartupLocaleSelector> selectors, string fallbackCode, bool useSystemLocale)
         {
-            return selectors.Count == 4
+            // 마지막(폴백) 셀렉터 자리. OS 언어 셀렉터를 쓰면 한 칸 뒤
+            var last = useSystemLocale ? 3 : 2;
+            return selectors.Count == last + 1
                 && selectors[0] is CommandLineLocaleSelector
                 && selectors[1] is PlayerPrefLocaleSelector
-                && selectors[2] is SystemLocaleSelector
-                && selectors[3] is SpecificLocaleSelector specific
+                && (!useSystemLocale || selectors[2] is SystemLocaleSelector)
+                && selectors[last] is SpecificLocaleSelector specific
                 && specific.LocaleId.Code == fallbackCode;
         }
         #endregion

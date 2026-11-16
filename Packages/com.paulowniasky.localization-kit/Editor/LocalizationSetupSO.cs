@@ -20,6 +20,9 @@ namespace PaulowniaSky.LocalizationKit
         /// <summary>번역 없는 언어가 먼저 볼 언어 코드. OS 언어로 못 정할 때 시작 언어도 이것</summary>
         [SerializeField] string m_FallbackLocaleCode = "en";
 
+        /// <summary>처음 실행 때(고른 언어가 없을 때) OS 언어로 시작할지. 끄면 폴백 언어로 시작</summary>
+        [SerializeField] bool m_UseSystemLocale = true;
+
         /// <summary>셋업할 언어 목록. 새로 만드는 언어는 이 순서로 붙음 (이후 순서는 Project Settings > Localization에서 바꿈)</summary>
         [SerializeField] List<LocaleSetupEntry> m_Locales = new List<LocaleSetupEntry>();
 
@@ -34,6 +37,9 @@ namespace PaulowniaSky.LocalizationKit
 
         /// <summary>폴백 언어 코드</summary>
         public string FallbackLocaleCode => m_FallbackLocaleCode;
+
+        /// <summary>처음 실행 때 OS 언어로 시작할지</summary>
+        public bool UseSystemLocale => m_UseSystemLocale;
 
         /// <summary>셋업할 언어 목록</summary>
         public IReadOnlyList<LocaleSetupEntry> Locales => m_Locales;
@@ -57,6 +63,7 @@ namespace PaulowniaSky.LocalizationKit
         {
             m_SourceLocaleCode = "ko";
             m_FallbackLocaleCode = "en";
+            m_UseSystemLocale = true;
             m_OutputFolder = "Assets/Localization";
             m_StringTableName = "UI";
 
