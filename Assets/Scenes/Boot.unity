@@ -723,6 +723,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce2551facf9918b43bc7fe9084c8677f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Mage::Mage.AudioManager
+  _mixer: {fileID: 24100000, guid: 6713cc0febe55c348a84acc81858b918, type: 2}
+  _bgmGroup: {fileID: 1025967159158992067, guid: 6713cc0febe55c348a84acc81858b918, type: 2}
+  _sfxGroup: {fileID: -707131350723851857, guid: 6713cc0febe55c348a84acc81858b918, type: 2}
 --- !u!114 &1096620419
 MonoBehaviour:
   m_ObjectHideFlags: 0
