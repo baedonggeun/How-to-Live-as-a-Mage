@@ -76,6 +76,50 @@ MonoBehaviour:
     m_Localized: 'Mage: {0}<br>Party: {1}<br>Quest: {2}<br><br>[E] Return (temp)'
     m_Metadata:
       m_Items: []
+  - m_Id: 1933117108158464
+    m_Localized: Continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1933117145907200
+    m_Localized: Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1933117145907201
+    m_Localized: Quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1933117145907202
+    m_Localized: Quit the game?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1933117150101504
+    m_Localized: How to Live as a Mage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1933117150101505
+    m_Localized: Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1933117150101506
+    m_Localized: Language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1933117150101507
+    m_Localized: Master Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1933117150101508
+    m_Localized: Music
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1933117150101509
+    m_Localized: Sound Effects
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1933117150101510
+    m_Localized: Close
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

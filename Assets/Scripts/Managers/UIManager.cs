@@ -1,23 +1,41 @@
+using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Mage
 {
-    /// <summary>씬을 넘어 쓰는 공용 UI 담당. 지금은 토스트, 나중에 일시정지·확인창</summary>
+    /// <summary>씬을 넘어 쓰는 공용 UI 담당. 지금은 토스트·설정 창·확인창, 나중에 일시정지</summary>
     public sealed class UIManager : MonoSingleton<UIManager>
     {
         /// <summary>토스트 표시 시간 (초)</summary>
         const float ToastSeconds = 2f;
 
+        /// <summary>창 닫기 입력 액션 경로 (전역 액션, Esc)</summary>
+        const string CancelActionPath = "UI/Cancel";
+
         /// <summary>화면 아래 잠깐 뜨는 알림 (Boot 씬 UICanvas 자식)</summary>
         [SerializeField] ToastView _toast;
+
+        /// <summary>설정 창 (Boot 씬 UICanvas 자식)</summary>
+        [SerializeField] SettingsView _settings;
+
+        /// <summary>확인창 (Boot 씬 UICanvas 자식)</summary>
+        [SerializeField] ConfirmView _confirm;
 
         /// <summary>토스트를 숨기는 코루틴. 새 토스트가 오면 끊고 다시 시작</summary>
         Coroutine _hideToast;
 
-        #region InitSingleton - 토스트 연결 확인, 처음엔 숨김
+        /// <summary>확인창에서 확인을 누르면 할 일. 창이 닫혀 있으면 null</summary>
+        Action _onConfirm;
+
+        /// <summary>창 닫기 입력 액션. OnDestroy에서 구독 해제</summary>
+        InputAction _cancel;
+
+        #region InitSingleton - 공용 창 준비, 토스트 연결 확인, 처음엔 숨김
         protected override void InitSingleton()
         {
+            InitWindows();
             if (_toast == null)
             {
                 Debug.LogError("[UI] ToastView 연결 안 됨");
@@ -60,6 +78,113 @@ namespace Mage
             yield return new WaitForSecondsRealtime(seconds);
             _toast.Root.SetActive(false);
             _hideToast = null;
+        }
+        #endregion
+
+        #region InitWindows - 설정 창·확인창을 끄고 버튼을 한 번만 연결, Esc 구독
+        void InitWindows()
+        {
+            if (_settings == null)
+                Debug.LogError("[UI] SettingsView 연결 안 됨");
+            else
+            {
+                _settings.gameObject.SetActive(false);
+                _settings.CloseButton.onClick.AddListener(HideSettings);
+            }
+
+            if (_confirm == null)
+                Debug.LogError("[UI] ConfirmView 연결 안 됨");
+            else
+            {
+                _confirm.gameObject.SetActive(false);
+                _confirm.ConfirmButton.onClick.AddListener(OnConfirmClicked);
+                _confirm.CancelButton.onClick.AddListener(HideConfirm);
+            }
+
+            _cancel = InputSystem.actions.FindAction(CancelActionPath);
+            if (_cancel == null)
+                Debug.LogError($"[UI] {CancelActionPath} 액션 없음. Esc로 창이 안 닫힘");
+            else
+                _cancel.performed += OnCancel;
+        }
+        #endregion
+
+        #region OnDestroy - Esc 구독 해제
+        protected override void OnDestroy()
+        {
+            if (_cancel != null) _cancel.performed -= OnCancel;
+            base.OnDestroy();
+        }
+        #endregion
+
+        #region ShowSettings - 설정 창 켜기
+        public void ShowSettings()
+        {
+            if (_settings == null)
+            {
+                Debug.LogError("[UI] SettingsView 연결 안 됨");
+                return;
+            }
+            _settings.gameObject.SetActive(true);
+        }
+        #endregion
+
+        #region HideSettings - 설정 창 끄기
+        public void HideSettings()
+        {
+            if (_settings != null) _settings.gameObject.SetActive(false);
+        }
+        #endregion
+
+        #region ShowConfirm - 문구 키를 넣고 확인창 켜기. 확인을 누르면 onConfirm, 취소·Esc면 그냥 닫힘
+        /// <param name="messageKey">UI 테이블 문구 키</param>
+        /// <param name="onConfirm">확인을 눌렀을 때 할 일</param>
+        public void ShowConfirm(string messageKey, Action onConfirm)
+        {
+            if (onConfirm == null) throw new ArgumentNullException(nameof(onConfirm));
+            if (string.IsNullOrWhiteSpace(messageKey))
+            {
+                Debug.LogWarning("[UI] 빈 키 확인창 무시");
+                return;
+            }
+            if (_confirm == null)
+            {
+                Debug.LogError("[UI] ConfirmView 연결 안 됨");
+                return;
+            }
+            _confirm.MessageText.StringReference.TableEntryReference = messageKey;
+            _onConfirm = onConfirm;
+            _confirm.gameObject.SetActive(true);
+            _confirm.MessageText.RefreshString();
+        }
+        #endregion
+
+        #region OnConfirmClicked - 할 일을 꺼내 두고 창을 닫은 뒤 실행 (할 일이 다른 창을 열어도 안 꼬이게)
+        void OnConfirmClicked()
+        {
+            // 이번 확인으로 할 일
+            Action action = _onConfirm;
+            HideConfirm();
+            action?.Invoke();
+        }
+        #endregion
+
+        #region HideConfirm - 할 일을 비우고 확인창 끄기
+        void HideConfirm()
+        {
+            _onConfirm = null;
+            if (_confirm != null) _confirm.gameObject.SetActive(false);
+        }
+        #endregion
+
+        #region OnCancel - Esc: 확인창이 열려 있으면 취소, 아니면 설정 창이 열려 있으면 닫기
+        /// <param name="context">입력 정보 (안 씀)</param>
+        void OnCancel(InputAction.CallbackContext context)
+        {
+            if (_confirm != null && _confirm.gameObject.activeSelf)
+                HideConfirm();
+            else if (_settings != null && _settings.gameObject.activeSelf)
+                HideSettings();
         }
         #endregion
     }
