@@ -15,6 +15,9 @@ namespace Mage
         /// <summary>효과음 음량 슬라이더 (인스펙터에서만 연결)</summary>
         [SerializeField] Slider _sfxSlider;
 
+        /// <summary>'창이 비활성이면 음소거' 토글 (인스펙터에서만 연결)</summary>
+        [SerializeField] Toggle _muteWhenUnfocusedToggle;
+
         /// <summary>닫기 버튼 (인스펙터에서만 연결)</summary>
         [SerializeField] Button _closeButton;
 
@@ -26,6 +29,9 @@ namespace Mage
 
         /// <summary>효과음 음량 슬라이더</summary>
         public Slider SfxSlider => _sfxSlider;
+
+        /// <summary>'창이 비활성이면 음소거' 토글</summary>
+        public Toggle MuteWhenUnfocusedToggle => _muteWhenUnfocusedToggle;
 
         /// <summary>닫기 버튼</summary>
         public Button CloseButton => _closeButton;

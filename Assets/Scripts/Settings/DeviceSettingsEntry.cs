@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Mage
 {
-    /// <summary>기기 설정 (이 PC에만 맞는 값, 지금은 음량). settings_device.json 내용 그대로. 필드 이름이 JSON 키라 바꾸면 CurrentVersion을 올리고 읽을 때 옮겨야 함</summary>
+    /// <summary>기기 설정 (이 PC에만 맞는 값: 음량, 창이 비활성이면 음소거). settings_device.json 내용 그대로. 필드 이름이 JSON 키라 바꾸면 CurrentVersion을 올리고 읽을 때 옮겨야 함 (새 필드는 파일에 없으면 기본값이라 안 올려도 됨)</summary>
     [Serializable]
     public sealed class DeviceSettingsEntry
     {
@@ -12,6 +12,9 @@ namespace Mage
 
         /// <summary>저장된 값이 없을 때 쓰는 음량 (믹서에 만든 그대로)</summary>
         public const float DefaultVolume = 1f;
+
+        /// <summary>저장된 값이 없을 때 쓰는 '창이 비활성이면 음소거' 값</summary>
+        public const bool DefaultMuteWhenUnfocused = true;
 
         /// <summary>이 값을 쓴 파일 구조 버전. 구조가 바뀔 때 옮기는 기준</summary>
         [SerializeField] int _version = CurrentVersion;
@@ -24,6 +27,16 @@ namespace Mage
 
         /// <summary>효과음 음량 (0~1)</summary>
         [SerializeField] float _sfxVolume = DefaultVolume;
+
+        /// <summary>창이 비활성이면 소리를 끌지. 게임은 어느 쪽이든 계속 돎</summary>
+        [SerializeField] bool _muteWhenUnfocused = DefaultMuteWhenUnfocused;
+
+        /// <summary>창이 비활성이면 소리를 끌지 (설정 창 토글)</summary>
+        public bool MuteWhenUnfocused
+        {
+            get => _muteWhenUnfocused;
+            set => _muteWhenUnfocused = value;
+        }
 
         #region GetVolume - 채널 음량 (0~1). 정의 안 된 채널이면 예외
         /// <param name="channel">읽을 채널</param>

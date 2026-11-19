@@ -12,7 +12,7 @@ namespace Mage
         /// <summary>에디터 Play 때 시작할 씬 이름을 PlayModeRouter가 적어 두는 SessionState 키</summary>
         public const string EditorStartSceneKey = "Mage.EditorStartScene";
 
-        /// <summary>창이 비활성일 때 프레임 제한. 멈춘 화면·로딩창을 수백 fps로 그리지 않게 (PC 품질은 vSync 꺼짐)</summary>
+        /// <summary>창이 비활성일 때 프레임 제한. 안 보는 화면을 수백 fps로 그리지 않게 (PC 품질은 vSync 꺼짐)</summary>
         const int BackgroundFrameRate = 30;
 
         /// <summary>로딩 바에서 씬 로드 단계가 차지하는 몫 (0~1). 콘솔 [Flow] 로딩 시간 로그로 잰 비율에 맞춤</summary>
@@ -33,19 +33,13 @@ namespace Mage
         /// <summary>로딩창이 떠 있는지. 떠 있는 동안 게임 시간 0</summary>
         bool _covered;
 
-        /// <summary>로딩 중인지 (켤 때·전환 시작 ~ 바 1). 이 동안은 Run In Background를 켜서 창이 비활성이어도 로딩이 끝까지 감</summary>
-        bool _loading;
-
-        /// <summary>창이 비활성인지 (빌드만). 비활성이면 게임 시간 0, 소리 멈춤, 프레임 제한</summary>
+        /// <summary>창이 비활성인지 (빌드만). 비활성이면 프레임 제한, 설정 '창이 비활성이면 음소거'가 켜져 있으면 소리 0. 게임은 계속 돎 (Run In Background 켬)</summary>
         bool _unfocused;
-
-        /// <summary>프로젝트 설정 Run In Background 값. 로딩이 끝나면 이 값으로 되돌림</summary>
-        bool _runInBackgroundSetting;
 
         /// <summary>창이 비활성이 되기 전 프레임 제한. 창으로 돌아오면 이 값으로 되돌림</summary>
         int _focusedFrameRate;
 
-        #region Start - 매니저 확인 → 시작 상태 고르기 → (타이틀부터면) 로고 → 로딩 표시 → 다국어 준비 대기 → 시작 상태로 진입 (매니저끼리 Awake 순서가 없어서 Start에서)
+        #region Start - 매니저 확인 → 시작 상태 고르기 → (타이틀부터면) 로고 → 덮개 → 다국어 준비 대기 → 시작 상태로 진입 (매니저끼리 Awake 순서가 없어서 Start에서)
         IEnumerator Start()
         {
             // 하나라도 빠지면 Boot 씬 구성이 잘못된 것 (빠진 쪽은 Instance가 에러를 남김)
@@ -54,8 +48,6 @@ namespace Mage
                 && AudioManager.Instance != null && TutorialManager.Instance != null;
             if (!allReady) yield break;
 
-            // 로딩이 끝날 때마다 되돌릴 값이라 로딩 전에 기억
-            _runInBackgroundSetting = Application.runInBackground;
             // 시작할 흐름 상태 (빌드: Title, 에디터: 편집 중이던 씬)
             FlowStateBase start = CreateStartState();
             if (start == null) yield break;
@@ -66,8 +58,6 @@ namespace Mage
             TransitionManager.Instance.ShowCover();
             _covered = true;
             ApplyTimeScale();
-            // 켜자마자 창을 비활성으로 돌려도 다국어 준비·첫 씬 로드는 끝까지 가게
-            SetLoading(true);
             // 다국어 초기화 작업
             var localization = LocalizationSettings.InitializationOperation;
             yield return localization;
@@ -137,8 +127,6 @@ namespace Mage
             _isSwitching = true;
             try
             {
-                // 창이 비활성이어도 로딩은 끝까지 가게 (바가 1이 되면 되돌림)
-                SetLoading(true);
                 if (showTip) yield return transition.ShowLoading();
                 else transition.ShowCover();
                 // 로딩창 밑에서 물리·애니메이션·적이 안 돌게. 로딩창 연출·로딩 대기는 실제 시간이라 그대로 돎
@@ -163,47 +151,34 @@ namespace Mage
                 yield return transition.WaitForLocalizedTexts();
                 transition.SetProgress(1f);
                 Debug.Log($"[Flow] {next.SceneName} 로딩 시간(초): 씬 로드 {loadSeconds:F2}, 정보 적용 {readySeconds:F2}, 다국어 {Time.realtimeSinceStartup - stepStart:F2}");
-                // 로딩 끝. Run In Background가 꺼진 설정이면 여기서부터 창이 비활성일 때 Unity가 루프를 멈춤 (로고·안내 대기도 같이 멈춤)
-                SetLoading(false);
                 // 첫 진입은 로고가 끝나거나 넘길 때까지, 키 입력 대기 상태는 넘기기 버튼을 누를 때까지 덮어 둠. 나머지는 바로 걷음
                 if (firstEntry) yield return transition.WaitForLogo();
                 if (waitForContinue) yield return transition.WaitForContinue();
             }
             finally
             {
-                // 중간에 예외가 나도 덮개·잠금·게임 시간·Run In Background가 남지 않게
+                // 중간에 예외가 나도 덮개·잠금·게임 시간이 남지 않게
                 transition.HideCover();
                 _covered = false;
                 ApplyTimeScale();
-                SetLoading(false);
                 _isSwitching = false;
             }
             next.Reveal();
         }
         #endregion
 
-        #region SetLoading - 로딩 중 표시. 로딩 중엔 Run In Background를 켜서 창이 비활성이어도 루프가 돌게, 끝나면 프로젝트 설정값으로 (빌드만)
-        /// <param name="loading">로딩 중인지</param>
-        void SetLoading(bool loading)
-        {
-            _loading = loading;
-            // 에디터는 MCP·사용자의 Run In Background 덮어쓰기와 안 싸우게 빌드만
-            if (!Application.isEditor) Application.runInBackground = loading || _runInBackgroundSetting;
-        }
+        #region ApplyTimeScale - 멈출 이유(지금은 로딩창)가 있으면 게임 시간 0, 없으면 1
+        void ApplyTimeScale() => Time.timeScale = _covered ? 0f : 1f;
         #endregion
 
-        #region ApplyTimeScale - 멈출 이유(로딩창·창 비활성)가 하나라도 있으면 게임 시간 0, 없으면 1
-        void ApplyTimeScale() => Time.timeScale = _covered || _unfocused ? 0f : 1f;
-        #endregion
-
-        #region SetUnfocused - 창 비활성 처리: 게임 시간 0, 소리 멈춤(돌아오면 이어 재생), 프레임 제한. 돌아오면 되돌림. 로딩은 SetLoading이 따로 계속 돌림
+        #region SetUnfocused - 창 비활성 처리: 프레임 제한, 설정 '창이 비활성이면 음소거'가 켜져 있으면 소리 0. 게임은 계속 돎. 돌아오면 되돌림
         /// <param name="unfocused">창이 비활성인지</param>
         void SetUnfocused(bool unfocused)
         {
             if (unfocused == _unfocused) return;
             _unfocused = unfocused;
-            ApplyTimeScale();
-            AudioListener.pause = unfocused;
+            // 멈춤(pause)이 아니라 음량 0: 게임이 계속 돌아서, 멈춰 두면 그동안 난 효과음이 돌아올 때 한꺼번에 남
+            AudioListener.volume = unfocused && SettingsManager.Instance.Device.MuteWhenUnfocused ? 0f : 1f;
             if (unfocused)
             {
                 _focusedFrameRate = Application.targetFrameRate;
