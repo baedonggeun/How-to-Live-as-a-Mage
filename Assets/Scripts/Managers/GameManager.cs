@@ -26,8 +26,8 @@ namespace Mage
         {
             // 하나라도 빠지면 Boot 씬 구성이 잘못된 것 (빠진 쪽은 Instance가 에러를 남김)
             bool allReady = TransitionManager.Instance != null && UIManager.Instance != null
-                && DataManager.Instance != null && AudioManager.Instance != null
-                && TutorialManager.Instance != null;
+                && DataManager.Instance != null && SettingsManager.Instance != null
+                && AudioManager.Instance != null && TutorialManager.Instance != null;
             if (!allReady) yield break;
 
             // 첫 화면 글자가 늦게 바뀌지 않게, 덮개를 덮은 채 다국어 준비를 기다림

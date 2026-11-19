@@ -129,10 +129,13 @@ namespace Mage
         }
         #endregion
 
-        #region HideSettings - 설정 창 끄기
+        #region HideSettings - 설정 창 끄고 바뀐 설정을 파일에 저장 (닫기 버튼·Esc 둘 다 여기로)
         public void HideSettings()
         {
             if (_settings != null) _settings.gameObject.SetActive(false);
+            // 설정 파일 담당 (Boot 상주)
+            var settingsManager = SettingsManager.Instance;
+            if (settingsManager != null) settingsManager.Save();
         }
         #endregion
 

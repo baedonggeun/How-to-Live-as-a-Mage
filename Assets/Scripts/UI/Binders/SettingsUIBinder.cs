@@ -28,7 +28,7 @@ namespace Mage
         }
         #endregion
 
-        #region OnDisable - 슬라이더 구독 해제 (음량 저장은 SetVolume이 이미 함)
+        #region OnDisable - 슬라이더 구독 해제 (파일 저장은 UIManager.HideSettings가 함)
         void OnDisable()
         {
             if (_view == null) return;

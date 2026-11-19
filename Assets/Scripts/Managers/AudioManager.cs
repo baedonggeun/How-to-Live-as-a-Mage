@@ -20,17 +20,11 @@ namespace Mage
         /// <summary>음량 0일 때 넣을 dB (믹서 최저값)</summary>
         const float MinDb = -80f;
 
-        /// <summary>저장된 음량이 없을 때 쓰는 음량 (믹서에 만든 그대로)</summary>
-        const float DefaultVolume = 1f;
-
         /// <summary>효과음 동시 재생 상한. 다 차면 가장 오래전에 시작한 소리를 끊고 뺏음</summary>
         const int SfxPoolSize = 16;
 
         /// <summary>채널별 믹서 노출 파라미터 이름 (AudioChannel 순서)</summary>
         static readonly string[] MixerParams = { "MasterVol", "BgmVol", "SfxVol" };
-
-        /// <summary>채널별 음량 저장 키 (AudioChannel 순서). 기기 설정이라 세이브 슬롯과 따로 PlayerPrefs에</summary>
-        static readonly string[] PrefsKeys = { "Mage.Volume.Master", "Mage.Volume.Bgm", "Mage.Volume.Sfx" };
 
         /// <summary>Master·BGM·SFX 그룹과 음량 파라미터가 있는 믹서 (Assets/Audio/MainMixer)</summary>
         [SerializeField] AudioMixer _mixer;
@@ -40,9 +34,6 @@ namespace Mage
 
         /// <summary>효과음 소스가 내보낼 믹서 그룹</summary>
         [SerializeField] AudioMixerGroup _sfxGroup;
-
-        /// <summary>채널별 지금 음량 (0~1, AudioChannel 순서)</summary>
-        readonly float[] _volumes = new float[MixerParams.Length];
 
         /// <summary>BGM 소스 (이 오브젝트에 붙음, 2D)</summary>
         AudioSource _bgm;
@@ -56,14 +47,11 @@ namespace Mage
         /// <summary>지금까지 낸 효과음 수. 다음 재생 순번으로 씀</summary>
         int _sfxPlayCount;
 
-        #region InitSingleton - 믹서 연결 확인, 저장된 음량 읽기, BGM 소스와 효과음 풀 만들기
+        #region InitSingleton - 믹서 연결 확인, BGM 소스와 효과음 풀 만들기 (저장된 음량은 SettingsManager가 읽음)
         protected override void InitSingleton()
         {
             if (_mixer == null || _bgmGroup == null || _sfxGroup == null)
                 Debug.LogError("[Audio] 믹서·그룹 연결 안 됨. 음량 설정이 소리에 안 먹음");
-
-            for (int i = 0; i < _volumes.Length; i++)
-                _volumes[i] = Mathf.Clamp01(PlayerPrefs.GetFloat(PrefsKeys[i], DefaultVolume));
 
             _bgm = gameObject.AddComponent<AudioSource>();
             _bgm.playOnAwake = false;
@@ -87,29 +75,27 @@ namespace Mage
         }
         #endregion
 
-        #region Start - 저장된 음량을 믹서에 넣기 (믹서 기본 스냅샷이 Awake의 SetFloat를 덮어써서 Start에서)
+        #region Start - 저장된 음량을 믹서에 넣기 (믹서 기본 스냅샷이 Awake의 SetFloat를 덮어써서 Start에서. SettingsManager는 Awake에 파일을 읽어 둠)
         void Start()
         {
-            for (int i = 0; i < _volumes.Length; i++)
-                ApplyToMixer(i);
+            if (SettingsManager.Instance == null) return;
+            for (int i = 0; i < MixerParams.Length; i++)
+                ApplyToMixer((AudioChannel)i);
         }
         #endregion
 
-        #region GetVolume - 채널 음량 (0~1)
+        #region GetVolume - 채널 음량 (0~1). 값은 SettingsManager의 기기 설정이 들고 있음
         /// <param name="channel">읽을 채널</param>
-        public float GetVolume(AudioChannel channel) => _volumes[ToIndex(channel)];
+        public float GetVolume(AudioChannel channel) => SettingsManager.Instance.Device.GetVolume(channel);
         #endregion
 
-        #region SetVolume - 채널 음량을 바꿔 믹서에 넣고 PlayerPrefs에 기록 (디스크 저장은 종료 때 Unity가 함)
+        #region SetVolume - 채널 음량을 기기 설정에 넣고 믹서에 반영 (파일 저장은 설정 창을 닫을 때·종료 때 SettingsManager가 함)
         /// <param name="channel">바꿀 채널</param>
         /// <param name="volume">새 음량 (0~1, 범위 밖은 자름)</param>
         public void SetVolume(AudioChannel channel, float volume)
         {
-            // 채널 배열 위치
-            int index = ToIndex(channel);
-            _volumes[index] = Mathf.Clamp01(volume);
-            PlayerPrefs.SetFloat(PrefsKeys[index], _volumes[index]);
-            ApplyToMixer(index);
+            SettingsManager.Instance.Device.SetVolume(channel, volume);
+            ApplyToMixer(channel);
         }
         #endregion
 
@@ -194,12 +180,16 @@ namespace Mage
         #endregion
 
         #region ApplyToMixer - 채널 음량을 dB로 바꿔 믹서에 넣음 (log10 × 20, 0이면 -80dB)
-        /// <param name="index">채널 배열 위치</param>
-        void ApplyToMixer(int index)
+        /// <param name="channel">넣을 채널</param>
+        void ApplyToMixer(AudioChannel channel)
         {
             if (_mixer == null) return;
+            // 채널 배열 위치
+            int index = ToIndex(channel);
+            // 기기 설정에 든 0~1 음량
+            float volume = GetVolume(channel);
             // 0~1 음량을 바꾼 dB. 0.0001(-80dB) 이하는 최저값
-            float db = _volumes[index] <= 0.0001f ? MinDb : Mathf.Log10(_volumes[index]) * 20f;
+            float db = volume <= 0.0001f ? MinDb : Mathf.Log10(volume) * 20f;
             if (!_mixer.SetFloat(MixerParams[index], db))
                 Debug.LogError($"[Audio] 믹서에 {MixerParams[index]} 파라미터 없음");
         }
