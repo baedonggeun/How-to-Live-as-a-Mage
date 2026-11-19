@@ -1,0 +1,105 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Creation Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Creation
+  m_TableCollectionNameGuidString: 0c5dadf6952508f49aa52db5382f22f0
+  m_Entries:
+  - m_Id: 22096281600
+    m_Key: creation.name_placeholder
+    m_Metadata:
+      m_Items:
+      - rid: 2778220012763349090
+  - m_Id: 22129836032
+    m_Key: creation.name_empty
+    m_Metadata:
+      m_Items:
+      - rid: 2778220012763349091
+  - m_Id: 22134030336
+    m_Key: creation.title
+    m_Metadata:
+      m_Items:
+      - rid: 2778220012763349092
+  - m_Id: 22134030337
+    m_Key: creation.name_label
+    m_Metadata:
+      m_Items:
+      - rid: 2778220012763349093
+  - m_Id: 22134030338
+    m_Key: creation.element_label
+    m_Metadata:
+      m_Items:
+      - rid: 2778220012763349094
+  - m_Id: 22134030339
+    m_Key: creation.element_count
+    m_Metadata:
+      m_Items:
+      - rid: 2778220012763349095
+  - m_Id: 22134030340
+    m_Key: creation.element_required
+    m_Metadata:
+      m_Items:
+      - rid: 2778220012763349096
+  - m_Id: 22134030341
+    m_Key: creation.start_confirm
+    m_Metadata:
+      m_Items:
+      - rid: 2778220012763349097
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 2778220012763349088
+  references:
+    version: 2
+    RefIds:
+    - rid: 2778220012763349088
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1795048842087
+    - rid: 2778220012763349090
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uCE90\uB9AD\uD130 \uC0DD\uC131 \uC774\uB984 \uC785\uB825
+          \uCE78 \uC548\uB0B4"
+    - rid: 2778220012763349091
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uC774\uB984\uC744 \uBE44\uC6B0\uACE0 \uD655\uC815\uD588\uC744
+          \uB54C \uD1A0\uC2A4\uD2B8"
+    - rid: 2778220012763349092
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uCE90\uB9AD\uD130 \uC0DD\uC131 \uD654\uBA74 \uC81C\uBAA9"
+    - rid: 2778220012763349093
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uC774\uB984 \uC785\uB825 \uCE78 \uC55E \uC774\uB984\uD45C"
+    - rid: 2778220012763349094
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uC694\uC18C \uCE74\uB4DC \uC704 \uC774\uB984\uD45C"
+    - rid: 2778220012763349095
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uACE0\uB978 \uC694\uC18C \uC218. {0} \uACE0\uB978 \uC218,
+          {1} \uACE8\uB77C\uC57C \uD560 \uC218"
+    - rid: 2778220012763349096
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uC694\uC18C\uAC00 \uBAA8\uC790\uB784 \uB54C \uD1A0\uC2A4\uD2B8.
+          {0} \uACE8\uB77C\uC57C \uD560 \uC218"
+    - rid: 2778220012763349097
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD655\uC815\uC744 \uB20C\uB800\uC744 \uB54C \uD655\uC778\uCC3D
+          \uBB38\uAD6C"

@@ -3,8 +3,6 @@
 "common.cancel","취소 버튼","취소","Cancel","キャンセル","取消","取消","Отмена","Abbrechen","Annuler","Cancelar","Cancelar","Annulla","Anuluj","İptal"
 "common.loading","불러오는 중 표시","불러오는 중","Loading","読み込み中","加载中","載入中","Загрузка","Wird geladen","Chargement","Cargando","Carregando","Caricamento","Wczytywanie","Yükleniyor"
 "title.new_game","초기 화면 새 게임 버튼","새 게임","New Game","","","","","","","","","","",""
-"creation.name_placeholder","캐릭터 생성 이름 입력 칸 안내","마법사 이름","Mage name","","","","","","","","","","",""
-"creation.name_empty","이름을 비우고 확정했을 때 토스트","이름을 입력해","Enter a name","","","","","","","","","","",""
 "common.continue","다음 화면으로 넘어가는 버튼","계속","Continue","","","","","","","","","","",""
 "opening.body","오프닝 본문 (임시)","지도 밖 신지역에서 차원문이 발견됐다. 원정대는 차원문을 탐사할 사람을 모으고, 인생역전을 노리는 용병 파티들이 몰려든다. 당신은 그중 한 파티의 마법사다.","A portal has been found in uncharted lands beyond the map. The expedition is recruiting people to explore it, and mercenary parties hoping to turn their lives around are flocking in. You are the mage of one of those parties.","","","","","","","","","","",""
 "hub.party_count","전초기지 파티 인원. {0} 지금 인원, {1} 필요한 인원","파티 {0}/{1}","Party {0}/{1}","","","","","","","","","","",""

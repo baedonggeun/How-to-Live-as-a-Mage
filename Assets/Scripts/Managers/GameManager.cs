@@ -47,7 +47,7 @@ namespace Mage
             }
 
             // 타이틀·생성 화면이 아니면 중간부터 시작한 것 → 디버그 데이터
-            Run = start is TitleState or CharacterCreationState ? new RunEntry() : RunEntry.CreateDebug();
+            Run = start is TitleState or CharacterCreationState ? new RunEntry() : RunEntry.CreateDebug(DataManager.Instance.Elements);
             ChangeState(start);
         }
         #endregion

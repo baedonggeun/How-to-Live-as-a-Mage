@@ -15,8 +15,20 @@ MonoBehaviour:
   m_GroupName: Localization-String-Tables-Chinese (Traditional) (zh-Hant)
   m_GUID: 31bb84303f1fafb458ecb923f3143b98
   m_SerializeEntries:
+  - m_GUID: 2b0406972e26d0148ba25f374a354a54
+    m_Address: Creation_zh-Hant
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hant
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8ced7c285b1e7ce4ebac13a0ae5758c6
     m_Address: UI_zh-Hant
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hant
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b53070f6665cc664897c67c2244700a8
+    m_Address: Element_zh-Hant
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-zh-Hant

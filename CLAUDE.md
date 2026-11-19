@@ -40,6 +40,7 @@
 - 문장 속 값은 자리표시자(`{0}`)로. 문자열 이어 붙이기 금지 (언어마다 어순이 다름). 이름 자리표시자(`{gold}`)·복수형은 그 항목 Smart 켬
 - 비교·파싱·키 조합: `StringComparison.Ordinal`, `CultureInfo.InvariantCulture` (터키어 i 같은 문화권 차이 방지)
 - 텍스트 원본: Google 시트 'How to Live as a Mage Localization' (탭 하나 = String Table 하나, 탭 이름 = 테이블 이름). 고친 뒤 탭을 CSV로 받아 `Assets/Localization/CSV/{테이블 이름}.csv`에 덮어씀 → `Tools > PaulowniaSky > Localization Kit > Import Tables from CSV` → Check Missing Translations·Check Missing Glyphs. CSV·테이블 창은 직접 고치지 않음 (고쳤으면 시트에도 옮김)
+- 테이블은 영역별로 나눔 (정보가 섞이지 않게): `UI`는 공용 버튼·타이틀·설정·공용 창, 화면은 화면마다(`Creation`·`Opening`·`Hub`·`Field`), 콘텐츠는 SO 종류마다(`Element`·`Spell`·`Quest`…). 새 영역은 새 테이블 + 시트 새 탭. UI에 남은 다른 영역 키는 그 영역 작업 때 옮김
 - 언어 선택 UI: 키트 샘플(Package Manager > Samples > Language Dropdown)을 가져와서 꾸밈
 - 키트: `Packages/com.paulowniasky.localization-kit/` (embedded). 사용법은 그 README
 

@@ -1354,6 +1354,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f3e589a315503a4b8c68108557541f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Mage::Mage.DataManager
+  _elements:
+  - {fileID: 11400000, guid: 58b8bcce3257f9b4f8302d1cb41728b0, type: 2}
+  - {fileID: 11400000, guid: d75ccf79217fec144a433b5156c5af2b, type: 2}
+  - {fileID: 11400000, guid: 74cbe0082c37d2f458c90649cd7562d3, type: 2}
+  - {fileID: 11400000, guid: 9093b719a7ba0704ab558ee0cb3c7c53, type: 2}
+  - {fileID: 11400000, guid: 97d90fc78f274984f9bcdd5a5072ff58, type: 2}
+  - {fileID: 11400000, guid: 88f49578276da51449e630a423d95b00, type: 2}
+  - {fileID: 11400000, guid: 86b0959e7c9b2ea49ab21291650a3a9d, type: 2}
 --- !u!1 &619195331
 GameObject:
   m_ObjectHideFlags: 0

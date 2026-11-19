@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
@@ -13,6 +14,9 @@ namespace Mage
 
         /// <summary>창 닫기 입력 액션 경로 (전역 액션, Esc)</summary>
         const string CancelActionPath = "UI/Cancel";
+
+        /// <summary>테이블을 안 넘긴 토스트·확인창이 쓰는 테이블 (공용 UI 문구)</summary>
+        static readonly TableReference UiTable = "UI";
 
         /// <summary>화면 아래 잠깐 뜨는 알림 (Boot 씬 UICanvas 자식)</summary>
         [SerializeField] ToastView _toast;
@@ -45,14 +49,21 @@ namespace Mage
         }
         #endregion
 
-        #region ShowToast - String Table 키의 문구를 잠깐 띄움. 이미 떠 있으면 문구를 바꾸고 시간을 다시 셈
+        #region ShowToast - UI 테이블 문구로 토스트 (테이블을 안 넘기는 호출)
         /// <param name="key">UI 테이블 키</param>
         /// <param name="args">문구의 {0}, {1}… 자리에 넣을 값</param>
-        public void ShowToast(string key, params object[] args)
+        public void ShowToast(string key, params object[] args) => ShowToast(UiTable, key, args);
+        #endregion
+
+        #region ShowToast - 지정한 테이블의 문구를 잠깐 띄움. 이미 떠 있으면 문구를 바꾸고 시간을 다시 셈
+        /// <param name="table">문구가 든 String Table</param>
+        /// <param name="key">문구 키</param>
+        /// <param name="args">문구의 {0}, {1}… 자리에 넣을 값</param>
+        public void ShowToast(TableReference table, string key, params object[] args)
         {
-            if (string.IsNullOrWhiteSpace(key))
+            if (table.ReferenceType == TableReference.Type.Empty || string.IsNullOrWhiteSpace(key))
             {
-                Debug.LogWarning("[UI] 빈 키 토스트 무시");
+                Debug.LogWarning("[UI] 빈 테이블·키 토스트 무시");
                 return;
             }
             if (_toast == null)
@@ -61,9 +72,9 @@ namespace Mage
                 return;
             }
             _toast.Root.SetActive(true);
-            // 토스트 글자의 String Reference (테이블은 씬에서 UI로 정해 둠)
+            // 토스트 글자의 String Reference (테이블·키를 부를 때마다 넣음)
             var text = _toast.Text.StringReference;
-            text.TableEntryReference = key;
+            text.SetReference(table, key);
             text.Arguments = args;
             _toast.Text.RefreshString();
             if (_hideToast != null) StopCoroutine(_hideToast);
@@ -139,15 +150,22 @@ namespace Mage
         }
         #endregion
 
-        #region ShowConfirm - 문구 키를 넣고 확인창 켜기. 확인을 누르면 onConfirm, 취소·Esc면 그냥 닫힘
+        #region ShowConfirm - UI 테이블 문구로 확인창 (테이블을 안 넘기는 호출)
         /// <param name="messageKey">UI 테이블 문구 키</param>
         /// <param name="onConfirm">확인을 눌렀을 때 할 일</param>
-        public void ShowConfirm(string messageKey, Action onConfirm)
+        public void ShowConfirm(string messageKey, Action onConfirm) => ShowConfirm(UiTable, messageKey, onConfirm);
+        #endregion
+
+        #region ShowConfirm - 지정한 테이블의 문구로 확인창 켜기. 확인을 누르면 onConfirm, 취소·Esc면 그냥 닫힘
+        /// <param name="table">문구가 든 String Table</param>
+        /// <param name="messageKey">문구 키</param>
+        /// <param name="onConfirm">확인을 눌렀을 때 할 일</param>
+        public void ShowConfirm(TableReference table, string messageKey, Action onConfirm)
         {
             if (onConfirm == null) throw new ArgumentNullException(nameof(onConfirm));
-            if (string.IsNullOrWhiteSpace(messageKey))
+            if (table.ReferenceType == TableReference.Type.Empty || string.IsNullOrWhiteSpace(messageKey))
             {
-                Debug.LogWarning("[UI] 빈 키 확인창 무시");
+                Debug.LogWarning("[UI] 빈 테이블·키 확인창 무시");
                 return;
             }
             if (_confirm == null)
@@ -155,7 +173,7 @@ namespace Mage
                 Debug.LogError("[UI] ConfirmView 연결 안 됨");
                 return;
             }
-            _confirm.MessageText.StringReference.TableEntryReference = messageKey;
+            _confirm.MessageText.StringReference.SetReference(table, messageKey);
             _onConfirm = onConfirm;
             _confirm.gameObject.SetActive(true);
             _confirm.MessageText.RefreshString();

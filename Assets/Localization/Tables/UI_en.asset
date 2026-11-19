@@ -34,14 +34,6 @@ MonoBehaviour:
     m_Localized: New Game
     m_Metadata:
       m_Items: []
-  - m_Id: 388387043966976
-    m_Localized: Mage name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 388387043966977
-    m_Localized: Enter a name
-    m_Metadata:
-      m_Items: []
   - m_Id: 388387043966978
     m_Localized: Continue
     m_Metadata:

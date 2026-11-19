@@ -15,8 +15,20 @@ MonoBehaviour:
   m_GroupName: Localization-String-Tables-Japanese (ja)
   m_GUID: 25781e9b4c9ac694f895c876216603e4
   m_SerializeEntries:
+  - m_GUID: 4aebb1c29c74ce44c81716e0dece2867
+    m_Address: Element_ja
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ja
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 901ef6e5a16981443b66a2e2919ed937
     m_Address: UI_ja
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ja
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a54b0294c05d9e141b7d52ab4246a9f1
+    m_Address: Creation_ja
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ja

@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Element_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: 8d387949a71ddbe4ca8bdd459a39843d, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 22402465792
+    m_Localized: Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22415048704
+    m_Localized: Turns mana into flame.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22415048705
+    m_Localized: Condense
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22415048706
+    m_Localized: Puts pressure on mana.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22415048707
+    m_Localized: Line
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22415048708
+    m_Localized: Sends mana flying in a straight line.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22415048709
+    m_Localized: Block
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22415048710
+    m_Localized: Blocks mana to hold its working in place.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22415048711
+    m_Localized: Water (test)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22419243008
+    m_Localized: Spread (test)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22419243009
+    m_Localized: Wall (test)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22419243010
+    m_Localized: Test element. Not final.
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

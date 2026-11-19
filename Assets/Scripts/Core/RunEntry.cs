@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine.Localization;
 
@@ -21,12 +22,19 @@ namespace Mage
         /// <summary>지금 받은 의뢰 이름. 받기 전엔 null</summary>
         public LocalizedString QuestTitle { get; set; }
 
-        #region CreateDebug - 에디터에서 중간 씬부터 Play할 때 쓰는 판 데이터
-        public static RunEntry CreateDebug()
+        /// <summary>캐릭터 생성에서 고른 요소 (습득 요소). 숲의 주문 판정이 씀</summary>
+        public List<ElementSO> LearnedElements { get; } = new();
+
+        #region CreateDebug - 에디터에서 중간 씬부터 Play할 때 쓰는 판 데이터 (받은 요소는 전부 습득)
+        /// <param name="learned">습득할 요소 (빈 칸은 건너뜀)</param>
+        public static RunEntry CreateDebug(IEnumerable<ElementSO> learned)
         {
+            if (learned == null) throw new ArgumentNullException(nameof(learned));
             // 디버그 판 데이터. 빌드에선 늘 Title부터 시작해서 이 이름이 화면에 안 나옴
             var run = new RunEntry { PlayerName = "디버그 마법사", QuestTitle = StubQuest() };
             run.Party.AddRange(StubMercenaries());
+            foreach (var element in learned)
+                if (element != null) run.LearnedElements.Add(element);
             return run;
         }
         #endregion
