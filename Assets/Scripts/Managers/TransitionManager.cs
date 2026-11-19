@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 
 namespace Mage
 {
-    /// <summary>씬을 어떻게 옮길지 담당: 로딩창(덮개·바·팁·넘기기 안내), 켤 때 로고, 내용 씬 언로드·Additive 로드, 글자 준비 대기, 덮개 동안 게임 멈춤. 언제 옮길지는 GameManager가 정함</summary>
+    /// <summary>씬을 어떻게 옮길지 담당: 로딩창(덮개·바·팁·넘기기 안내), 켤 때 로고, 내용 씬 언로드·Additive 로드, 글자 준비 대기. 언제 옮길지와 덮개 동안 게임 멈춤은 GameManager가 정함</summary>
     public sealed class TransitionManager : MonoSingleton<TransitionManager>
     {
         /// <summary>글자가 다 채워지길 기다리는 최대 시간 (초). 넘으면 에러를 남기고 그냥 진행 (로딩창에 갇히지 않게)</summary>
@@ -42,16 +42,11 @@ namespace Mage
         /// <summary>바로 전에 보인 팁 위치 (DataManager 팁 목록 순서). 아직 없으면 -1</summary>
         int _lastTipIndex = -1;
 
-        /// <summary>프로젝트 설정 Run In Background 값. 덮개가 걷히면 이 값으로 되돌림 (빌드만)</summary>
-        bool _runInBackgroundDefault;
-
-        #region InitSingleton - 로딩창·로고 연결 확인, Run In Background 원래 값 기억, 처음엔 둘 다 숨김
+        #region InitSingleton - 로딩창·로고 연결 확인, 처음엔 둘 다 숨김
         protected override void InitSingleton()
         {
             if (_loading == null) Debug.LogError("[Transition] 로딩창 연결 안 됨");
             if (_logo == null) Debug.LogError("[Transition] 로고 연결 안 됨");
-            // HideCover가 이 값으로 되돌려서 먼저 기억
-            _runInBackgroundDefault = Application.runInBackground;
             HideCover();
         }
         #endregion
@@ -121,25 +116,19 @@ namespace Mage
         }
         #endregion
 
-        #region Open - 로딩창 보이기·클릭 막기, 바 비우기, 넘기기 안내 끄기, 게임 시간 멈춤, (빌드) 창이 뒤로 가도 계속 돎
+        #region Open - 로딩창 보이기·클릭 막기, 바 비우기, 넘기기 안내 끄기
         void Open()
         {
             SetProgress(0f);
             _loading.Prompt.enabled = false;
             _loading.Group.alpha = 1f;
             _loading.Group.blocksRaycasts = true;
-            // 덮개 밑에서 물리·애니메이션·적이 안 돌게. 로딩창 연출은 실제 시간이라 그대로 돎
-            Time.timeScale = 0f;
-            // Alt+Tab 해도 로딩이 이어지게. 에디터는 MCP·사용자 설정과 안 싸우게 빌드에서만
-            if (!Application.isEditor) Application.runInBackground = true;
         }
         #endregion
 
-        #region HideCover - 게임 시간·Run In Background 되돌림, 로딩창(투명도 0·클릭 통과)과 로고 화면 숨김, 팁·넘기기 안내 끄기
+        #region HideCover - 로딩창(투명도 0·클릭 통과)과 로고 화면 숨김, 팁·넘기기 안내 끄기
         public void HideCover()
         {
-            Time.timeScale = 1f;
-            if (!Application.isEditor) Application.runInBackground = _runInBackgroundDefault;
             if (_logo != null) _logo.gameObject.SetActive(false);
             if (_loading == null) return;
             _loading.Group.alpha = 0f;
