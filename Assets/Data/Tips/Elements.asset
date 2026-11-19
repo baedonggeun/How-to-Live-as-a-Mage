@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 781b6d3f714a5ce4da4e663ed6f431c3, type: 3}
+  m_Name: Elements
+  m_EditorClassIdentifier: Mage::Mage.TipSO
+  _title:
+    m_TableReference:
+      m_TableCollectionName: GUID:dadb3424de139d245b70d0c68a41998a
+    m_TableEntryReference:
+      m_KeyId: 25250398209
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  _body:
+    m_TableReference:
+      m_TableCollectionName: GUID:dadb3424de139d245b70d0c68a41998a
+    m_TableEntryReference:
+      m_KeyId: 25250398210
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  _picture: {fileID: 0}
+  references:
+    version: 2
+    RefIds: []

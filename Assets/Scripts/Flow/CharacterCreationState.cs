@@ -37,7 +37,7 @@ namespace Mage
         /// <summary>만든 카드와 그 요소 (DataManager 순서)</summary>
         readonly List<(ElementCardView card, ElementSO element)> _cards = new();
 
-        #region OnSceneReady - 이름 입력 규칙, 확정 버튼, 요소 카드, 고른 수 표시, 배경음
+        #region OnSceneReady - 이름 입력 규칙, 확정 버튼, 요소 카드, 고른 수 표시
         protected override void OnSceneReady()
         {
             _view = FindView<CharacterCreationView>();
@@ -47,8 +47,14 @@ namespace Mage
             _view.ConfirmButton.onClick.AddListener(OnConfirm);
             CreateCards();
             RefreshSelection();
+        }
+        #endregion
+
+        #region Reveal - 배경음 재생
+        public override void Reveal()
+        {
             // 비어 있으면 AudioManager가 무시함 (타이틀 곡이 이어짐)
-            AudioManager.Instance.PlayBgm(_view.Bgm);
+            if (_view != null) AudioManager.Instance.PlayBgm(_view.Bgm);
         }
         #endregion
 

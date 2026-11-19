@@ -112,6 +112,14 @@ MonoBehaviour:
     m_Localized: Close
     m_Metadata:
       m_Items: []
+  - m_Id: 2352609458028544
+    m_Localized: Press any key to continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2352609499971584
+    m_Localized: Click to continue
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

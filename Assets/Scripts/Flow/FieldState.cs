@@ -15,15 +15,24 @@ namespace Mage
         /// <summary>이 상태의 씬 이름 (빌드 목록과 같음)</summary>
         public override string SceneName => Scene;
 
+        /// <summary>들어올 때 로딩창에 팁을 띄우고 넘기기 버튼을 기다림 (플레이 씬. 문구를 보는 동안 게임은 멈춰 있음)</summary>
+        public override bool WaitsForContinue => true;
+
         /// <summary>귀환 입력 액션. Exit에서 구독 해제</summary>
         InputAction _interact;
 
-        #region OnSceneReady - 판 데이터 표시, 커서 잠금, E 입력 구독
+        #region OnSceneReady - 판 데이터 표시
         protected override void OnSceneReady()
         {
             // 이 씬의 화면 참조
             var view = FindView<FieldDebugView>();
             if (view != null) ShowRun(view);
+        }
+        #endregion
+
+        #region Reveal - 커서 잠금, E 입력 구독 (로딩창을 넘길 때 누른 E는 구독 전이라 귀환으로 안 감)
+        public override void Reveal()
+        {
             Cursor.lockState = CursorLockMode.Locked;
             _interact = InputSystem.actions.FindAction(InteractActionPath, throwIfNotFound: true);
             _interact.performed += OnInteract;

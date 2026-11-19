@@ -13,9 +13,16 @@ namespace Mage
         /// <summary>모든 요소 (연결 순서, 읽기 전용)</summary>
         public IReadOnlyList<ElementSO> Elements => _elements;
 
-        #region InitSingleton - 요소 목록 검사: 비었는지, 빈 칸, 빈 id, id 겹침
+        /// <summary>로딩창 팁 전부 (Boot에서 연결)</summary>
+        [SerializeField] TipSO[] _tips;
+
+        /// <summary>로딩창 팁 전부 (연결 순서, 읽기 전용)</summary>
+        public IReadOnlyList<TipSO> Tips => _tips;
+
+        #region InitSingleton - 팁 목록 검사, 요소 목록 검사: 비었는지, 빈 칸, 빈 id, id 겹침
         protected override void InitSingleton()
         {
+            ValidateTips();
             if (_elements == null || _elements.Length == 0)
             {
                 Debug.LogError("[Data] 요소 목록 비어 있음");
@@ -35,6 +42,28 @@ namespace Mage
                     Debug.LogError($"[Data] {element.name}의 id 비어 있음");
                 else if (!ids.Add(element.Id))
                     Debug.LogError($"[Data] 요소 id 겹침: {element.Id} ({element.name})");
+            }
+        }
+        #endregion
+
+        #region ValidateTips - 팁 목록 검사: 비었으면 경고(로딩창에 팁 없이 나옴), 빈 칸, 제목·본문 키 빔
+        void ValidateTips()
+        {
+            if (_tips == null || _tips.Length == 0)
+            {
+                Debug.LogWarning("[Data] 팁 목록 비어 있음. 로딩창에 팁 없이 나옴");
+                _tips = Array.Empty<TipSO>();
+                return;
+            }
+
+            for (int i = 0; i < _tips.Length; i++)
+            {
+                // 검사할 팁
+                TipSO tip = _tips[i];
+                if (tip == null)
+                    Debug.LogError($"[Data] 팁 {i}번 칸 비어 있음");
+                else if (tip.Title.IsEmpty || tip.Body.IsEmpty)
+                    Debug.LogError($"[Data] {tip.name}의 제목·본문 키 비어 있음");
             }
         }
         #endregion

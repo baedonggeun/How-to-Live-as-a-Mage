@@ -12,6 +12,9 @@ namespace Mage
         /// <summary>이 상태의 씬 이름 (빌드 목록과 같음)</summary>
         public override string SceneName => Scene;
 
+        /// <summary>들어올 때 로딩창에 팁을 띄우고 넘기기 버튼을 기다림 (플레이 씬)</summary>
+        public override bool WaitsForContinue => true;
+
         /// <summary>이 씬의 화면 참조</summary>
         HubView _view;
 

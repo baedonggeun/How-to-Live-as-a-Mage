@@ -21,6 +21,9 @@ namespace Mage
         /// <summary>타이틀 배경음. 비면 무음 (인스펙터에서만 연결)</summary>
         [SerializeField] SoundDataSO _bgm;
 
+        /// <summary>시작 연출 ('클릭하여 계속' → 화면 내림 → 제목·메뉴). 인스펙터에서만 연결</summary>
+        [SerializeField] TitleIntroSequence _intro;
+
         /// <summary>새 게임 버튼</summary>
         public Button NewGameButton => _newGameButton;
 
@@ -35,5 +38,8 @@ namespace Mage
 
         /// <summary>타이틀 배경음. 비면 null</summary>
         public SoundDataSO Bgm => _bgm;
+
+        /// <summary>시작 연출</summary>
+        public TitleIntroSequence Intro => _intro;
     }
 }

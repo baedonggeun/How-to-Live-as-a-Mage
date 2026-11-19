@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Utilities;
 
 namespace Mage
 {
@@ -14,19 +16,55 @@ namespace Mage
         /// <summary>이 상태의 씬 이름 (빌드 목록과 같음)</summary>
         public override string SceneName => Scene;
 
-        #region OnSceneReady - 버튼 연결, 이어하기 끔, 배경음 재생
+        /// <summary>이 씬의 화면 참조</summary>
+        TitleView _view;
+
+        /// <summary>'클릭하여 계속' 입력 구독. 누르면 CallOnce가 풀고, 누르기 전에 나가면 Exit가 풂. 없으면 null</summary>
+        System.IDisposable _pressSubscription;
+
+        #region OnSceneReady - 버튼 연결, 이어하기 끔 (제목·메뉴는 TitleIntroSequence가 숨긴 채 시작)
         protected override void OnSceneReady()
         {
-            // 이 씬의 화면 참조
-            var view = FindView<TitleView>();
-            if (view == null) return;
-            view.NewGameButton.onClick.AddListener(OnNewGame);
+            _view = FindView<TitleView>();
+            if (_view == null) return;
+            _view.NewGameButton.onClick.AddListener(OnNewGame);
             // 저장이 없어서 이어할 판이 없음 (저장은 프로토타입 범위 밖)
-            view.ContinueButton.interactable = false;
-            view.SettingsButton.onClick.AddListener(OnSettings);
-            view.QuitButton.onClick.AddListener(OnQuit);
+            _view.ContinueButton.interactable = false;
+            _view.SettingsButton.onClick.AddListener(OnSettings);
+            _view.QuitButton.onClick.AddListener(OnQuit);
+        }
+        #endregion
+
+        #region Reveal - 배경음 재생, '클릭하여 계속' 입력 대기 (넘기기 버튼 규칙은 로딩창과 같음)
+        public override void Reveal()
+        {
+            if (_view == null) return;
             // 비어 있으면 AudioManager가 무시함
-            AudioManager.Instance.PlayBgm(view.Bgm);
+            AudioManager.Instance.PlayBgm(_view.Bgm);
+            _pressSubscription = InputSystem.onAnyButtonPress
+                .Where(TransitionManager.IsContinueControl)
+                .CallOnce(_ => OnPressStart());
+        }
+        #endregion
+
+        #region OnPressStart - 시작 연출 (화면 내림 → 제목·메뉴). 구독은 CallOnce가 이미 풂
+        void OnPressStart()
+        {
+            _pressSubscription = null;
+            if (_view.Intro == null)
+            {
+                Debug.LogError("[Flow] TitleView에 Intro 연결 안 됨");
+                return;
+            }
+            _view.Intro.Play();
+        }
+        #endregion
+
+        #region Exit - 누르기 전에 나가면 '클릭하여 계속' 구독 해제
+        public override void Exit()
+        {
+            _pressSubscription?.Dispose();
+            _pressSubscription = null;
         }
         #endregion
 

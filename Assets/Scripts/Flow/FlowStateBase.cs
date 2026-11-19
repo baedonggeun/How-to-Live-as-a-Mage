@@ -8,6 +8,9 @@ namespace Mage
         /// <summary>이 상태의 내용 씬 이름. 빌드 목록 이름과 같아야 함</summary>
         public abstract string SceneName { get; }
 
+        /// <summary>이 상태로 들어갈 때 로딩창에 팁을 띄우고 넘기기 버튼을 기다릴지. 기본은 안 기다림 (검은 덮개만, 준비되면 바로 걷음). 플레이 씬(전초기지·숲)만 켬</summary>
+        public virtual bool WaitsForContinue => false;
+
         /// <summary>이 상태를 연 GameManager. Begin에서 받음</summary>
         protected GameManager Game { get; private set; }
 
@@ -21,8 +24,12 @@ namespace Mage
         }
         #endregion
 
-        #region OnSceneReady - 상태별로 View를 찾아 버튼·입력을 연결하고 표시
+        #region OnSceneReady - 상태별로 View를 찾아 버튼을 연결하고 글자를 채움 (덮개 밑. 배경음·조작 입력은 Reveal)
         protected abstract void OnSceneReady();
+        #endregion
+
+        #region Reveal - 덮개가 걷힌 뒤 GameManager가 부름. 화면이 보일 때 시작할 것 (배경음, 커서 잠금, 조작 입력)
+        public virtual void Reveal() { }
         #endregion
 
         #region Exit - 다음 상태로 가기 전. 씬 밖에 사는 구독(입력 액션 등) 해제
