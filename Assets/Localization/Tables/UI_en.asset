@@ -124,6 +124,26 @@ MonoBehaviour:
     m_Localized: Mute in background
     m_Metadata:
       m_Items: []
+  - m_Id: 2388045526106112
+    m_Localized: Paused
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2388045530300416
+    m_Localized: Resume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2388045530300417
+    m_Localized: Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2388045530300418
+    m_Localized: Return to Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2388045530300419
+    m_Localized: Return to the title? Your current run will be lost.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

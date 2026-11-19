@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Localization.Settings;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
@@ -14,6 +15,9 @@ namespace Mage
 
         /// <summary>창이 비활성일 때 프레임 제한. 안 보는 화면을 수백 fps로 그리지 않게 (PC 품질은 vSync 꺼짐)</summary>
         const int BackgroundFrameRate = 30;
+
+        /// <summary>일시정지 메뉴가 떠 있는 동안 끌 게임 조작 입력 묶음 (전역 액션). 메뉴 조작(UI 묶음·Esc)은 그대로 둠</summary>
+        const string PlayerActionMap = "Player";
 
         /// <summary>로딩 바에서 씬 로드 단계가 차지하는 몫 (0~1). 콘솔 [Flow] 로딩 시간 로그로 잰 비율에 맞춤</summary>
         [SerializeField, Range(0f, 1f)] float _sceneLoadShare = 0.8f;
@@ -32,6 +36,15 @@ namespace Mage
 
         /// <summary>로딩창이 떠 있는지. 떠 있는 동안 게임 시간 0</summary>
         bool _covered;
+
+        /// <summary>일시정지 메뉴가 떠 있는지. 떠 있는 동안 게임 시간 0, 게임 조작 입력 꺼짐</summary>
+        bool _menuPaused;
+
+        /// <summary>일시정지 메뉴를 열기 전 커서 잠금 상태. 메뉴를 닫으면 이 값으로 되돌림 (숲은 잠겨 있음)</summary>
+        CursorLockMode _cursorBeforePause;
+
+        /// <summary>지금 일시정지 메뉴를 열 수 있는지: 전환(로딩) 중이 아니고 지금 상태가 일시정지 메뉴를 씀 (플레이 씬)</summary>
+        public bool CanPause => !_isSwitching && _state != null && _state.UsesPauseMenu;
 
         /// <summary>창이 비활성인지 (빌드만). 비활성이면 프레임 제한, 설정 '창이 비활성이면 음소거'가 켜져 있으면 소리 0. 게임은 계속 돎 (Run In Background 켬)</summary>
         bool _unfocused;
@@ -167,8 +180,43 @@ namespace Mage
         }
         #endregion
 
-        #region ApplyTimeScale - 멈출 이유(지금은 로딩창)가 있으면 게임 시간 0, 없으면 1
-        void ApplyTimeScale() => Time.timeScale = _covered ? 0f : 1f;
+        #region ReturnToTitle - 타이틀로 돌아감 (일시정지 메뉴의 '타이틀로'). 이번 판 데이터는 버리고, 타이틀은 '클릭하여 계속' 없이 바로 메뉴
+        public void ReturnToTitle()
+        {
+            // 전환 중이면 ChangeState가 거절하므로 판 데이터도 그대로 둠
+            if (_isSwitching) return;
+            Run = new RunEntry();
+            ChangeState(new TitleState(showIntro: false));
+        }
+        #endregion
+
+        #region SetMenuPaused - 일시정지 메뉴가 떴는지 표시: 게임 시간 0, 게임 조작 입력 끔, 커서 풀기. 닫히면 되돌림 (UIManager가 부름)
+        /// <param name="paused">메뉴가 떠 있는지</param>
+        public void SetMenuPaused(bool paused)
+        {
+            if (paused == _menuPaused) return;
+            _menuPaused = paused;
+            ApplyTimeScale();
+            // 게임 조작 입력 묶음 (숲 E 귀환 등)
+            var player = InputSystem.actions.FindActionMap(PlayerActionMap);
+            if (player == null) Debug.LogError($"[Flow] {PlayerActionMap} 입력 묶음 없음. 일시정지 중에도 게임 조작이 들어감");
+            else if (paused) player.Disable();
+            else player.Enable();
+            // 메뉴를 누를 수 있게 커서를 풀고, 닫으면 원래대로
+            if (paused)
+            {
+                _cursorBeforePause = Cursor.lockState;
+                Cursor.lockState = CursorLockMode.None;
+            }
+            else
+            {
+                Cursor.lockState = _cursorBeforePause;
+            }
+        }
+        #endregion
+
+        #region ApplyTimeScale - 멈출 이유(로딩창·일시정지 메뉴)가 하나라도 있으면 게임 시간 0, 없으면 1
+        void ApplyTimeScale() => Time.timeScale = _covered || _menuPaused ? 0f : 1f;
         #endregion
 
         #region SetUnfocused - 창 비활성 처리: 프레임 제한, 설정 '창이 비활성이면 음소거'가 켜져 있으면 소리 0. 게임은 계속 돎. 돌아오면 되돌림

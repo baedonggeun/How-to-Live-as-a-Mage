@@ -4,7 +4,7 @@ using UnityEngine.InputSystem.Utilities;
 
 namespace Mage
 {
-    /// <summary>초기 화면. 새 게임 → 캐릭터 생성, 설정 창, 종료 확인</summary>
+    /// <summary>초기 화면. 새 게임 → 캐릭터 생성, 설정 창, 종료 확인. 켤 때는 '클릭하여 계속'부터, 게임 중 '타이틀로'면 바로 메뉴</summary>
     public sealed class TitleState : FlowStateBase
     {
         /// <summary>이 상태의 씬 이름</summary>
@@ -22,6 +22,14 @@ namespace Mage
         /// <summary>'클릭하여 계속' 입력 구독. 누르면 CallOnce가 풀고, 누르기 전에 나가면 Exit가 풂. 없으면 null</summary>
         System.IDisposable _pressSubscription;
 
+        /// <summary>'클릭하여 계속'부터 보일지. 게임을 켤 때는 true, 게임 중 타이틀로 돌아올 때는 false (바로 메뉴)</summary>
+        readonly bool _showIntro;
+
+        #region TitleState - 타이틀 상태 만들기
+        /// <param name="showIntro">'클릭하여 계속'부터 보일지 (false면 바로 메뉴)</param>
+        public TitleState(bool showIntro = true) => _showIntro = showIntro;
+        #endregion
+
         #region OnSceneReady - 버튼 연결, 이어하기 끔 (제목·메뉴는 TitleIntroSequence가 숨긴 채 시작)
         protected override void OnSceneReady()
         {
@@ -35,12 +43,18 @@ namespace Mage
         }
         #endregion
 
-        #region Reveal - 배경음 재생, '클릭하여 계속' 입력 대기 (넘기기 버튼 규칙은 로딩창과 같음)
+        #region Reveal - 배경음 재생, '클릭하여 계속' 입력 대기 (넘기기 버튼 규칙은 로딩창과 같음). 게임 중 돌아온 경우는 바로 메뉴
         public override void Reveal()
         {
             if (_view == null) return;
             // 비어 있으면 AudioManager가 무시함
             AudioManager.Instance.PlayBgm(_view.Bgm);
+            if (!_showIntro)
+            {
+                if (_view.Intro == null) Debug.LogError("[Flow] TitleView에 Intro 연결 안 됨");
+                else _view.Intro.ShowMain();
+                return;
+            }
             _pressSubscription = InputSystem.onAnyButtonPress
                 .Where(TransitionManager.IsContinueControl)
                 .CallOnce(_ => OnPressStart());

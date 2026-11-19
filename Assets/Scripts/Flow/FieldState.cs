@@ -18,6 +18,9 @@ namespace Mage
         /// <summary>들어올 때 로딩창에 팁을 띄우고 넘기기 버튼을 기다림 (플레이 씬. 문구를 보는 동안 게임은 멈춰 있음)</summary>
         public override bool WaitsForContinue => true;
 
+        /// <summary>Esc로 일시정지 메뉴를 열 수 있음 (플레이 씬. 메뉴가 떠 있는 동안 E 귀환도 막힘)</summary>
+        public override bool UsesPauseMenu => true;
+
         /// <summary>귀환 입력 액션. Exit에서 구독 해제</summary>
         InputAction _interact;
 

@@ -51,6 +51,18 @@ namespace Mage
         }
         #endregion
 
+        #region ShowMain - 연출 없이 바로 메뉴 화면 (게임 중 타이틀로 돌아왔을 때): 안내 끔, 화면은 내려간 끝 위치, 제목·메뉴 보이고 누를 수 있게
+        public void ShowMain()
+        {
+            if (_pan == null || _prompt == null || _main == null) return;
+            _prompt.enabled = false;
+            _pan.anchoredPosition = _panStart + Vector2.up * _panDistance;
+            _main.alpha = 1f;
+            _main.interactable = true;
+            _main.blocksRaycasts = true;
+        }
+        #endregion
+
         #region PlayRoutine - 안내 끔 → 화면 내림(천천히 출발·도착) → 제목·메뉴 나타남 → 누를 수 있게 (실제 시간 기준)
         IEnumerator PlayRoutine()
         {

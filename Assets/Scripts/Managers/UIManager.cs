@@ -6,14 +6,17 @@ using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>씬을 넘어 쓰는 공용 UI 담당. 지금은 토스트·설정 창·확인창, 나중에 일시정지</summary>
+    /// <summary>씬을 넘어 쓰는 공용 UI 담당: 토스트·설정 창·확인창·일시정지 메뉴</summary>
     public sealed class UIManager : MonoSingleton<UIManager>
     {
         /// <summary>토스트 표시 시간 (초)</summary>
         const float ToastSeconds = 2f;
 
-        /// <summary>창 닫기 입력 액션 경로 (전역 액션, Esc)</summary>
+        /// <summary>창 닫기·일시정지 메뉴 입력 액션 경로 (전역 액션, Esc)</summary>
         const string CancelActionPath = "UI/Cancel";
+
+        /// <summary>일시정지 메뉴 '타이틀로' 확인창 문구 키 (UI 테이블)</summary>
+        const string ToTitleConfirmKey = "pause.to_title_confirm";
 
         /// <summary>테이블을 안 넘긴 토스트·확인창이 쓰는 테이블 (공용 UI 문구)</summary>
         static readonly TableReference UiTable = "UI";
@@ -26,6 +29,9 @@ namespace Mage
 
         /// <summary>확인창 (Boot 씬 UICanvas 자식)</summary>
         [SerializeField] ConfirmView _confirm;
+
+        /// <summary>일시정지 메뉴 (Boot 씬 UICanvas 자식. 설정 창·확인창보다 아래에 그려짐)</summary>
+        [SerializeField] PauseMenuView _pauseMenu;
 
         /// <summary>토스트를 숨기는 코루틴. 새 토스트가 오면 끊고 다시 시작</summary>
         Coroutine _hideToast;
@@ -92,9 +98,19 @@ namespace Mage
         }
         #endregion
 
-        #region InitWindows - 설정 창·확인창을 끄고 버튼을 한 번만 연결, Esc 구독
+        #region InitWindows - 설정 창·확인창·일시정지 메뉴를 끄고 버튼을 한 번만 연결, Esc 구독
         void InitWindows()
         {
+            if (_pauseMenu == null)
+                Debug.LogError("[UI] PauseMenuView 연결 안 됨");
+            else
+            {
+                _pauseMenu.gameObject.SetActive(false);
+                _pauseMenu.ResumeButton.onClick.AddListener(HidePauseMenu);
+                _pauseMenu.SettingsButton.onClick.AddListener(ShowSettings);
+                _pauseMenu.ToTitleButton.onClick.AddListener(OnToTitle);
+            }
+
             if (_settings == null)
                 Debug.LogError("[UI] SettingsView 연결 안 됨");
             else
@@ -198,7 +214,35 @@ namespace Mage
         }
         #endregion
 
-        #region OnCancel - Esc: 확인창이 열려 있으면 취소, 아니면 설정 창이 열려 있으면 닫기
+        #region ShowPauseMenu - 일시정지 메뉴 켜고 게임 멈춤
+        void ShowPauseMenu()
+        {
+            _pauseMenu.gameObject.SetActive(true);
+            GameManager.Instance.SetMenuPaused(true);
+        }
+        #endregion
+
+        #region HidePauseMenu - 일시정지 메뉴 끄고 게임 다시 돌림 (계속하기·Esc)
+        void HidePauseMenu()
+        {
+            if (_pauseMenu != null) _pauseMenu.gameObject.SetActive(false);
+            GameManager.Instance.SetMenuPaused(false);
+        }
+        #endregion
+
+        #region OnToTitle - '타이틀로' 확인창 (확인하면 메뉴를 닫고 타이틀로)
+        void OnToTitle() => ShowConfirm(ToTitleConfirmKey, ReturnToTitle);
+        #endregion
+
+        #region ReturnToTitle - 일시정지 메뉴를 닫아 게임 시간·입력·커서를 되돌린 뒤 타이틀로
+        void ReturnToTitle()
+        {
+            HidePauseMenu();
+            GameManager.Instance.ReturnToTitle();
+        }
+        #endregion
+
+        #region OnCancel - Esc: 확인창 → 설정 창 → 일시정지 메뉴 순으로 열린 것을 닫음. 아무것도 안 열렸고 플레이 씬이면 일시정지 메뉴를 엶
         /// <param name="context">입력 정보 (안 씀)</param>
         void OnCancel(InputAction.CallbackContext context)
         {
@@ -206,6 +250,10 @@ namespace Mage
                 HideConfirm();
             else if (_settings != null && _settings.gameObject.activeSelf)
                 HideSettings();
+            else if (_pauseMenu != null && _pauseMenu.gameObject.activeSelf)
+                HidePauseMenu();
+            else if (_pauseMenu != null && GameManager.Instance.CanPause)
+                ShowPauseMenu();
         }
         #endregion
     }

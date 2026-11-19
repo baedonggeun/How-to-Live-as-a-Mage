@@ -11,6 +11,9 @@ namespace Mage
         /// <summary>이 상태로 들어갈 때 로딩창에 팁을 띄우고 넘기기 버튼을 기다릴지. 기본은 안 기다림 (검은 덮개만, 준비되면 바로 걷음). 플레이 씬(전초기지·숲)만 켬</summary>
         public virtual bool WaitsForContinue => false;
 
+        /// <summary>이 상태에서 Esc로 일시정지 메뉴를 열 수 있는지. 기본은 못 엶 (메뉴 화면). 플레이 씬(전초기지·숲)만 켬</summary>
+        public virtual bool UsesPauseMenu => false;
+
         /// <summary>이 상태를 연 GameManager. Begin에서 받음</summary>
         protected GameManager Game { get; private set; }
 
