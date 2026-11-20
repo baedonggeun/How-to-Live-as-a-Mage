@@ -45,26 +45,6 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2778219915398349080
-  - m_Id: 388387043966980
-    m_Key: hub.party_count
-    m_Metadata:
-      m_Items:
-      - rid: 2778219915398349081
-  - m_Id: 388387043966981
-    m_Key: hub.recruit
-    m_Metadata:
-      m_Items:
-      - rid: 2778219915398349082
-  - m_Id: 388387043966982
-    m_Key: hub.depart
-    m_Metadata:
-      m_Items:
-      - rid: 2778219915398349083
-  - m_Id: 388387043966983
-    m_Key: hub.party_required
-    m_Metadata:
-      m_Items:
-      - rid: 2778219915398349084
   - m_Id: 388387043966984
     m_Key: quest.forest_01.title
     m_Metadata:
@@ -170,6 +150,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2778220039273971816
+  - m_Id: 2494127288254464
+    m_Key: common.interact_prompt
+    m_Metadata:
+      m_Items:
+      - rid: 2778220047486419023
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
@@ -206,24 +191,6 @@ MonoBehaviour:
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
         m_CommentText: "\uC624\uD504\uB2DD \uBCF8\uBB38 (\uC784\uC2DC)"
-    - rid: 2778219915398349081
-      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
-      data:
-        m_CommentText: "\uC804\uCD08\uAE30\uC9C0 \uD30C\uD2F0 \uC778\uC6D0. {0} \uC9C0\uAE08
-          \uC778\uC6D0, {1} \uD544\uC694\uD55C \uC778\uC6D0"
-    - rid: 2778219915398349082
-      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
-      data:
-        m_CommentText: "\uC804\uCD08\uAE30\uC9C0 \uC784\uC2DC \uC601\uC785 \uBC84\uD2BC"
-    - rid: 2778219915398349083
-      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
-      data:
-        m_CommentText: "\uC804\uCD08\uAE30\uC9C0 \uCD9C\uBC1C \uBC84\uD2BC"
-    - rid: 2778219915398349084
-      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
-      data:
-        m_CommentText: "\uC6A9\uBCD1\uC774 \uBAA8\uC790\uB784 \uB54C \uD1A0\uC2A4\uD2B8.
-          {0} \uD544\uC694\uD55C \uC778\uC6D0"
     - rid: 2778219915398349085
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
@@ -326,3 +293,8 @@ MonoBehaviour:
         m_CommentText: "\uC77C\uC2DC\uC815\uC9C0 \uBA54\uB274\uC5D0\uC11C \uD0C0\uC774\uD2C0\uB85C\uB97C
           \uB20C\uB800\uC744 \uB54C \uD655\uC778\uCC3D \uBB38\uAD6C. \uC800\uC7A5\uC774
           \uC5C6\uC5B4 \uC9C4\uD589 \uC911\uC778 \uD310\uC774 \uC0AC\uB77C\uC9D0"
+    - rid: 2778220047486419023
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uC0C1\uD638\uC791\uC6A9 \uC548\uB0B4. {0} \uD0A4 \uC774\uB984,
+          {1} \uC9C0\uC810 \uC774\uB984"
