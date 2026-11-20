@@ -47,6 +47,14 @@ MonoBehaviour:
       \uBC1B\uC544"
     m_Metadata:
       m_Items: []
+  - m_Id: 154220343492608
+    m_Localized: "\uC6A9\uBCD1"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154220377047040
+    m_Localized: "\uC219\uC18C\uBD80\uD130 \uC7A1\uACE0 \uC77C\uC744 \uC54C\uC544\uBCF4\uC790\uACE0."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

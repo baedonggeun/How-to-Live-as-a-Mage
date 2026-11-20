@@ -46,6 +46,14 @@ MonoBehaviour:
     m_Localized: Take a quest from the board first
     m_Metadata:
       m_Items: []
+  - m_Id: 154220343492608
+    m_Localized: Mercenary
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154220377047040
+    m_Localized: Let's get a room first, then look for work.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -25,7 +25,7 @@ namespace Mage
         /// <summary>지금 기기 설정. InitSingleton 뒤엔 늘 있음</summary>
         DeviceSettingsEntry _device;
 
-        /// <summary>지금 기기 설정 (음량). 바꾼 값은 Save를 불러야 파일에 남음</summary>
+        /// <summary>지금 기기 설정 (음량, 배운 튜토리얼). 바꾼 값은 Save를 불러야 파일에 남음</summary>
         public DeviceSettingsEntry Device => _device;
 
         #region InitSingleton - 기기 설정 읽기: 본 파일 → .bak → 기본값 (다른 매니저는 Start부터 Device를 씀)

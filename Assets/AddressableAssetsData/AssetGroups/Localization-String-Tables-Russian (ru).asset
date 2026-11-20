@@ -27,11 +27,32 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-ru
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2e00f1de7f670d2469b26da21476fbf8
+    m_Address: Objective_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 472370279b0c37d4688c9aabc51ddaea
+    m_Address: Menu_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4d144cbb596bf164690e26ba08ecb210
     m_Address: Creation_ru
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ru
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 74f996434c9eed14cbe8e6a8debf7221
+    m_Address: Tutorial_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: eacb8854e01685f45bdfe4bdfebc85ae
     m_Address: Opening_ru

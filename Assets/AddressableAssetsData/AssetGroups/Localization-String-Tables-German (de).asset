@@ -27,11 +27,32 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-de
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 333483dc69a909549a49ea1fbb779b0b
+    m_Address: Menu_de
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-de
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 34a8cbd32b54aa64e9472fd4f5d42f9b
+    m_Address: Tutorial_de
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-de
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5eb40fb512f23d54ab024e6c793a0fdc
     m_Address: Tip_de
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-de
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8ea943d88d4aa9842b177a7ce6e7e56e
+    m_Address: Objective_de
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-de
+    - Preload
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c4fcf62eda01b4b4f9757003ead44cfc
     m_Address: UI_de

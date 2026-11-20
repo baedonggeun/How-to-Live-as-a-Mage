@@ -31,8 +31,26 @@ namespace Mage
         /// <summary>의뢰 없이 출발할 때 토스트 키</summary>
         const string QuestRequiredKey = "hub.quest_required";
 
+        /// <summary>이동 튜토리얼 id</summary>
+        const string MoveTutorialId = "move";
+
+        /// <summary>둘러보기 튜토리얼 id</summary>
+        const string LookTutorialId = "look";
+
+        /// <summary>달리기 튜토리얼 id</summary>
+        const string SprintTutorialId = "sprint";
+
+        /// <summary>상호작용 튜토리얼 id (12시 안내 없음, 처음 E를 쓰면 배움)</summary>
+        const string InteractTutorialId = "interact";
+
+        /// <summary>목표가 바뀌었을 때 토스트 키 ({0} 목표 이름, Menu 테이블)</summary>
+        const string ObjectiveUpdatedKey = "menu.journal.updated";
+
         /// <summary>전초기지 문구 테이블</summary>
         static readonly TableReference Table = "Hub";
+
+        /// <summary>메뉴 창 문구 테이블</summary>
+        static readonly TableReference MenuTable = "Menu";
 
         /// <summary>이 상태의 씬 이름 (빌드 목록과 같음)</summary>
         public override string SceneName => Scene;
@@ -78,7 +96,7 @@ namespace Mage
         }
         #endregion
 
-        #region OnOpeningFinished - 연출이 끝남: 도착 표시, 플레이어·화면 글자 켜고 조작 시작 (연출 카메라는 이미 꺼져서 같은 프레임에 플레이어 카메라로 넘어감)
+        #region OnOpeningFinished - 연출이 끝남: 도착 표시, 플레이어·화면 글자 켜고 조작 시작 (연출 카메라는 이미 꺼져서 같은 프레임에 플레이어 카메라로 넘어감). 첫 목표를 정하고 동승 용병 대사 자막 → 끝나면 임무 일지 갱신 알림
         void OnOpeningFinished()
         {
             _view.Opening.Finished -= OnOpeningFinished;
@@ -87,20 +105,36 @@ namespace Mage
             _view.Player.gameObject.SetActive(true);
             _view.Hud.SetActive(true);
             StartControl();
+            Game.Run.CurrentObjective = _view.FirstObjective;
+            UIManager.Instance.ShowSubtitle(_view.ArrivalSpeaker, _view.ArrivalLine, NotifyObjective);
         }
         #endregion
 
-        #region StartControl - 지점 알림 구독, 조작·지점 찾기 켬 (로딩창을 넘길 때 누른 E는 구독 전이라 안 들어감)
+        #region NotifyObjective - 지금 목표가 있으면 "임무 일지 갱신: 이름" 토스트
+        void NotifyObjective()
+        {
+            // 이번 판 현재 목표
+            ObjectiveSO objective = Game.Run.CurrentObjective;
+            if (objective == null) return;
+            UIManager.Instance.ShowToast(MenuTable, ObjectiveUpdatedKey, objective.Title.GetLocalizedString());
+        }
+        #endregion
+
+        #region StartControl - 지점 알림 구독, 조작·지점 찾기 켬 (로딩창을 넘길 때 누른 E는 구독 전이라 안 들어감), 안 배운 조작 안내 알림
         void StartControl()
         {
             _view.Detector.TargetChanged += OnTargetChanged;
             _view.Detector.Interacted += OnInteracted;
             _view.Player.enabled = true;
             _view.Detector.enabled = true;
+            // 안 배운 조작 안내만 차례로 12시에 (배운 건 TutorialManager가 거름)
+            TutorialManager.Instance.Notify(MoveTutorialId);
+            TutorialManager.Instance.Notify(LookTutorialId);
+            TutorialManager.Instance.Notify(SprintTutorialId);
         }
         #endregion
 
-        #region Exit - 연출 중이면 알림 없이 멈춤, 알림 구독 해제, 조작·지점 찾기 끔, 커서 풀기
+        #region Exit - 연출 중이면 알림 없이 멈춤, 알림 구독 해제, 조작·지점 찾기 끔, 커서 풀기, 조작 안내·자막 정리
         public override void Exit()
         {
             if (_view != null)
@@ -112,6 +146,8 @@ namespace Mage
                 _view.Player.enabled = false;
                 _view.Detector.enabled = false;
             }
+            TutorialManager.Instance.Clear();
+            UIManager.Instance.HideSubtitle();
             Cursor.lockState = CursorLockMode.None;
         }
         #endregion
@@ -133,10 +169,11 @@ namespace Mage
         }
         #endregion
 
-        #region OnInteracted - 지점 id로 나눔: 영입·의뢰 받기·출발. 모르는 id는 경고
+        #region OnInteracted - 처음 쓰면 상호작용 배움. 지점 id로 나눔: 영입·의뢰 받기·출발. 모르는 id는 경고
         /// <param name="target">E를 누를 때 바라본 지점</param>
         void OnInteracted(InteractPointView target)
         {
+            TutorialManager.Instance.MarkLearned(InteractTutorialId);
             if (string.Equals(target.Id, RecruitId, StringComparison.Ordinal)) Recruit();
             else if (string.Equals(target.Id, BoardId, StringComparison.Ordinal)) TakeQuest();
             else if (string.Equals(target.Id, DepartId, StringComparison.Ordinal)) Depart();

@@ -39,6 +39,20 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-tr
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a87ca1e92ec1b5a45986dfed3f6a6b6b
+    m_Address: Menu_tr
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-tr
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dd32d62803a913c4197e355d891fe7f4
+    m_Address: Objective_tr
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-tr
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e915bc1810167d242a5b86dfc4a84c8b
     m_Address: Element_tr
     m_ReadOnly: 1
@@ -50,6 +64,13 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-tr
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f625dfd25dc1d7641b739196e9b30502
+    m_Address: Tutorial_tr
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-tr
+    - Preload
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: f2b523eaf6371f2488f5ccc7a3401608, type: 2}

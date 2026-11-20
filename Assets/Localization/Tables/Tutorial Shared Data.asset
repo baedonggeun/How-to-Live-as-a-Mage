@@ -1,0 +1,129 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Tutorial Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Tutorial
+  m_TableCollectionNameGuidString: 14105dfdb9e91e84babb044f794a95e1
+  m_Entries:
+  - m_Id: 49082433536
+    m_Key: tutorial.move.prompt
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657298
+  - m_Id: 49090822144
+    m_Key: tutorial.move.title
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657299
+  - m_Id: 49090822145
+    m_Key: tutorial.move.body
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657300
+  - m_Id: 49090822146
+    m_Key: tutorial.look.prompt
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657301
+  - m_Id: 49090822147
+    m_Key: tutorial.look.title
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657302
+  - m_Id: 49090822148
+    m_Key: tutorial.look.body
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657303
+  - m_Id: 49090822149
+    m_Key: tutorial.sprint.prompt
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657304
+  - m_Id: 49090822150
+    m_Key: tutorial.sprint.title
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657305
+  - m_Id: 49090822151
+    m_Key: tutorial.sprint.body
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657306
+  - m_Id: 49090822152
+    m_Key: tutorial.interact.title
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657307
+  - m_Id: 49090822153
+    m_Key: tutorial.interact.body
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657308
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 2778220057739657293
+  references:
+    version: 2
+    RefIds:
+    - rid: 2778220057739657293
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1795178517282
+    - rid: 2778220057739657298
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD654\uBA74 12\uC2DC \uC774\uB3D9 \uC548\uB0B4 (\uD0A4 \uAE00\uC790
+          \uC784\uC2DC)"
+    - rid: 2778220057739657299
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD29C\uD1A0\uB9AC\uC5BC \uD0ED \uC81C\uBAA9"
+    - rid: 2778220057739657300
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD29C\uD1A0\uB9AC\uC5BC \uD0ED \uC124\uBA85 (\uC784\uC2DC)"
+    - rid: 2778220057739657301
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD654\uBA74 12\uC2DC \uB458\uB7EC\uBCF4\uAE30 \uC548\uB0B4"
+    - rid: 2778220057739657302
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD29C\uD1A0\uB9AC\uC5BC \uD0ED \uC81C\uBAA9"
+    - rid: 2778220057739657303
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD29C\uD1A0\uB9AC\uC5BC \uD0ED \uC124\uBA85 (\uC784\uC2DC)"
+    - rid: 2778220057739657304
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD654\uBA74 12\uC2DC \uB2EC\uB9AC\uAE30 \uC548\uB0B4 (\uD0A4
+          \uAE00\uC790 \uC784\uC2DC)"
+    - rid: 2778220057739657305
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD29C\uD1A0\uB9AC\uC5BC \uD0ED \uC81C\uBAA9"
+    - rid: 2778220057739657306
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD29C\uD1A0\uB9AC\uC5BC \uD0ED \uC124\uBA85 (\uC784\uC2DC)"
+    - rid: 2778220057739657307
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD29C\uD1A0\uB9AC\uC5BC \uD0ED \uC81C\uBAA9"
+    - rid: 2778220057739657308
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD29C\uD1A0\uB9AC\uC5BC \uD0ED \uC124\uBA85 (\uC784\uC2DC)"

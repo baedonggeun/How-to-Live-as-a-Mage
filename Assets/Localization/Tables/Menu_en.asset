@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Menu_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: efe2cebe73908cb4881b8c876af93927, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 47568289792
+    m_Localized: Map
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47585067008
+    m_Localized: Journal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47585067009
+    m_Localized: Tutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47585067010
+    m_Localized: Spell Codex
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47585067011
+    m_Localized: The map is coming (temp)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47585067012
+    m_Localized: No spells discovered yet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47585067013
+    m_Localized: No current objective
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47585067014
+    m_Localized: 'Journal updated: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47585067015
+    m_Localized: Nothing learned yet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47585067016
+    m_Localized: Show all (may contain spoilers)
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

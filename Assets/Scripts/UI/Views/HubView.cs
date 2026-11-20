@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Localization;
 using UnityEngine.Localization.Components;
 
 namespace Mage
@@ -30,6 +31,15 @@ namespace Mage
         /// <summary>조작하는 동안만 보이는 화면 글자 묶음 (파티 수·조준점·안내 글. 인스펙터에서만 연결)</summary>
         [SerializeField] GameObject _hud;
 
+        /// <summary>도착 대사 말한 사람 (Hub/hub.arrival.speaker. 인스펙터에서만 정함)</summary>
+        [SerializeField] LocalizedString _arrivalSpeaker;
+
+        /// <summary>도착 대사 (Hub/hub.arrival.line. 인스펙터에서만 정함)</summary>
+        [SerializeField] LocalizedString _arrivalLine;
+
+        /// <summary>첫 목표 (여관에서 방 잡기. 인스펙터에서만 연결)</summary>
+        [SerializeField] ObjectiveSO _firstObjective;
+
         /// <summary>파티 수 글자</summary>
         public LocalizeStringEvent PartyText => _partyText;
 
@@ -53,5 +63,14 @@ namespace Mage
 
         /// <summary>조작하는 동안만 보이는 화면 글자 묶음</summary>
         public GameObject Hud => _hud;
+
+        /// <summary>도착 대사 말한 사람</summary>
+        public LocalizedString ArrivalSpeaker => _arrivalSpeaker;
+
+        /// <summary>도착 대사</summary>
+        public LocalizedString ArrivalLine => _arrivalLine;
+
+        /// <summary>첫 목표</summary>
+        public ObjectiveSO FirstObjective => _firstObjective;
     }
 }

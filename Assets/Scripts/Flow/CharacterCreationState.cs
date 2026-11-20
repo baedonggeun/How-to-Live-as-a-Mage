@@ -58,7 +58,7 @@ namespace Mage
         }
         #endregion
 
-        #region CreateCards - 요소마다 카드를 만들어 이름·설명·그림을 넣고, 켜고 끌 때 고른 수를 다시 셈
+        #region CreateCards - 요소마다 카드를 만들어 이름·그림을 넣고 이름·설명은 툴팁으로, 켜고 끌 때 고른 수를 다시 셈
         void CreateCards()
         {
             if (_view.ElementCardPrefab == null || _view.ElementGrid == null)
@@ -75,7 +75,7 @@ namespace Mage
                 card.name = element.Id;
                 // SO의 LocalizedString을 같이 쓰지 않게 테이블·키만 넣음
                 card.NameText.StringReference.SetReference(element.Name.TableReference, element.Name.TableEntryReference);
-                card.DescriptionText.StringReference.SetReference(element.Description.TableReference, element.Description.TableEntryReference);
+                card.Tooltip.Set(element.Name, element.Description);
                 card.Icon.sprite = element.Icon;
                 card.Icon.enabled = element.Icon != null;
                 card.Toggle.SetIsOnWithoutNotify(false);

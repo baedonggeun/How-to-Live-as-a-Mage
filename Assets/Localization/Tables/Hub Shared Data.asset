@@ -50,6 +50,16 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2778220047486419030
+  - m_Id: 154220343492608
+    m_Key: hub.arrival.speaker
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657296
+  - m_Id: 154220377047040
+    m_Key: hub.arrival.line
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657297
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
@@ -92,3 +102,13 @@ MonoBehaviour:
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
         m_CommentText: "\uC758\uB8B0 \uC5C6\uC774 \uCD9C\uBC1C\uD560 \uB54C \uD1A0\uC2A4\uD2B8"
+    - rid: 2778220057739657296
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uB3C4\uCC29 \uB300\uC0AC \uB9D0\uD55C \uC0AC\uB78C (\uB2E4\uB978
+          \uD30C\uD2F0 \uC6A9\uBCD1, \uC784\uC2DC)"
+    - rid: 2778220057739657297
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD558\uCC28 \uB4A4 \uB3D9\uC2B9 \uC6A9\uBCD1 \uB300\uC0AC
+          (\uC784\uC2DC)"

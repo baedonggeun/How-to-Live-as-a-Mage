@@ -2,11 +2,12 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Localization;
 using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>씬을 넘어 쓰는 공용 UI 담당: 토스트·설정 창·확인창·일시정지 메뉴</summary>
+    /// <summary>씬을 넘어 쓰는 공용 UI 담당: 토스트·자막·설정 창·확인창·일시정지 메뉴·메뉴 창(지도·임무 일지·튜토리얼·주문 도감)·툴팁</summary>
     public sealed class UIManager : MonoSingleton<UIManager>
     {
         /// <summary>토스트 표시 시간 (초)</summary>
@@ -17,6 +18,15 @@ namespace Mage
 
         /// <summary>일시정지 메뉴 '타이틀로' 확인창 문구 키 (UI 테이블)</summary>
         const string ToTitleConfirmKey = "pause.to_title_confirm";
+
+        /// <summary>자막을 보이는 시간 (초, 게임 시간이라 일시정지 중엔 멈춤)</summary>
+        const float SubtitleSeconds = 4f;
+
+        /// <summary>메뉴 창 지도 탭 입력 액션 경로 (전역 액션, M)</summary>
+        const string MapActionPath = "UI/Map";
+
+        /// <summary>메뉴 창 임무 일지 탭 입력 액션 경로 (전역 액션, J)</summary>
+        const string JournalActionPath = "UI/Journal";
 
         /// <summary>테이블을 안 넘긴 토스트·확인창이 쓰는 테이블 (공용 UI 문구)</summary>
         static readonly TableReference UiTable = "UI";
@@ -32,6 +42,27 @@ namespace Mage
 
         /// <summary>일시정지 메뉴 (Boot 씬 UICanvas 자식. 설정 창·확인창보다 아래에 그려짐)</summary>
         [SerializeField] PauseMenuView _pauseMenu;
+
+        /// <summary>메뉴 창 (Boot 씬 UICanvas 자식. 일시정지 메뉴보다 아래에 그려짐)</summary>
+        [SerializeField] GameMenuController _gameMenu;
+
+        /// <summary>NPC 대사 자막 (Boot 씬 UICanvas 자식)</summary>
+        [SerializeField] SubtitleView _subtitle;
+
+        /// <summary>툴팁 (Boot 씬 UICanvas 맨 위 자식)</summary>
+        [SerializeField] TooltipController _tooltip;
+
+        /// <summary>자막을 숨기는 코루틴. 새 자막이 오면 끊고 다시 시작</summary>
+        Coroutine _hideSubtitle;
+
+        /// <summary>지금 자막이 끝나면 할 일. 없으면 null</summary>
+        Action _onSubtitleHidden;
+
+        /// <summary>지도 탭 입력 액션. OnDestroy에서 구독 해제</summary>
+        InputAction _map;
+
+        /// <summary>임무 일지 탭 입력 액션. OnDestroy에서 구독 해제</summary>
+        InputAction _journal;
 
         /// <summary>토스트를 숨기는 코루틴. 새 토스트가 오면 끊고 다시 시작</summary>
         Coroutine _hideToast;
@@ -98,7 +129,7 @@ namespace Mage
         }
         #endregion
 
-        #region InitWindows - 설정 창·확인창·일시정지 메뉴를 끄고 버튼을 한 번만 연결, Esc 구독
+        #region InitWindows - 설정 창·확인창·일시정지 메뉴를 끄고 버튼을 한 번만 연결, Esc 구독, 메뉴 창·자막·툴팁 끄기, M·J 구독
         void InitWindows()
         {
             if (_pauseMenu == null)
@@ -128,6 +159,25 @@ namespace Mage
                 _confirm.CancelButton.onClick.AddListener(HideConfirm);
             }
 
+            if (_gameMenu == null)
+                Debug.LogError("[UI] GameMenuController 연결 안 됨");
+            else
+            {
+                _gameMenu.gameObject.SetActive(false);
+                if (_gameMenu.View != null) _gameMenu.View.CloseButton.onClick.AddListener(HideGameMenu);
+            }
+
+            if (_subtitle == null) Debug.LogError("[UI] SubtitleView 연결 안 됨");
+            else _subtitle.Root.SetActive(false);
+
+            if (_tooltip == null) Debug.LogError("[UI] TooltipController 연결 안 됨");
+            else _tooltip.Hide();
+
+            _map = FindAction(MapActionPath);
+            if (_map != null) _map.performed += OnMap;
+            _journal = FindAction(JournalActionPath);
+            if (_journal != null) _journal.performed += OnJournal;
+
             _cancel = InputSystem.actions.FindAction(CancelActionPath);
             if (_cancel == null)
                 Debug.LogError($"[UI] {CancelActionPath} 액션 없음. Esc로 창이 안 닫힘");
@@ -136,10 +186,12 @@ namespace Mage
         }
         #endregion
 
-        #region OnDestroy - Esc 구독 해제
+        #region OnDestroy - Esc·M·J 구독 해제
         protected override void OnDestroy()
         {
             if (_cancel != null) _cancel.performed -= OnCancel;
+            if (_map != null) _map.performed -= OnMap;
+            if (_journal != null) _journal.performed -= OnJournal;
             base.OnDestroy();
         }
         #endregion
@@ -242,7 +294,7 @@ namespace Mage
         }
         #endregion
 
-        #region OnCancel - Esc: 확인창 → 설정 창 → 일시정지 메뉴 순으로 열린 것을 닫음. 아무것도 안 열렸고 플레이 씬이면 일시정지 메뉴를 엶
+        #region OnCancel - Esc: 확인창 → 설정 창 → 메뉴 창 → 일시정지 메뉴 순으로 열린 것을 닫음. 아무것도 안 열렸고 플레이 씬이면 일시정지 메뉴를 엶
         /// <param name="context">입력 정보 (안 씀)</param>
         void OnCancel(InputAction.CallbackContext context)
         {
@@ -250,10 +302,138 @@ namespace Mage
                 HideConfirm();
             else if (_settings != null && _settings.gameObject.activeSelf)
                 HideSettings();
+            else if (_gameMenu != null && _gameMenu.IsOpen)
+                HideGameMenu();
             else if (_pauseMenu != null && _pauseMenu.gameObject.activeSelf)
                 HidePauseMenu();
             else if (_pauseMenu != null && GameManager.Instance.CanPause)
                 ShowPauseMenu();
+        }
+        #endregion
+
+        #region FindAction - 전역 입력 액션 찾기. 없으면 에러 로그 후 null
+        /// <param name="path">액션 경로 (묶음/이름)</param>
+        static InputAction FindAction(string path)
+        {
+            // 찾은 액션 (없으면 null)
+            var action = InputSystem.actions.FindAction(path);
+            if (action == null) Debug.LogError($"[UI] {path} 액션 없음");
+            return action;
+        }
+        #endregion
+
+        #region OnMap - M: 메뉴 창 지도 탭
+        /// <param name="context">입력 정보 (안 씀)</param>
+        void OnMap(InputAction.CallbackContext context) => ToggleGameMenu(GameMenuTab.Map);
+        #endregion
+
+        #region OnJournal - J: 메뉴 창 임무 일지 탭
+        /// <param name="context">입력 정보 (안 씀)</param>
+        void OnJournal(InputAction.CallbackContext context) => ToggleGameMenu(GameMenuTab.Journal);
+        #endregion
+
+        #region ToggleGameMenu - 창이 떠 있으면 같은 탭은 닫고 다른 탭은 바꿈. 닫혀 있으면 (다른 창이 없고 플레이 씬일 때) 그 탭으로 열고 게임 멈춤
+        /// <param name="tab">열 탭</param>
+        void ToggleGameMenu(GameMenuTab tab)
+        {
+            if (_gameMenu == null) return;
+            if (_gameMenu.IsOpen)
+            {
+                if (_gameMenu.CurrentTab == tab) HideGameMenu();
+                else _gameMenu.ShowTab(tab);
+                return;
+            }
+            if (IsWindowOpen() || !GameManager.Instance.CanPause) return;
+            _gameMenu.gameObject.SetActive(true);
+            _gameMenu.ShowTab(tab);
+            GameManager.Instance.SetMenuPaused(true);
+        }
+        #endregion
+
+        #region HideGameMenu - 메뉴 창 끄고 게임 다시 돌림 (닫기 버튼·같은 키·Esc)
+        void HideGameMenu()
+        {
+            if (_gameMenu != null) _gameMenu.gameObject.SetActive(false);
+            GameManager.Instance.SetMenuPaused(false);
+        }
+        #endregion
+
+        #region IsWindowOpen - 일시정지 메뉴·설정 창·확인창 중 하나라도 떠 있는지 (메뉴 창과 같이 안 뜨게)
+        bool IsWindowOpen() =>
+            (_pauseMenu != null && _pauseMenu.gameObject.activeSelf)
+            || (_settings != null && _settings.gameObject.activeSelf)
+            || (_confirm != null && _confirm.gameObject.activeSelf);
+        #endregion
+
+        #region ShowSubtitle - 말한 사람·대사 자막을 게임 시간 4초 보이고, 끝나면 onHidden (앞 자막은 알림 없이 끊음)
+        /// <param name="speaker">말한 사람</param>
+        /// <param name="line">대사</param>
+        /// <param name="onHidden">자막이 끝까지 보이고 사라진 뒤 할 일 (없으면 null)</param>
+        public void ShowSubtitle(LocalizedString speaker, LocalizedString line, Action onHidden = null)
+        {
+            if (speaker == null || line == null || speaker.IsEmpty || line.IsEmpty)
+            {
+                Debug.LogWarning("[UI] 빈 자막 무시");
+                onHidden?.Invoke();
+                return;
+            }
+            if (_subtitle == null)
+            {
+                Debug.LogError("[UI] SubtitleView 연결 안 됨");
+                onHidden?.Invoke();
+                return;
+            }
+            HideSubtitle();
+            _subtitle.Speaker.StringReference.SetReference(speaker.TableReference, speaker.TableEntryReference);
+            _subtitle.Line.StringReference.SetReference(line.TableReference, line.TableEntryReference);
+            _subtitle.Root.SetActive(true);
+            _onSubtitleHidden = onHidden;
+            _hideSubtitle = StartCoroutine(HideSubtitleAfter(SubtitleSeconds));
+        }
+        #endregion
+
+        #region HideSubtitleAfter - 정해진 시간 뒤 자막을 숨기고 할 일 실행 (게임 시간 기준)
+        /// <param name="seconds">기다릴 시간 (초)</param>
+        IEnumerator HideSubtitleAfter(float seconds)
+        {
+            yield return new WaitForSeconds(seconds);
+            _subtitle.Root.SetActive(false);
+            _hideSubtitle = null;
+            // 끝나면 할 일 (꺼내고 비운 뒤 실행)
+            Action onHidden = _onSubtitleHidden;
+            _onSubtitleHidden = null;
+            onHidden?.Invoke();
+        }
+        #endregion
+
+        #region HideSubtitle - 자막을 바로 숨김. 끝나면 할 일은 버림 (상태를 나갈 때)
+        public void HideSubtitle()
+        {
+            if (_hideSubtitle != null) StopCoroutine(_hideSubtitle);
+            _hideSubtitle = null;
+            _onSubtitleHidden = null;
+            if (_subtitle != null) _subtitle.Root.SetActive(false);
+        }
+        #endregion
+
+        #region ShowTooltip - 툴팁 띄우기 (TooltipHandler가 부름)
+        /// <param name="title">제목</param>
+        /// <param name="body">설명 (비면 제목만)</param>
+        public void ShowTooltip(LocalizedString title, LocalizedString body)
+        {
+            if (_tooltip == null)
+            {
+                Debug.LogError("[UI] TooltipController 연결 안 됨");
+                return;
+            }
+            _tooltip.Show(title, body);
+        }
+        #endregion
+
+        #region HideTooltip - 툴팁 숨기기
+        public void HideTooltip()
+        {
+            if (_tooltip != null) _tooltip.Hide();
         }
         #endregion
     }

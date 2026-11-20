@@ -15,11 +15,25 @@ MonoBehaviour:
   m_GroupName: Localization-String-Tables-Spanish (es)
   m_GUID: 91d9f638d267887428643512b59ad4e8
   m_SerializeEntries:
+  - m_GUID: 209c4cc18b24d4a47a3b1df199de0228
+    m_Address: Tutorial_es
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-es
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4ac8deccba721d249afa623d331a653c
     m_Address: Creation_es
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-es
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4b077ebdc4cd3fd4db1cbf250ace8f20
+    m_Address: Objective_es
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-es
+    - Preload
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 76d039e951c0a0b42a6d1ef4ba81f4b2
     m_Address: Element_es
@@ -32,6 +46,13 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-es
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a26dc83a6e0853342b2f04a20d554480
+    m_Address: Menu_es
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-es
+    - Preload
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a74e9e14625389f4faaabc8667369158
     m_Address: UI_es

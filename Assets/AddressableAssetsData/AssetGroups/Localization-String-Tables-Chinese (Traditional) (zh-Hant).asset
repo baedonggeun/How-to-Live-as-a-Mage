@@ -45,11 +45,32 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-zh-Hant
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bd38a1cf68b9d3545a0e697ad7e86237
+    m_Address: Menu_zh-Hant
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hant
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cc4cbe4df3a2ee74dbbe9c03fae3cae2
+    m_Address: Tutorial_zh-Hant
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hant
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d3cd2920e5643f747a9a0824ed32d604
     m_Address: Hub_zh-Hant
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-zh-Hant
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: de7298f5b68ccf64197601bf511ecccf
+    m_Address: Objective_zh-Hant
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hant
+    - Preload
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: f2b523eaf6371f2488f5ccc7a3401608, type: 2}

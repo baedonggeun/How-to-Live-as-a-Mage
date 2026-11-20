@@ -6,3 +6,5 @@
 "hub.board","게시판 안내 이름","게시판","Quest Board","","","","","","","","","","",""
 "hub.quest_taken","게시판에서 의뢰를 받았을 때 토스트. {0} 의뢰 이름","의뢰를 받았어: {0}","Quest accepted: {0}","","","","","","","","","","",""
 "hub.quest_required","의뢰 없이 출발할 때 토스트","게시판에서 의뢰를 먼저 받아","Take a quest from the board first","","","","","","","","","","",""
+"hub.arrival.speaker","도착 대사 말한 사람 (다른 파티 용병, 임시)","용병","Mercenary","","","","","","","","","","",""
+"hub.arrival.line","하차 뒤 동승 용병 대사 (임시)","숙소부터 잡고 일을 알아보자고.","Let's get a room first, then look for work.","","","","","","","","","","",""
