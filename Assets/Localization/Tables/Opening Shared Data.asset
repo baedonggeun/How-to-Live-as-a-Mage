@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Opening Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Opening
+  m_TableCollectionNameGuidString: 0302f61167524ed44b56ddef704a58c9
+  m_Entries:
+  - m_Id: 11233034240
+    m_Key: opening.monologue
+    m_Metadata:
+      m_Items:
+      - rid: 2778220049066623054
+  - m_Id: 11266588672
+    m_Key: opening.skip_hint
+    m_Metadata:
+      m_Items:
+      - rid: 2778220049066623055
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 2778220049066623053
+  references:
+    version: 2
+    RefIds:
+    - rid: 2778220049066623053
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1795145469243
+    - rid: 2778220049066623054
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uC624\uD504\uB2DD \uCCAB \uAC80\uC740 \uD654\uBA74 \uD63C\uC7A3\uB9D0
+          \uC790\uB9C9 (\uC784\uC2DC \uBB38\uAD6C)"
+    - rid: 2778220049066623055
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uC624\uD504\uB2DD \uC5F0\uCD9C \uC911 \uD0A4\uB97C \uB204\uB974\uBA74
+          \uBCF4\uC774\uB294 \uAC74\uB108\uB6F0\uAE30 \uC548\uB0B4"

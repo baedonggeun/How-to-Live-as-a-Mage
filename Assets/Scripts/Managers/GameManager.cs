@@ -96,7 +96,6 @@ namespace Mage
             {
                 TitleState.Scene => new TitleState(),
                 CharacterCreationState.Scene => new CharacterCreationState(),
-                OpeningState.Scene => new OpeningState(),
                 HubState.Scene => new HubState(),
                 FieldState.Scene => new FieldState(),
                 _ => null,

@@ -4,7 +4,7 @@ using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>전초기지. 1인칭으로 돌아다니며 E 지점에서 임시 영입·의뢰 받기·출발 → 숲</summary>
+    /// <summary>전초기지. 첫 도착이면 역마차 연출부터. 1인칭으로 돌아다니며 E 지점에서 임시 영입·의뢰 받기·출발 → 숲</summary>
     public sealed class HubState : FlowStateBase
     {
         /// <summary>이 상태의 씬 이름</summary>
@@ -46,22 +46,53 @@ namespace Mage
         /// <summary>이 씬의 화면 참조</summary>
         HubView _view;
 
-        #region OnSceneReady - 플레이어를 시작 위치에, 파티 수 표시, 안내 글 숨김
+        /// <summary>이번 진입이 첫 도착이라 역마차 연출을 트는지 (OnSceneReady에서 정함)</summary>
+        bool _arriving;
+
+        #region OnSceneReady - 첫 도착이면 플레이어를 하차 지점에 두고 숨김·화면 글자 숨김(연출 뒤 켬), 아니면 시작 위치. 파티 수 표시, 안내 글 숨김
         protected override void OnSceneReady()
         {
             _view = FindView<HubView>();
             if (_view == null) return;
-            _view.Player.PlaceAt(_view.Spawn);
+            _arriving = !Game.Run.HasArrived;
+            _view.Player.PlaceAt(_arriving ? _view.ArrivalPoint : _view.Spawn);
+            _view.Player.gameObject.SetActive(!_arriving);
+            _view.Hud.SetActive(!_arriving);
             _view.InteractPrompt.gameObject.SetActive(false);
             RefreshParty();
         }
         #endregion
 
-        #region Reveal - 커서 잠금, 지점 알림 구독, 조작·지점 찾기 켬 (로딩창을 넘길 때 누른 E는 구독 전이라 안 들어감)
+        #region Reveal - 커서 잠금. 첫 도착이면 연출을 틀고 끝나면 조작 시작, 아니면 바로 조작 시작
         public override void Reveal()
         {
             if (_view == null) return;
             Cursor.lockState = CursorLockMode.Locked;
+            if (!_arriving)
+            {
+                StartControl();
+                return;
+            }
+            _view.Opening.Finished += OnOpeningFinished;
+            _view.Opening.Play();
+        }
+        #endregion
+
+        #region OnOpeningFinished - 연출이 끝남: 도착 표시, 플레이어·화면 글자 켜고 조작 시작 (연출 카메라는 이미 꺼져서 같은 프레임에 플레이어 카메라로 넘어감)
+        void OnOpeningFinished()
+        {
+            _view.Opening.Finished -= OnOpeningFinished;
+            _arriving = false;
+            Game.Run.HasArrived = true;
+            _view.Player.gameObject.SetActive(true);
+            _view.Hud.SetActive(true);
+            StartControl();
+        }
+        #endregion
+
+        #region StartControl - 지점 알림 구독, 조작·지점 찾기 켬 (로딩창을 넘길 때 누른 E는 구독 전이라 안 들어감)
+        void StartControl()
+        {
             _view.Detector.TargetChanged += OnTargetChanged;
             _view.Detector.Interacted += OnInteracted;
             _view.Player.enabled = true;
@@ -69,11 +100,13 @@ namespace Mage
         }
         #endregion
 
-        #region Exit - 지점 알림 구독 해제, 조작·지점 찾기 끔, 커서 풀기
+        #region Exit - 연출 중이면 알림 없이 멈춤, 알림 구독 해제, 조작·지점 찾기 끔, 커서 풀기
         public override void Exit()
         {
             if (_view != null)
             {
+                _view.Opening.Finished -= OnOpeningFinished;
+                _view.Opening.Cancel();
                 _view.Detector.TargetChanged -= OnTargetChanged;
                 _view.Detector.Interacted -= OnInteracted;
                 _view.Player.enabled = false;

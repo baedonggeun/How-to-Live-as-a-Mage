@@ -15,9 +15,6 @@ EditorBuildSettings:
     path: Assets/Scenes/CharacterCreation.unity
     guid: 7cbd25a7dbcd5bf49bd20880efaffe38
   - enabled: 1
-    path: Assets/Scenes/Opening.unity
-    guid: 3e840ab45446ec74bba7e47df8a82bb8
-  - enabled: 1
     path: Assets/Scenes/Outpost.unity
     guid: b85dac1cacff870499d47ce2f63ae85e
   - enabled: 1

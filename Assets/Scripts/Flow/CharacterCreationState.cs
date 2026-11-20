@@ -134,7 +134,7 @@ namespace Mage
         }
         #endregion
 
-        #region StartRun - 이름·고른 요소(카드 순서)를 판 데이터에 넣고 오프닝으로
+        #region StartRun - 이름·고른 요소(카드 순서)를 판 데이터에 넣고 전초기지로 (첫 도착이라 역마차 연출부터)
         /// <param name="playerName">앞뒤 공백을 지운 이름</param>
         void StartRun(string playerName)
         {
@@ -142,7 +142,7 @@ namespace Mage
             Game.Run.LearnedElements.Clear();
             foreach (var (card, element) in _cards)
                 if (card.Toggle.isOn) Game.Run.LearnedElements.Add(element);
-            Game.ChangeState(new OpeningState());
+            Game.ChangeState(new HubState());
         }
         #endregion
 

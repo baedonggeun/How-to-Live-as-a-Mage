@@ -704,7 +704,7 @@ Mesh BuildCone(int sides)
 - [x] 묶음 Editor-Localization — 시트 Hub 탭·UI 탭 정리, CSV 2개, Hub 테이블 만들기·Import, UI의 hub.* 제거, 누락 검사
 - [x] 묶음 Prefab — 원뿔 메시, 머티리얼 6개, 프리팹 6개 (Player·Tree·Hut·Tower·Board·Signpost)
 - [x] 묶음 Editor-Scene — Outpost 씬 배치·HubView 연결, 저장 뒤 다시 열어 확인
-- [ ] 묶음 Verify — 사용자 확인 목록 전달
+- [x] 묶음 Verify — 사용자 확인 목록 전달
 
 ---
 
