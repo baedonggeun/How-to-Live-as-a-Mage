@@ -21,6 +21,13 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-tr
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 04a9f6e750629e648b8524e47914a872
+    m_Address: Quest_tr
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-tr
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2bd2f098ca07bd34e8edad089316acb3
     m_Address: Creation_tr
     m_ReadOnly: 1
@@ -32,6 +39,20 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-tr
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 804df0a9372454946aba858a03e1428d
+    m_Address: Job_tr
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-tr
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 80bd9c6e384a9704da6f92bebf2a0f70
+    m_Address: Name_tr
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-tr
+    - Preload
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 99f58be040d6a9241ad6f12f408e55dc
     m_Address: Opening_tr

@@ -40,7 +40,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 25250398212
-    m_Localized: Press E in the forest to return to the outpost
+    m_Localized: Press F in the forest to return to the outpost
     m_Metadata:
       m_Items: []
   references:

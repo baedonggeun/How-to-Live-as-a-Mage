@@ -34,6 +34,20 @@ MonoBehaviour:
     - Locale-ru
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 34cc4e7350f2743408f3e00b2897c344
+    m_Address: Quest_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 430908288de57fd43b3f7cd097c08ca2
+    m_Address: Job_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 472370279b0c37d4688c9aabc51ddaea
     m_Address: Menu_ru
     m_ReadOnly: 1
@@ -71,6 +85,13 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ru
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f4ecb3b0d79da3c4c837d2454a1ec74d
+    m_Address: Name_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: f2b523eaf6371f2488f5ccc7a3401608, type: 2}

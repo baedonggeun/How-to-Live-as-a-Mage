@@ -59,7 +59,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 49090822153
-    m_Localized: Aim at something nearby to see its key and name. Press E to use
+    m_Localized: Aim at something nearby to see its key and name. Press F to use
       it.
     m_Metadata:
       m_Items: []

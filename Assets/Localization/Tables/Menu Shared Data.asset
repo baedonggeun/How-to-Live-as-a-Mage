@@ -65,6 +65,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2778220057739657318
+  - m_Id: 22115160588288
+    m_Key: menu.journal.quest
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657370
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
@@ -121,3 +126,8 @@ MonoBehaviour:
       data:
         m_CommentText: "\uD29C\uD1A0\uB9AC\uC5BC \uD0ED \uD1A0\uAE00. \uCF1C\uBA74
           \uC548 \uBC30\uC6B4 \uAC83\uAE4C\uC9C0 \uB2E4 \uBCF4\uC784"
+    - rid: 2778220057739657370
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uC784\uBB34 \uC77C\uC9C0 \uBC1B\uC740 \uC758\uB8B0 \uC904.
+          {0} \uC758\uB8B0 \uC774\uB984, {1} \uAE30\uAC04(\uC77C)"

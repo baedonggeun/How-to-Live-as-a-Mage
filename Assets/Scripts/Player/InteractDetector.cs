@@ -4,10 +4,10 @@ using UnityEngine.InputSystem;
 
 namespace Mage
 {
-    /// <summary>눈 앞 일정 거리 안에서 바라보는 상호작용 지점을 찾고, E(Player/Interact)를 누르면 알림. 처음엔 꺼져 있고 켜고 끄는 건 상태가 함</summary>
+    /// <summary>눈 앞 일정 거리 안에서 바라보는 상호작용 지점을 찾고, 상호작용 키(Player/Interact, 기본 F)를 누르면 알림. 처음엔 꺼져 있고 켜고 끄는 건 상태가 함</summary>
     public sealed class InteractDetector : MonoBehaviour
     {
-        /// <summary>상호작용 입력 액션 경로 (전역 액션, E)</summary>
+        /// <summary>상호작용 입력 액션 경로 (전역 액션, 기본 F)</summary>
         const string InteractActionPath = "Player/Interact";
 
         /// <summary>키 이름을 읽을 바인딩 그룹 (키보드·마우스)</summary>
@@ -31,15 +31,15 @@ namespace Mage
         /// <summary>바라보는 지점이 바뀜 (없어지면 null)</summary>
         public event Action<InteractPointView> TargetChanged;
 
-        /// <summary>지점을 바라보며 E를 누름</summary>
+        /// <summary>지점을 바라보며 상호작용 키를 누름</summary>
         public event Action<InteractPointView> Interacted;
 
-        /// <summary>E 키 이름 (안내 글용, 키보드 기준. 액션이 없으면 빈 문자열)</summary>
+        /// <summary>상호작용 키 이름 (안내 글용, 키보드 기준. 액션이 없으면 빈 문자열)</summary>
         public string KeyName => _interact != null
             ? _interact.GetBindingDisplayString(InputBinding.MaskByGroup(KeyboardMouseGroup))
             : string.Empty;
 
-        #region Awake - 연결 확인, E 액션 찾기, 처음엔 꺼 둠 (Reveal에서 상태가 켬)
+        #region Awake - 연결 확인, 상호작용 액션 찾기, 처음엔 꺼 둠 (Reveal에서 상태가 켬)
         void Awake()
         {
             if (_eye == null) Debug.LogError("[Interact] 눈 연결 안 됨");
@@ -49,14 +49,14 @@ namespace Mage
         }
         #endregion
 
-        #region OnEnable - E 구독
+        #region OnEnable - 상호작용 구독
         void OnEnable()
         {
             if (_interact != null) _interact.performed += OnInteract;
         }
         #endregion
 
-        #region OnDisable - E 구독 해제, 바라보던 지점 비움 (알림)
+        #region OnDisable - 상호작용 구독 해제, 바라보던 지점 비움 (알림)
         void OnDisable()
         {
             if (_interact != null) _interact.performed -= OnInteract;
@@ -86,7 +86,7 @@ namespace Mage
         }
         #endregion
 
-        #region OnInteract - 바라보는 지점이 있으면 E 알림
+        #region OnInteract - 바라보는 지점이 있으면 상호작용 알림
         /// <param name="context">입력 정보 (안 씀)</param>
         void OnInteract(InputAction.CallbackContext context)
         {

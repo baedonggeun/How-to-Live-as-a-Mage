@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 
 namespace Mage
 {
-    /// <summary>숲. 1단계는 판 데이터 표시만 하고 E로 전초기지에 돌아감</summary>
+    /// <summary>숲. 1단계는 판 데이터 표시만 하고 상호작용 키(F)로 전초기지에 돌아감 (정문 밖)</summary>
     public sealed class FieldState : FlowStateBase
     {
         /// <summary>이 상태의 씬 이름 (지역이 늘면 의뢰 데이터에서 받음)</summary>
@@ -18,7 +18,7 @@ namespace Mage
         /// <summary>들어올 때 로딩창에 팁을 띄우고 넘기기 버튼을 기다림 (플레이 씬. 문구를 보는 동안 게임은 멈춰 있음)</summary>
         public override bool WaitsForContinue => true;
 
-        /// <summary>Esc로 일시정지 메뉴를 열 수 있음 (플레이 씬. 메뉴가 떠 있는 동안 E 귀환도 막힘)</summary>
+        /// <summary>Esc로 일시정지 메뉴를 열 수 있음 (플레이 씬. 메뉴가 떠 있는 동안 귀환도 막힘)</summary>
         public override bool UsesPauseMenu => true;
 
         /// <summary>귀환 입력 액션. Exit에서 구독 해제</summary>
@@ -33,7 +33,7 @@ namespace Mage
         }
         #endregion
 
-        #region Reveal - 커서 잠금, E 입력 구독 (로딩창을 넘길 때 누른 E는 구독 전이라 귀환으로 안 감)
+        #region Reveal - 커서 잠금, 상호작용 입력 구독 (로딩창을 넘길 때 누른 키는 구독 전이라 귀환으로 안 감)
         public override void Reveal()
         {
             Cursor.lockState = CursorLockMode.Locked;
@@ -42,7 +42,7 @@ namespace Mage
         }
         #endregion
 
-        #region Exit - E 구독 해제, 커서 풀기
+        #region Exit - 상호작용 구독 해제, 커서 풀기
         public override void Exit()
         {
             if (_interact != null) _interact.performed -= OnInteract;
@@ -55,15 +55,19 @@ namespace Mage
         void ShowRun(FieldDebugView view)
         {
             // 의뢰 이름. 디버그 표시라 들어올 때 한 번만 읽음 (숲에서 언어를 바꾸면 다음 진입 때 바뀜)
-            string quest = Game.Run.QuestTitle != null ? Game.Run.QuestTitle.GetLocalizedString() : string.Empty;
+            string quest = Game.Run.Quest != null ? Game.Run.Quest.Title.GetLocalizedString() : string.Empty;
             view.InfoText.StringReference.Arguments = new object[] { Game.Run.PlayerName, Game.Run.Party.Count, quest };
             view.InfoText.RefreshString();
         }
         #endregion
 
-        #region OnInteract - E를 누르면 전초기지로
+        #region OnInteract - 상호작용 키를 누르면 전초기지로 (정문 밖에서 시작하게 표시)
         /// <param name="context">입력 정보 (안 씀)</param>
-        void OnInteract(InputAction.CallbackContext context) => Game.ChangeState(new HubState());
+        void OnInteract(InputAction.CallbackContext context)
+        {
+            Game.Run.ReturningFromField = true;
+            Game.ChangeState(new HubState());
+        }
         #endregion
     }
 }

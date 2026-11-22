@@ -1,26 +1,34 @@
 using System;
+using UnityEngine.Localization;
 
 namespace Mage
 {
-    /// <summary>파티 용병 한 명. 지금은 전투 수치만 (이름 방식은 4단계 영입 설계 때 정함)</summary>
+    /// <summary>용병 한 명 (영입 후보·파티원): 이름(임시 이름표), 직업, 레벨. 전투 수치는 직업이 정함 (임시)</summary>
     public sealed class MercenaryEntry
     {
-        /// <summary>전투 수치 최솟값</summary>
-        public const int MinCombat = 1;
+        /// <summary>이름 (Name 테이블)</summary>
+        public LocalizedString Name { get; }
 
-        /// <summary>전투 수치 최댓값</summary>
-        public const int MaxCombat = 5;
+        /// <summary>직업</summary>
+        public JobSO Job { get; }
 
-        /// <summary>전투 수치 (1~5). 3단계에서 동료 체력·공격력 계산에 씀</summary>
-        public int Combat { get; }
+        /// <summary>레벨 (1 이상)</summary>
+        public int Level { get; }
 
-        #region MercenaryEntry - 전투 수치 범위를 검사하고 만듦
-        /// <param name="combat">전투 수치 (1~5)</param>
-        public MercenaryEntry(int combat)
+        /// <summary>전투 수치 (1~5, 직업 값). 숲 단계에서 동료 체력·공격력 계산에 씀</summary>
+        public int Combat => Job.Combat;
+
+        #region MercenaryEntry - 이름·직업·레벨을 검사하고 만듦
+        /// <param name="name">이름</param>
+        /// <param name="job">직업</param>
+        /// <param name="level">레벨 (1 이상)</param>
+        public MercenaryEntry(LocalizedString name, JobSO job, int level)
         {
-            if (combat < MinCombat || combat > MaxCombat)
-                throw new ArgumentOutOfRangeException(nameof(combat), combat, $"전투는 {MinCombat}~{MaxCombat}");
-            Combat = combat;
+            if (job == null) throw new ArgumentNullException(nameof(job));
+            if (level < 1) throw new ArgumentOutOfRangeException(nameof(level), level, "레벨은 1 이상");
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Job = job;
+            Level = level;
         }
         #endregion
     }

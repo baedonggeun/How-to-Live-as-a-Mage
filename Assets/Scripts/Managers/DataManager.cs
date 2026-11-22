@@ -25,11 +25,25 @@ namespace Mage
         /// <summary>튜토리얼 전부 (연결 순서, 읽기 전용)</summary>
         public IReadOnlyList<TutorialSO> Tutorials => _tutorials;
 
-        #region InitSingleton - 팁 목록 검사, 튜토리얼 목록 검사, 요소 목록 검사: 비었는지, 빈 칸, 빈 id, id 겹침
+        /// <summary>용병 직업 전부 (Boot에서 연결. 영입 후보가 여기서 뽑힘)</summary>
+        [SerializeField] JobSO[] _jobs;
+
+        /// <summary>용병 직업 전부 (연결 순서, 읽기 전용)</summary>
+        public IReadOnlyList<JobSO> Jobs => _jobs;
+
+        /// <summary>의뢰 전부 (Boot에서 연결. 첫 칸이 첫 의뢰)</summary>
+        [SerializeField] QuestSO[] _quests;
+
+        /// <summary>의뢰 전부 (연결 순서, 읽기 전용)</summary>
+        public IReadOnlyList<QuestSO> Quests => _quests;
+
+        #region InitSingleton - 팁·튜토리얼·직업·의뢰 목록 검사, 요소 목록 검사: 비었는지, 빈 칸, 빈 id, id 겹침
         protected override void InitSingleton()
         {
             ValidateTips();
             ValidateTutorials();
+            ValidateJobs();
+            ValidateQuests();
             if (_elements == null || _elements.Length == 0)
             {
                 Debug.LogError("[Data] 요소 목록 비어 있음");
@@ -83,6 +97,62 @@ namespace Mage
             foreach (TutorialSO tutorial in _tutorials)
                 if (tutorial != null && string.Equals(tutorial.Id, id, StringComparison.Ordinal)) return tutorial;
             return null;
+        }
+        #endregion
+
+        #region ValidateJobs - 직업 목록 검사: 비었으면 에러(영입 후보가 안 나옴), 빈 칸, 빈 id, id 겹침, 이름·설명 키 빔
+        void ValidateJobs()
+        {
+            if (_jobs == null || _jobs.Length == 0)
+            {
+                Debug.LogError("[Data] 직업 목록 비어 있음. 영입 후보가 안 나옴");
+                _jobs = Array.Empty<JobSO>();
+                return;
+            }
+
+            // 지금까지 본 id (대소문자 구분)
+            var ids = new HashSet<string>(StringComparer.Ordinal);
+            for (int i = 0; i < _jobs.Length; i++)
+            {
+                // 검사할 직업
+                JobSO job = _jobs[i];
+                if (job == null)
+                    Debug.LogError($"[Data] 직업 {i}번 칸 비어 있음");
+                else if (string.IsNullOrWhiteSpace(job.Id))
+                    Debug.LogError($"[Data] {job.name}의 id 비어 있음");
+                else if (!ids.Add(job.Id))
+                    Debug.LogError($"[Data] 직업 id 겹침: {job.Id} ({job.name})");
+                else if (job.Name.IsEmpty || job.Description.IsEmpty)
+                    Debug.LogError($"[Data] {job.name}의 이름·설명 키 비어 있음");
+            }
+        }
+        #endregion
+
+        #region ValidateQuests - 의뢰 목록 검사: 비었으면 에러(게시판이 빔), 빈 칸, 빈 id, id 겹침, 이름·설명 키 빔
+        void ValidateQuests()
+        {
+            if (_quests == null || _quests.Length == 0)
+            {
+                Debug.LogError("[Data] 의뢰 목록 비어 있음. 게시판이 빔");
+                _quests = Array.Empty<QuestSO>();
+                return;
+            }
+
+            // 지금까지 본 id (대소문자 구분)
+            var ids = new HashSet<string>(StringComparer.Ordinal);
+            for (int i = 0; i < _quests.Length; i++)
+            {
+                // 검사할 의뢰
+                QuestSO quest = _quests[i];
+                if (quest == null)
+                    Debug.LogError($"[Data] 의뢰 {i}번 칸 비어 있음");
+                else if (string.IsNullOrWhiteSpace(quest.Id))
+                    Debug.LogError($"[Data] {quest.name}의 id 비어 있음");
+                else if (!ids.Add(quest.Id))
+                    Debug.LogError($"[Data] 의뢰 id 겹침: {quest.Id} ({quest.name})");
+                else if (quest.Title.IsEmpty || quest.Description.IsEmpty)
+                    Debug.LogError($"[Data] {quest.name}의 이름·설명 키 비어 있음");
+            }
         }
         #endregion
 

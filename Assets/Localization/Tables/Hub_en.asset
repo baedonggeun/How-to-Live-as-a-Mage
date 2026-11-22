@@ -23,7 +23,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 33357987840
-    m_Localized: Recruit (temp)
+    m_Localized: Hire Mercenaries
     m_Metadata:
       m_Items: []
   - m_Id: 33362182144
@@ -31,7 +31,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 33362182145
-    m_Localized: You need {0} mercenaries
+    m_Localized: Going into the forest alone would be dangerous. Hire {0} mercenaries
+      at the guild first.
     m_Metadata:
       m_Items: []
   - m_Id: 33362182146
@@ -43,7 +44,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 33362182148
-    m_Localized: Take a quest from the board first
+    m_Localized: Heading out without a job? Take a quest from the guild board first.
     m_Metadata:
       m_Items: []
   - m_Id: 154220343492608
@@ -52,6 +53,141 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 154220377047040
     m_Localized: Let's get a room first, then look for work.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296668332032
+    m_Localized: Inn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692160
+    m_Localized: Guild
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692161
+    m_Localized: My Room
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692162
+    m_Localized: Exit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692163
+    m_Localized: Innkeeper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692164
+    m_Localized: Guild Clerk
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692165
+    m_Localized: Gate Guard
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692166
+    m_Localized: "Gold {0} \xB7 Rations {1}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692167
+    m_Localized: Get a room first
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692168
+    m_Localized: Welcome. Let me know if you need a room. I sell rations for expeditions
+      too.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692169
+    m_Localized: Your room is through the inner door. Mercenaries and work are at
+      the guild, at the far left of the square.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692170
+    m_Localized: Here are your rations. You now have {0}.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692171
+    m_Localized: You don't have enough gold.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692172
+    m_Localized: Welcome to the guild. Tell me if you need mercenaries. Quests are
+      posted on that board.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692173
+    m_Localized: Did you pack food? Buy at least {0} rations from the innkeeper.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692174
+    m_Localized: Heading out? Be careful.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692175
+    m_Localized: Glad you made it back.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692176
+    m_Localized: Get a room ({0} gold)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692177
+    m_Localized: Buy a day of rations ({0} gold)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692178
+    m_Localized: Hire mercenaries
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692179
+    m_Localized: Not yet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692180
+    m_Localized: Got it
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692181
+    m_Localized: Goodbye
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692182
+    m_Localized: Hire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692183
+    m_Localized: Dismiss
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692184
+    m_Localized: Lv {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692185
+    m_Localized: Combat {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692186
+    m_Localized: Candidates
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296697692187
+    m_Localized: Party
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296701886464
+    m_Localized: Quest Board
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296701886465
+    m_Localized: '{0} days'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296701886466
+    m_Localized: Accept
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176296701886467
+    m_Localized: Accepted
     m_Metadata:
       m_Items: []
   references:

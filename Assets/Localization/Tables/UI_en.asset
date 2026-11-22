@@ -38,12 +38,8 @@ MonoBehaviour:
     m_Localized: Continue
     m_Metadata:
       m_Items: []
-  - m_Id: 388387043966984
-    m_Localized: Clear the Forest Edge (temp)
-    m_Metadata:
-      m_Items: []
   - m_Id: 388387043966985
-    m_Localized: 'Mage: {0}<br>Party: {1}<br>Quest: {2}<br><br>[E] Return (temp)'
+    m_Localized: 'Mage: {0}<br>Party: {1}<br>Quest: {2}<br><br>[F] Return (temp)'
     m_Metadata:
       m_Items: []
   - m_Id: 1933117108158464

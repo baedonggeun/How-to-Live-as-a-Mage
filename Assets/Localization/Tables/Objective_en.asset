@@ -27,6 +27,25 @@ MonoBehaviour:
       far right of the square.
     m_Metadata:
       m_Items: []
+  - m_Id: 22116481794048
+    m_Localized: Hire mercenaries and take a quest at the guild
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22116494376960
+    m_Localized: The innkeeper says mercenaries and work are found at the guild,
+      at the far left of the square. Hire two mercenaries and take a quest from the
+      board.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22116494376961
+    m_Localized: Pack rations and head to the gate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22116494376962
+    m_Localized: Buy rations for the expedition from the innkeeper, then talk to
+      the gate guard. Each person eats one ration a day.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

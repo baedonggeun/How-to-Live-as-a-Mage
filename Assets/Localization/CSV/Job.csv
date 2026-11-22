@@ -1,0 +1,9 @@
+﻿Key,Comment,ko,en,ja,zh-Hans,zh-Hant,ru,de,fr,es,pt-BR,it,pl,tr
+"job.ranger.name","직업 이름","레인저","Ranger","","","","","","","","","","",""
+"job.ranger.desc","직업 설명: 무기와 역할 (영입 창 툴팁)","단궁. 원거리 딜러, 정찰","Short bow. Ranged damage and scouting.","","","","","","","","","","",""
+"job.porter.name","직업 이름","짐꾼","Porter","","","","","","","","","","",""
+"job.porter.desc","직업 설명: 무기와 역할 (영입 창 툴팁)","곤봉. 짐을 나르고 싸움은 약함","Club. Carries supplies, weak in combat.","","","","","","","","","","",""
+"job.spear_guard.name","직업 이름","스피어 가드","Spear Guard","","","","","","","","","","",""
+"job.spear_guard.desc","직업 설명: 무기와 역할 (영입 창 툴팁)","창과 방패. 딜탱","Spear and shield. Deals damage and tanks.","","","","","","","","","","",""
+"job.duelist.name","직업 이름","듀얼리스트","Duelist","","","","","","","","","","",""
+"job.duelist.desc","직업 설명: 무기와 역할 (영입 창 툴팁)","망토와 레이피어. 회피로 버티는 딜탱","Cloak and rapier. Deals damage and tanks by dodging.","","","","","","","","","","",""

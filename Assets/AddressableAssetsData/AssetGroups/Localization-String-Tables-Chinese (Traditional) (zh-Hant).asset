@@ -33,11 +33,32 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-zh-Hant
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 45e82837e67de434e9595a18c8e94c5d
+    m_Address: Job_zh-Hant
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hant
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8ced7c285b1e7ce4ebac13a0ae5758c6
     m_Address: UI_zh-Hant
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-zh-Hant
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 91f4a50da4cf3844d8d1e43600387fb5
+    m_Address: Quest_zh-Hant
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hant
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b2253ebb232f6614b9b6f081ded6b047
+    m_Address: Name_zh-Hant
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hant
+    - Preload
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b53070f6665cc664897c67c2244700a8
     m_Address: Element_zh-Hant

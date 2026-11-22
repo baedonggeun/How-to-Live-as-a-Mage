@@ -47,8 +47,29 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-de
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 79889490bd5fb3b4481f0cfef6fd51d3
+    m_Address: Job_de
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-de
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8ea943d88d4aa9842b177a7ce6e7e56e
     m_Address: Objective_de
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-de
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a9325e73313d2fc4999e87177fcce106
+    m_Address: Name_de
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-de
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bb48c03870b46a142aa32f5592722820
+    m_Address: Quest_de
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-de

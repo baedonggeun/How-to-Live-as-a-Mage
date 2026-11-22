@@ -40,6 +40,18 @@ namespace Mage
         /// <summary>첫 목표 (여관에서 방 잡기. 인스펙터에서만 연결)</summary>
         [SerializeField] ObjectiveSO _firstObjective;
 
+        /// <summary>방을 잡은 뒤 목표 (길드에서 용병 구하고 의뢰 받기. 인스펙터에서만 연결)</summary>
+        [SerializeField] ObjectiveSO _guildObjective;
+
+        /// <summary>파티·의뢰를 갖춘 뒤 목표 (식량을 챙겨 정문으로. 인스펙터에서만 연결)</summary>
+        [SerializeField] ObjectiveSO _departObjective;
+
+        /// <summary>금화·식량 글자 (Hub/hub.money, {0} 금화·{1} 식량 인분. 인스펙터에서만 연결)</summary>
+        [SerializeField] LocalizeStringEvent _moneyText;
+
+        /// <summary>숲에서 돌아오면 서는 곳 (정문 밖, 정문을 봄. 인스펙터에서만 연결)</summary>
+        [SerializeField] Transform _returnPoint;
+
         /// <summary>파티 수 글자</summary>
         public LocalizeStringEvent PartyText => _partyText;
 
@@ -72,5 +84,17 @@ namespace Mage
 
         /// <summary>첫 목표</summary>
         public ObjectiveSO FirstObjective => _firstObjective;
+
+        /// <summary>방을 잡은 뒤 목표</summary>
+        public ObjectiveSO GuildObjective => _guildObjective;
+
+        /// <summary>파티·의뢰를 갖춘 뒤 목표</summary>
+        public ObjectiveSO DepartObjective => _departObjective;
+
+        /// <summary>금화·식량 글자</summary>
+        public LocalizeStringEvent MoneyText => _moneyText;
+
+        /// <summary>숲에서 돌아오면 서는 곳</summary>
+        public Transform ReturnPoint => _returnPoint;
     }
 }

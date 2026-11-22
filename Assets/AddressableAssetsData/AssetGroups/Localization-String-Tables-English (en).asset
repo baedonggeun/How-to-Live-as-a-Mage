@@ -40,6 +40,13 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-en
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6e2cc5e73487fce4f94a200099afd986
+    m_Address: Name_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 766fcb9f356e9ca44a22ee6c1dd214e1
     m_Address: Menu_en
     m_ReadOnly: 1
@@ -53,11 +60,25 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-en
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9a181a68960f0fa41a37f32ffb5453be
+    m_Address: Job_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b77fc955b10359843abb8812c9260e91
     m_Address: Opening_en
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: be0a04cfdc86e9b46b9e9ebbfd86fb0b
+    m_Address: Quest_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    - Preload
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: caa91729a6cc82d4fbf0d96ff89bb9ee
     m_Address: Element_en

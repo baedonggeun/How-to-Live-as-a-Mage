@@ -58,6 +58,10 @@ MonoBehaviour:
     m_Localized: Show all (may contain spoilers)
     m_Metadata:
       m_Items: []
+  - m_Id: 22115160588288
+    m_Localized: 'Quest: {0} ({1} days)'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

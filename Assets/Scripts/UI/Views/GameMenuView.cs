@@ -43,6 +43,9 @@ namespace Mage
         /// <summary>임무 일지: 목표가 없을 때 글 (인스펙터에서만 연결)</summary>
         [SerializeField] GameObject _journalEmpty;
 
+        /// <summary>임무 일지: 받은 의뢰 글자 (Menu/menu.journal.quest, {0} 이름·{1} 기간. 인스펙터에서만 연결)</summary>
+        [SerializeField] LocalizeStringEvent _questText;
+
         /// <summary>튜토리얼: "모두 보기 (스포일러가 있을 수 있습니다)" 토글 (인스펙터에서만 연결)</summary>
         [SerializeField] Toggle _spoilerToggle;
 
@@ -99,6 +102,9 @@ namespace Mage
 
         /// <summary>임무 일지: 목표가 없을 때 글</summary>
         public GameObject JournalEmpty => _journalEmpty;
+
+        /// <summary>임무 일지: 받은 의뢰 글자</summary>
+        public LocalizeStringEvent QuestText => _questText;
 
         /// <summary>튜토리얼: 모두 보기 토글</summary>
         public Toggle SpoilerToggle => _spoilerToggle;

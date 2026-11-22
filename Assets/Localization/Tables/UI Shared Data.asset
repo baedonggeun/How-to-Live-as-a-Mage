@@ -40,11 +40,6 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2778219915398349079
-  - m_Id: 388387043966984
-    m_Key: quest.forest_01.title
-    m_Metadata:
-      m_Items:
-      - rid: 2778219915398349085
   - m_Id: 388387043966985
     m_Key: field.debug_info
     m_Metadata:
@@ -182,10 +177,6 @@ MonoBehaviour:
       data:
         m_CommentText: "\uB2E4\uC74C \uD654\uBA74\uC73C\uB85C \uB118\uC5B4\uAC00\uB294
           \uBC84\uD2BC"
-    - rid: 2778219915398349085
-      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
-      data:
-        m_CommentText: "\uC784\uC2DC \uC758\uB8B0 \uC774\uB984"
     - rid: 2778219915398349086
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:

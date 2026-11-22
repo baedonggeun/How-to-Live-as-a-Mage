@@ -35,6 +35,27 @@ MonoBehaviour:
     - Locale-pl
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 587632e2e85899d4fbe4ce055e2ee3fe
+    m_Address: Quest_pl
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-pl
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5ec67f51cba7e664c993c2440553c40d
+    m_Address: Name_pl
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-pl
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8a5d0ef007076014d916e5cd3254dbc9
+    m_Address: Job_pl
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-pl
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a01322b653609c94ab8ad1fd14136e10
     m_Address: Menu_pl
     m_ReadOnly: 1

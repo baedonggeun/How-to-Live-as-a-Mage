@@ -25,6 +25,26 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2778220057739657320
+  - m_Id: 22116481794048
+    m_Key: objective.guild.title
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657371
+  - m_Id: 22116494376960
+    m_Key: objective.guild.desc
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657372
+  - m_Id: 22116494376961
+    m_Key: objective.depart.title
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657373
+  - m_Id: 22116494376962
+    m_Key: objective.depart.desc
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657374
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
@@ -44,3 +64,22 @@ MonoBehaviour:
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
         m_CommentText: "\uCCAB \uBAA9\uD45C \uC124\uBA85 (\uC784\uC2DC)"
+    - rid: 2778220057739657371
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uBC29\uC744 \uC7A1\uC740 \uB4A4 \uBAA9\uD45C \uC774\uB984"
+    - rid: 2778220057739657372
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uBC29\uC744 \uC7A1\uC740 \uB4A4 \uBAA9\uD45C \uC124\uBA85
+          (\uC784\uC2DC)"
+    - rid: 2778220057739657373
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD30C\uD2F0\xB7\uC758\uB8B0\uB97C \uAC16\uCD98 \uB4A4 \uBAA9\uD45C
+          \uC774\uB984"
+    - rid: 2778220057739657374
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD30C\uD2F0\xB7\uC758\uB8B0\uB97C \uAC16\uCD98 \uB4A4 \uBAA9\uD45C
+          \uC124\uBA85 (\uC784\uC2DC)"

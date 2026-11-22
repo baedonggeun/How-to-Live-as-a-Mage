@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Localization;
@@ -7,7 +8,7 @@ using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>씬을 넘어 쓰는 공용 UI 담당: 토스트·자막·설정 창·확인창·일시정지 메뉴·메뉴 창(지도·임무 일지·튜토리얼·주문 도감)·툴팁</summary>
+    /// <summary>씬을 넘어 쓰는 공용 UI 담당: 토스트·자막·설정 창·확인창·일시정지 메뉴·메뉴 창(지도·임무 일지·튜토리얼·주문 도감)·툴팁·NPC 대화·영입 창·게시판 창·화면 페이드</summary>
     public sealed class UIManager : MonoSingleton<UIManager>
     {
         /// <summary>토스트 표시 시간 (초)</summary>
@@ -51,6 +52,18 @@ namespace Mage
 
         /// <summary>툴팁 (Boot 씬 UICanvas 맨 위 자식)</summary>
         [SerializeField] TooltipController _tooltip;
+
+        /// <summary>화면 페이드 (Boot 씬 UICanvas 맨 아래 자식. 문 드나들 때)</summary>
+        [SerializeField] FadeSequence _fade;
+
+        /// <summary>NPC 대화 (Boot 씬 UICanvas 자식. 자막 위에 그려짐)</summary>
+        [SerializeField] DialogueController _dialogue;
+
+        /// <summary>영입 창 (Boot 씬 UICanvas 자식)</summary>
+        [SerializeField] RecruitController _recruit;
+
+        /// <summary>임무 게시판 창 (Boot 씬 UICanvas 자식)</summary>
+        [SerializeField] QuestBoardController _questBoard;
 
         /// <summary>자막을 숨기는 코루틴. 새 자막이 오면 끊고 다시 시작</summary>
         Coroutine _hideSubtitle;
@@ -129,7 +142,7 @@ namespace Mage
         }
         #endregion
 
-        #region InitWindows - 설정 창·확인창·일시정지 메뉴를 끄고 버튼을 한 번만 연결, Esc 구독, 메뉴 창·자막·툴팁 끄기, M·J 구독
+        #region InitWindows - 설정 창·확인창·일시정지 메뉴를 끄고 버튼을 한 번만 연결, Esc 구독, 메뉴 창·자막·툴팁·대화·영입·게시판 끄기, M·J 구독
         void InitWindows()
         {
             if (_pauseMenu == null)
@@ -172,6 +185,27 @@ namespace Mage
 
             if (_tooltip == null) Debug.LogError("[UI] TooltipController 연결 안 됨");
             else _tooltip.Hide();
+
+            if (_fade == null) Debug.LogError("[UI] FadeSequence 연결 안 됨");
+
+            if (_dialogue == null) Debug.LogError("[UI] DialogueController 연결 안 됨");
+            else _dialogue.Hide();
+
+            if (_recruit == null)
+                Debug.LogError("[UI] RecruitController 연결 안 됨");
+            else
+            {
+                _recruit.gameObject.SetActive(false);
+                if (_recruit.View != null) _recruit.View.CloseButton.onClick.AddListener(HideRecruit);
+            }
+
+            if (_questBoard == null)
+                Debug.LogError("[UI] QuestBoardController 연결 안 됨");
+            else
+            {
+                _questBoard.gameObject.SetActive(false);
+                if (_questBoard.View != null) _questBoard.View.CloseButton.onClick.AddListener(HideQuestBoard);
+            }
 
             _map = FindAction(MapActionPath);
             if (_map != null) _map.performed += OnMap;
@@ -294,7 +328,7 @@ namespace Mage
         }
         #endregion
 
-        #region OnCancel - Esc: 확인창 → 설정 창 → 메뉴 창 → 일시정지 메뉴 순으로 열린 것을 닫음. 아무것도 안 열렸고 플레이 씬이면 일시정지 메뉴를 엶
+        #region OnCancel - Esc: 확인창 → 설정 창 → 대화 → 영입 창 → 게시판 창 → 메뉴 창 → 일시정지 메뉴 순으로 열린 것을 닫음. 아무것도 안 열렸고 플레이 씬이면 일시정지 메뉴를 엶
         /// <param name="context">입력 정보 (안 씀)</param>
         void OnCancel(InputAction.CallbackContext context)
         {
@@ -302,6 +336,12 @@ namespace Mage
                 HideConfirm();
             else if (_settings != null && _settings.gameObject.activeSelf)
                 HideSettings();
+            else if (_dialogue != null && _dialogue.IsOpen)
+                HideDialogue();
+            else if (_recruit != null && _recruit.IsOpen)
+                HideRecruit();
+            else if (_questBoard != null && _questBoard.IsOpen)
+                HideQuestBoard();
             else if (_gameMenu != null && _gameMenu.IsOpen)
                 HideGameMenu();
             else if (_pauseMenu != null && _pauseMenu.gameObject.activeSelf)
@@ -358,11 +398,118 @@ namespace Mage
         }
         #endregion
 
-        #region IsWindowOpen - 일시정지 메뉴·설정 창·확인창 중 하나라도 떠 있는지 (메뉴 창과 같이 안 뜨게)
+        #region IsWindowOpen - 일시정지 메뉴·설정 창·확인창·대화·영입 창·게시판 창 중 하나라도 떠 있는지 (메뉴 창과 같이 안 뜨게)
         bool IsWindowOpen() =>
             (_pauseMenu != null && _pauseMenu.gameObject.activeSelf)
             || (_settings != null && _settings.gameObject.activeSelf)
-            || (_confirm != null && _confirm.gameObject.activeSelf);
+            || (_confirm != null && _confirm.gameObject.activeSelf)
+            || IsHubWindowOpen();
+        #endregion
+
+        #region IsHubWindowOpen - 대화·영입 창·게시판 창 중 하나라도 떠 있는지
+        bool IsHubWindowOpen() =>
+            (_dialogue != null && _dialogue.IsOpen)
+            || (_recruit != null && _recruit.IsOpen)
+            || (_questBoard != null && _questBoard.IsOpen);
+        #endregion
+
+        #region RefreshMenuPause - 대화·영입·게시판 창이 하나라도 떠 있으면 게임 멈춤, 다 닫히면 되돌림 (창을 바꿔 열 때 안 풀리게 열기 → 닫기 순서로 부름)
+        void RefreshMenuPause()
+        {
+            // 일시정지 메뉴·메뉴 창은 스스로 멈추고 풀어서 그대로 둠 (대화류와 같이 안 뜸)
+            bool otherMenuOpen = (_pauseMenu != null && _pauseMenu.gameObject.activeSelf) || (_gameMenu != null && _gameMenu.IsOpen);
+            if (otherMenuOpen) return;
+            GameManager.Instance.SetMenuPaused(IsHubWindowOpen());
+        }
+        #endregion
+
+        #region ShowDialogue - NPC 대화를 띄우고 게임 멈춤 (떠 있으면 내용만 바꿈)
+        /// <param name="table">말한 사람·대사가 든 String Table</param>
+        /// <param name="speakerKey">말한 사람 키</param>
+        /// <param name="lineKey">대사 키</param>
+        /// <param name="choices">선택지 (하나 이상)</param>
+        /// <param name="lineArgs">대사의 {0}, {1}… 자리에 넣을 값</param>
+        public void ShowDialogue(TableReference table, string speakerKey, string lineKey, IReadOnlyList<DialogueChoiceEntry> choices, params object[] lineArgs)
+        {
+            if (_dialogue == null)
+            {
+                Debug.LogError("[UI] DialogueController 연결 안 됨");
+                return;
+            }
+            _dialogue.Show(table, speakerKey, lineKey, choices, lineArgs);
+            RefreshMenuPause();
+        }
+        #endregion
+
+        #region HideDialogue - NPC 대화를 닫음. 다른 창이 없으면 게임을 다시 돌림
+        public void HideDialogue()
+        {
+            if (_dialogue != null) _dialogue.Hide();
+            RefreshMenuPause();
+        }
+        #endregion
+
+        #region ShowRecruit - 영입 창을 띄우고 게임 멈춤 (목록·할 일은 상태가 넘김)
+        /// <param name="candidates">영입 후보</param>
+        /// <param name="party">지금 파티</param>
+        /// <param name="partyMax">파티에 넣을 수 있는 용병 수</param>
+        /// <param name="onHire">영입을 누르면 할 일</param>
+        /// <param name="onDismiss">내보내기를 누르면 할 일</param>
+        public void ShowRecruit(IReadOnlyList<MercenaryEntry> candidates, IReadOnlyList<MercenaryEntry> party, int partyMax,
+            Action<MercenaryEntry> onHire, Action<MercenaryEntry> onDismiss)
+        {
+            if (_recruit == null)
+            {
+                Debug.LogError("[UI] RecruitController 연결 안 됨");
+                return;
+            }
+            _recruit.Show(candidates, party, partyMax, onHire, onDismiss);
+            RefreshMenuPause();
+        }
+        #endregion
+
+        #region HideRecruit - 영입 창을 닫음 (닫기 버튼·Esc). 다른 창이 없으면 게임을 다시 돌림
+        public void HideRecruit()
+        {
+            if (_recruit != null) _recruit.Hide();
+            RefreshMenuPause();
+        }
+        #endregion
+
+        #region ShowQuestBoard - 게시판 창을 띄우고 게임 멈춤 (의뢰·할 일은 상태가 넘김)
+        /// <param name="quest">보일 의뢰</param>
+        /// <param name="taken">이미 받았는지</param>
+        /// <param name="onTake">받기를 누르면 할 일</param>
+        public void ShowQuestBoard(QuestSO quest, bool taken, Action onTake)
+        {
+            if (_questBoard == null)
+            {
+                Debug.LogError("[UI] QuestBoardController 연결 안 됨");
+                return;
+            }
+            _questBoard.Show(quest, taken, onTake);
+            RefreshMenuPause();
+        }
+        #endregion
+
+        #region HideQuestBoard - 게시판 창을 닫음 (닫기 버튼·Esc). 다른 창이 없으면 게임을 다시 돌림
+        public void HideQuestBoard()
+        {
+            if (_questBoard != null) _questBoard.Hide();
+            RefreshMenuPause();
+        }
+        #endregion
+
+        #region FadeThrough - 화면을 잠깐 검게 덮고 다 덮였을 때 onBlack, 걷힌 뒤 onDone. 이미 덮는 중이면 안 하고 false (연결이 없으면 바로 둘 다 부름)
+        /// <param name="onBlack">다 덮였을 때 할 일</param>
+        /// <param name="onDone">다 걷힌 뒤 할 일</param>
+        public bool FadeThrough(Action onBlack, Action onDone)
+        {
+            if (_fade != null) return _fade.Play(onBlack, onDone);
+            onBlack?.Invoke();
+            onDone?.Invoke();
+            return true;
+        }
         #endregion
 
         #region ShowSubtitle - 말한 사람·대사 자막을 게임 시간 4초 보이고, 끝나면 onHidden (앞 자막은 알림 없이 끊음)

@@ -15,6 +15,27 @@ MonoBehaviour:
   m_GroupName: Localization-String-Tables-Italian (it)
   m_GUID: 4603b7e56c55c09419755989fc511648
   m_SerializeEntries:
+  - m_GUID: 080550f39434a4a48ab9278a8362de54
+    m_Address: Job_it
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-it
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 370fbaa21ca4ae24998210b6d1644c5f
+    m_Address: Quest_it
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-it
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3db555f02cd4f1a43a82bae77b708352
+    m_Address: Name_it
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-it
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 401433c5330f1df438424748933503ee
     m_Address: Opening_it
     m_ReadOnly: 1

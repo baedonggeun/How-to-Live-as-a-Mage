@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Quest Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Quest
+  m_TableCollectionNameGuidString: 799e382cfb91be24b8197441d0b530b8
+  m_Entries:
+  - m_Id: 19911049216
+    m_Key: quest.forest_01.title
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657383
+  - m_Id: 19927826432
+    m_Key: quest.forest_01.desc
+    m_Metadata:
+      m_Items:
+      - rid: 2778220057739657384
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 2778220057739657335
+  references:
+    version: 2
+    RefIds:
+    - rid: 2778220057739657335
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1795183788906
+    - rid: 2778220057739657383
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uCCAB \uC758\uB8B0 \uC774\uB984 (UI \uD0ED\uC5D0\uC11C \uC62E\uAE40)"
+    - rid: 2778220057739657384
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uCCAB \uC758\uB8B0 \uC124\uBA85 (\uC784\uC2DC)"
