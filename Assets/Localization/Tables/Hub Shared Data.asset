@@ -225,6 +225,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2778220057739657369
+  - m_Id: 809995197906944
+    m_Key: hub.codex
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459028
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
@@ -424,3 +429,8 @@ MonoBehaviour:
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
         m_CommentText: "\uAC8C\uC2DC\uD310 \uBC1B\uC740 \uB4A4 \uBC84\uD2BC"
+    - rid: 2778220093525459028
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uC5EC\uAD00 \uBC29 \uCC45\uC0C1 \uC704 \uCF54\uB371\uC2A4
+          (\uC9C0\uC810 \uC774\uB984)"

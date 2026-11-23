@@ -40,18 +40,33 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 60617f23d9fdae847a5ea391c210fb07
+    m_Address: Assets/Localization/Tables/Cast Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 799e382cfb91be24b8197441d0b530b8
     m_Address: Assets/Localization/Tables/Quest Shared Data.asset
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7ed42dcb59ba7984181f67d802ebf44a
+    m_Address: Assets/Localization/Tables/Spell Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8d387949a71ddbe4ca8bdd459a39843d
-    m_Address: Assets/Localization/Tables/Element Shared Data.asset
+    m_Address: Assets/Localization/Tables/Rune Shared Data.asset
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9cb1f51bbe698d442a77457e8289ab7c
     m_Address: Assets/Localization/Tables/Job Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c393c4dc0ae7ffd4ca1bd5aac59b330a
+    m_Address: Assets/Localization/Tables/Codex Shared Data.asset
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

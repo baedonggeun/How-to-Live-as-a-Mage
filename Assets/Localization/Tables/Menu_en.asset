@@ -62,6 +62,18 @@ MonoBehaviour:
     m_Localized: 'Quest: {0} ({1} days)'
     m_Metadata:
       m_Items: []
+  - m_Id: 655815653097472
+    m_Localized: 'Runes: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 655815665680384
+    m_Localized: Combat spell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 655815665680385
+    m_Localized: Scroll
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

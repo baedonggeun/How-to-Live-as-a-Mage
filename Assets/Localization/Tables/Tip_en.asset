@@ -28,11 +28,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 25250398209
-    m_Localized: Elements (temp)
+    m_Localized: Runes (temp)
     m_Metadata:
       m_Items: []
   - m_Id: 25250398210
-    m_Localized: You draw spells with the elements you pick when creating your character
+    m_Localized: You draw spells with the runes you pick when creating your character
     m_Metadata:
       m_Items: []
   - m_Id: 25250398211

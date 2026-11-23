@@ -36,17 +36,17 @@ MonoBehaviour:
       m_Items:
       - rid: 2778220012763349093
   - m_Id: 22134030338
-    m_Key: creation.element_label
+    m_Key: creation.rune_label
     m_Metadata:
       m_Items:
       - rid: 2778220012763349094
   - m_Id: 22134030339
-    m_Key: creation.element_count
+    m_Key: creation.rune_count
     m_Metadata:
       m_Items:
       - rid: 2778220012763349095
   - m_Id: 22134030340
-    m_Key: creation.element_required
+    m_Key: creation.rune_required
     m_Metadata:
       m_Items:
       - rid: 2778220012763349096
@@ -87,16 +87,16 @@ MonoBehaviour:
     - rid: 2778220012763349094
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_CommentText: "\uC694\uC18C \uCE74\uB4DC \uC704 \uC774\uB984\uD45C"
+        m_CommentText: "\uB8EC \uCE74\uB4DC \uC704 \uC774\uB984\uD45C"
     - rid: 2778220012763349095
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_CommentText: "\uACE0\uB978 \uC694\uC18C \uC218. {0} \uACE0\uB978 \uC218,
-          {1} \uACE8\uB77C\uC57C \uD560 \uC218"
+        m_CommentText: "\uACE0\uB978 \uB8EC \uC218. {0} \uACE0\uB978 \uC218, {1}
+          \uACE8\uB77C\uC57C \uD560 \uC218"
     - rid: 2778220012763349096
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_CommentText: "\uC694\uC18C\uAC00 \uBAA8\uC790\uB784 \uB54C \uD1A0\uC2A4\uD2B8.
+        m_CommentText: "\uB8EC\uC774 \uBAA8\uC790\uB784 \uB54C \uD1A0\uC2A4\uD2B8.
           {0} \uACE8\uB77C\uC57C \uD560 \uC218"
     - rid: 2778220012763349097
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}

@@ -29,6 +29,13 @@ MonoBehaviour:
     - Locale-ko
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 40547ae6d9df3a146abba08b40dbc52c
+    m_Address: Spell_ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6c9aec7f67a287c4e839958aa86fb7e6
     m_Address: UI_ko
     m_ReadOnly: 1
@@ -41,11 +48,25 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-ko
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 89e2542b70844ad44b24b261133a1185
+    m_Address: Cast_ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a28e7852141d24c48973e211d387014e
     m_Address: Hub_ko
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ko
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ab5f271c08b57c247afd6402d6868c7e
+    m_Address: Codex_ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    - Preload
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: affd4cff8f995964db02bb79019cee51
     m_Address: Name_ko
@@ -55,7 +76,7 @@ MonoBehaviour:
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c1e5a45eed4f8c14d8ed0709bc47bfd1
-    m_Address: Element_ko
+    m_Address: Rune_ko
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ko

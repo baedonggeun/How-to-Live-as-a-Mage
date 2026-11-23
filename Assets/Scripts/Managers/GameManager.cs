@@ -78,7 +78,7 @@ namespace Mage
                 Debug.LogError("[Flow] 다국어 초기화 실패. 화면 글자가 안 나올 수 있음");
 
             // 타이틀·생성 화면이 아니면 중간부터 시작한 것 → 디버그 데이터
-            Run = start is TitleState or CharacterCreationState ? new RunEntry() : RunEntry.CreateDebug(DataManager.Instance.Elements);
+            Run = start is TitleState or CharacterCreationState ? new RunEntry() : RunEntry.CreateDebug(DataManager.Instance.Runes, DataManager.Instance.Spells);
             ChangeState(start);
         }
         #endregion
@@ -212,6 +212,10 @@ namespace Mage
                 Cursor.lockState = _cursorBeforePause;
             }
         }
+        #endregion
+
+        #region HandleCancel - 열린 공용 창이 없을 때 Esc를 지금 상태에 먼저 넘김 (전환 중엔 안 넘김). 상태가 처리했으면 true (UIManager가 부름)
+        public bool HandleCancel() => !_isSwitching && _state != null && _state.HandleCancel();
         #endregion
 
         #region ApplyTimeScale - 멈출 이유(로딩창·일시정지 메뉴)가 하나라도 있으면 게임 시간 0, 없으면 1

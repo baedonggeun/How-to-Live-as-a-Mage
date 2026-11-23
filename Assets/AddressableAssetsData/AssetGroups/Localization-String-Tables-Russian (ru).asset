@@ -22,7 +22,7 @@ MonoBehaviour:
     - Locale-ru
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 18df9facc54f7b0448be56b599030056
-    m_Address: Element_ru
+    m_Address: Rune_ru
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ru
@@ -36,6 +36,13 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 34cc4e7350f2743408f3e00b2897c344
     m_Address: Quest_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 35f3c6d863fe48e48a8dc57c9bdd0001
+    m_Address: Spell_ru
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ru
@@ -63,6 +70,20 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 74f996434c9eed14cbe8e6a8debf7221
     m_Address: Tutorial_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9001939472e59964f96fe83ec75f7ede
+    m_Address: Cast_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: aa8766fa8f67be540ab94c1ee1bfd683
+    m_Address: Codex_ru
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ru

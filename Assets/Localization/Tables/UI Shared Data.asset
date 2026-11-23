@@ -145,6 +145,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2778220047486419023
+  - m_Id: 3304108442943488
+    m_Key: common.list_separator
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459034
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
@@ -280,3 +285,9 @@ MonoBehaviour:
       data:
         m_CommentText: "\uC0C1\uD638\uC791\uC6A9 \uC548\uB0B4. {0} \uD0A4 \uC774\uB984,
           {1} \uC9C0\uC810 \uC774\uB984"
+    - rid: 2778220093525459034
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uBAA9\uB85D \uC774\uB984 \uC0AC\uC774 \uAD6C\uBD84\uC790
+          (\uB05D \uACF5\uBC31 \uD3EC\uD568, \uC5B8\uC5B4\uB9C8\uB2E4 \uB2E4\uB97C
+          \uC218 \uC788\uC74C)"

@@ -6,7 +6,7 @@ using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>전초기지. 첫 도착이면 역마차 연출부터. 1인칭으로 돌아다니며 상호작용 키(F)로 여관(방·식량)·길드(영입·게시판)·정문(경비병)을 씀 → 숲</summary>
+    /// <summary>전초기지. 첫 도착이면 역마차 연출부터. 1인칭으로 돌아다니며 상호작용 키(F)로 여관(방·식량)·여관 방 책상(코덱스: 룬 주문·다중 룬 마법·주문 연습)·길드(영입·게시판)·정문(경비병)을 씀 → 숲</summary>
     public sealed class HubState : FlowStateBase
     {
         /// <summary>이 상태의 씬 이름</summary>
@@ -35,6 +35,9 @@ namespace Mage
 
         /// <summary>여관 방 문 지점 id (방을 잡아야 열림)</summary>
         const string RoomDoorId = "room_door";
+
+        /// <summary>여관 방 책상 위 코덱스 지점 id</summary>
+        const string CodexId = "codex";
 
         /// <summary>경비병: 용병이 모자랄 때 대사 키 ({0} 필요한 인원)</summary>
         const string PartyRequiredKey = "hub.party_required";
@@ -141,7 +144,10 @@ namespace Mage
         /// <summary>이번 진입이 숲에서 돌아온 것인지 (정문 밖에서 시작. OnSceneReady에서 정함)</summary>
         bool _returning;
 
-        #region OnSceneReady - 첫 도착이면 플레이어를 하차 지점에 두고 숨김·화면 글자 숨김(연출 뒤 켬), 숲에서 돌아왔으면 정문 밖, 아니면 시작 위치. 파티 수·금화 표시, 안내 글 숨김
+        /// <summary>책상 시점인지 (앉는·일어나는 연출 중 포함)</summary>
+        bool _atDesk;
+
+        #region OnSceneReady - 첫 도착이면 플레이어를 하차 지점에 두고 숨김·화면 글자 숨김(연출 뒤 켬), 숲에서 돌아왔으면 정문 밖, 아니면 시작 위치. 파티 수·금화 표시, 안내 글 숨김, 코덱스 표지(이름·마법진)
         protected override void OnSceneReady()
         {
             _view = FindView<HubView>();
@@ -154,6 +160,7 @@ namespace Mage
             _view.InteractPrompt.gameObject.SetActive(false);
             RefreshParty();
             RefreshMoney();
+            _view.Codex.ShowCover(Game.Run.PlayerName, DataManager.Instance.Runes);
         }
         #endregion
 
@@ -229,7 +236,7 @@ namespace Mage
         }
         #endregion
 
-        #region Exit - 연출 중이면 알림 없이 멈춤, 알림 구독 해제, 조작·지점 찾기 끔, 커서 풀기, 조작 안내·자막 정리
+        #region Exit - 연출 중이면 알림 없이 멈춤, 알림 구독 해제, 책상이면 코덱스를 바로 덮고 머리를 바로 되돌림, 조작·지점 찾기 끔, 커서 풀기, 조작 안내·자막 정리
         public override void Exit()
         {
             if (_view != null)
@@ -238,6 +245,12 @@ namespace Mage
                 _view.Opening.Cancel();
                 _view.Detector.TargetChanged -= OnTargetChanged;
                 _view.Detector.Interacted -= OnInteracted;
+                if (_atDesk)
+                {
+                    _view.Codex.ForceClose();
+                    _view.DeskSequence.Stop();
+                    _atDesk = false;
+                }
                 SetControl(false);
             }
             TutorialManager.Instance.Clear();
@@ -263,7 +276,7 @@ namespace Mage
         }
         #endregion
 
-        #region OnInteracted - 처음 쓰면 상호작용 배움. 문이면 드나들고, 아니면 지점 id로 나눔: 여관 주인·접수원·게시판·경비병. 모르는 id는 경고
+        #region OnInteracted - 처음 쓰면 상호작용 배움. 문이면 드나들고, 아니면 지점 id로 나눔: 여관 주인·접수원·게시판·경비병·코덱스. 모르는 id는 경고
         /// <param name="target">상호작용 키를 누를 때 바라본 지점</param>
         void OnInteracted(InteractPointView target)
         {
@@ -279,6 +292,7 @@ namespace Mage
                 case ClerkId: TalkClerk(); break;
                 case BoardId: OpenBoard(); break;
                 case GuardId: TalkGuard(); break;
+                case CodexId: UseDesk(); break;
                 default: Debug.LogWarning($"[Hub] 모르는 지점 id: {target.Id} ({target.name})"); break;
             }
         }
@@ -301,6 +315,63 @@ namespace Mage
             }
             if (!UIManager.Instance.FadeThrough(() => _view.Player.PlaceAt(door.Destination), () => SetControl(true))) return;
             SetControl(false);
+        }
+        #endregion
+
+        #region UseDesk - 책상에 앉음: 조작·화면 글자를 끄고 커서를 풀고, 머리를 책상 시점으로 옮긴 뒤 코덱스를 엶
+        void UseDesk()
+        {
+            if (_atDesk) return;
+            _atDesk = true;
+            SetControl(false);
+            _view.Hud.SetActive(false);
+            Cursor.lockState = CursorLockMode.None;
+            _view.DeskSequence.Enter(_view.Player.Head, _view.DeskSeat, OpenCodex);
+        }
+        #endregion
+
+        #region OpenCodex - 코덱스를 씀 (판 데이터·마법·룬 목록을 넘김, 일어나기는 LeaveDesk). 책은 덮인 채로 시작
+        void OpenCodex()
+        {
+            if (_view == null) return;
+            _view.Codex.Open(Game.Run, DataManager.Instance.Spells, DataManager.Instance.Runes, LeaveDesk);
+        }
+        #endregion
+
+        #region LeaveDesk - 책상에서 일어남: 코덱스를 덮고(펼쳐져 있으면 덮는 연출) 그만 쓴 뒤 일어나기 시작 (머리·코덱스 연출 중이거나 아직 앉는 중이면 무시)
+        void LeaveDesk()
+        {
+            if (!_atDesk || _view == null || _view.DeskSequence.IsPlaying || _view.Codex.IsBusy || !_view.Codex.IsOpen) return;
+            _view.Codex.Close(OnCodexClosed);
+        }
+        #endregion
+
+        #region OnCodexClosed - 코덱스를 다 덮음: 커서를 잠그고 머리를 원래 자리로 되돌린 뒤 조작을 돌려줌
+        void OnCodexClosed()
+        {
+            if (_view == null) return;
+            Cursor.lockState = CursorLockMode.Locked;
+            _view.DeskSequence.Exit(OnDeskLeft);
+        }
+        #endregion
+
+        #region OnDeskLeft - 일어나기 연출이 끝남: 화면 글자·조작 켬
+        void OnDeskLeft()
+        {
+            _atDesk = false;
+            if (_view == null) return;
+            _view.Hud.SetActive(true);
+            SetControl(true);
+        }
+        #endregion
+
+        #region HandleCancel - Esc: 책상이면 그리는 중엔 그리기 취소, 아니면 일어남 (일시정지 메뉴 안 엶). 책상이 아니면 처리 안 함
+        public override bool HandleCancel()
+        {
+            if (!_atDesk || _view == null) return false;
+            if (_view.Codex.IsCasting) _view.Codex.CancelCast();
+            else LeaveDesk();
+            return true;
         }
         #endregion
 

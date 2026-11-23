@@ -41,6 +41,13 @@ MonoBehaviour:
     - Locale-de
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 531109562b7216149a9c5a1a7254a991
+    m_Address: Spell_de
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-de
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5eb40fb512f23d54ab024e6c793a0fdc
     m_Address: Tip_de
     m_ReadOnly: 1
@@ -75,6 +82,13 @@ MonoBehaviour:
     - Locale-de
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c0ecd926192edbe4b8da2ae8089f1dd4
+    m_Address: Cast_de
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-de
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c4fcf62eda01b4b4f9757003ead44cfc
     m_Address: UI_de
     m_ReadOnly: 1
@@ -88,10 +102,17 @@ MonoBehaviour:
     - Locale-de
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e74092bb0f9abc74caadd6a441eb997a
-    m_Address: Element_de
+    m_Address: Rune_de
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-de
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f5b51a3bdb6fda44d9aa8eafcff2dfed
+    m_Address: Codex_de
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-de
+    - Preload
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: f2b523eaf6371f2488f5ccc7a3401608, type: 2}

@@ -29,6 +29,13 @@ MonoBehaviour:
     - Locale-ja
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 14bfd4e6b82fb184c8b0391b782a23a2
+    m_Address: Codex_ja
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ja
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1cf6260d6855f2c4f92c22a236645ccd
     m_Address: Hub_ja
     m_ReadOnly: 1
@@ -43,13 +50,27 @@ MonoBehaviour:
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4aebb1c29c74ce44c81716e0dece2867
-    m_Address: Element_ja
+    m_Address: Rune_ja
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ja
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5712acb5b4d42cd47bcb409eb661cf5d
     m_Address: Name_ja
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ja
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6dd389691b6efab499695127555f56f1
+    m_Address: Spell_ja
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ja
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 821675f492441f8439b7a6d187965960
+    m_Address: Cast_ja
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ja

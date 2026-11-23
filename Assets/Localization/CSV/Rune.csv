@@ -1,0 +1,13 @@
+﻿Key,Comment,ko,en,ja,zh-Hans,zh-Hant,ru,de,fr,es,pt-BR,it,pl,tr
+"rune.fire.name","룬 이름: 불 (확정)","불","Fire","","","","","","","","","","",""
+"rune.fire.desc","룬 설명: 불 (기획 03 작동 칸)","마나를 화염으로 바꾼다.","Turns mana into flame.","","","","","","","","","","",""
+"rune.condense.name","룬 이름: 응축 (확정)","응축","Condense","","","","","","","","","","",""
+"rune.condense.desc","룬 설명: 응축 (기획 03 작동 칸)","마나로 압력을 가한다.","Puts pressure on mana.","","","","","","","","","","",""
+"rune.line.name","룬 이름: 직선 (확정)","직선","Line","","","","","","","","","","",""
+"rune.line.desc","룬 설명: 직선 (기획 03 작동 칸)","마나를 직선 방향으로 날린다.","Sends mana flying in a straight line.","","","","","","","","","","",""
+"rune.block.name","룬 이름: 차단 (확정)","차단","Block","","","","","","","","","","",""
+"rune.block.desc","룬 설명: 차단 (기획 03 작동 칸)","마나를 차단해 작동을 멈춰 둔다.","Blocks mana to hold its working in place.","","","","","","","","","","",""
+"rune.water.name","룬 이름: 물 (시험용, 확정 아님)","물 (시험)","Water (test)","","","","","","","","","","",""
+"rune.spread.name","룬 이름: 확산 (시험용, 확정 아님)","확산 (시험)","Spread (test)","","","","","","","","","","",""
+"rune.wall.name","룬 이름: 벽 (시험용, 확정 아님)","벽 (시험)","Wall (test)","","","","","","","","","","",""
+"rune.test.desc","시험용 룬 3개가 같이 쓰는 설명","시험용 룬. 기획 확정 전이야.","Test rune. Not final.","","","","","","","","","","",""

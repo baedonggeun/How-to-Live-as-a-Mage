@@ -153,9 +153,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Mage::Mage.CharacterCreationView
   _nameInput: {fileID: 1365553493}
   _confirmButton: {fileID: 323899105}
-  _elementGrid: {fileID: 217145825}
-  _elementCardPrefab: {fileID: 2849393962764811649, guid: 5829db002e357d34a9b3b2368f0d15a9, type: 3}
-  _elementCountText: {fileID: 1196287827}
+  _runeGrid: {fileID: 217145825}
+  _runeCardPrefab: {fileID: 2849393962764811649, guid: 5829db002e357d34a9b3b2368f0d15a9, type: 3}
+  _runeCountText: {fileID: 1196287827}
   _bgm: {fileID: 0}
 --- !u!114 &148810003
 MonoBehaviour:

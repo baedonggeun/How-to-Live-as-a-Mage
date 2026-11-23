@@ -35,7 +35,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 22134030338
-    m_Localized: Elements to Learn
+    m_Localized: Runes to Learn
     m_Metadata:
       m_Items: []
   - m_Id: 22134030339
@@ -43,7 +43,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 22134030340
-    m_Localized: Choose {0} elements
+    m_Localized: Choose {0} runes
     m_Metadata:
       m_Items: []
   - m_Id: 22134030341

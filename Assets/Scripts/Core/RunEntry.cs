@@ -39,8 +39,8 @@ namespace Mage
         /// <summary>숲에서 막 돌아오는 중인지 (전초기지가 정문 밖에서 시작하고 한 번 쓰면 끔)</summary>
         public bool ReturningFromField { get; set; }
 
-        /// <summary>캐릭터 생성에서 고른 요소 (습득 요소). 숲의 주문 판정이 씀</summary>
-        public List<ElementSO> LearnedElements { get; } = new();
+        /// <summary>익힌 룬 (캐릭터 생성에서 고름). 주문 판정·코덱스 룬 주문 장이 씀</summary>
+        public List<RuneSO> LearnedRunes { get; } = new();
 
         /// <summary>전초기지 첫 도착 연출(역마차)을 봤는지. 새 판은 false, 디버그 판은 true (연출은 새 게임으로 확인)</summary>
         public bool HasArrived { get; set; }
@@ -48,15 +48,25 @@ namespace Mage
         /// <summary>지금 목표 (임무 일지). 없으면 null. 판마다 새로</summary>
         public ObjectiveSO CurrentObjective { get; set; }
 
-        #region CreateDebug - 에디터에서 중간 씬부터 Play할 때 쓰는 판 데이터 (도착한 판, 받은 요소는 전부 습득)
-        /// <param name="learned">습득할 요소 (빈 칸은 건너뜀)</param>
-        public static RunEntry CreateDebug(IEnumerable<ElementSO> learned)
+        /// <summary>코덱스에 등록한 다중 룬 마법 (생략 없이 처음 완성. 등록 순서). 생략은 등록한 마법에만</summary>
+        public List<SpellSO> CollectedSpells { get; } = new();
+
+        /// <summary>생략 가능 수 (레벨이 생기면 레벨이 정함. 지금은 프로토타입 기본 0)</summary>
+        public int OmitLimit { get; set; }
+
+        #region CreateDebug - 에디터에서 중간 씬부터 Play할 때 쓰는 판 데이터 (도착한 판). 룬을 다 익히고 다중 룬 마법을 다 등록함 (코덱스 탭·묶음을 바로 확인)
+        /// <param name="runes">룬 목록 (DataManager 순서, 빈 칸은 건너뜀)</param>
+        /// <param name="spells">다중 룬 마법 목록 (빈 칸은 건너뜀)</param>
+        public static RunEntry CreateDebug(IReadOnlyList<RuneSO> runes, IReadOnlyList<SpellSO> spells)
         {
-            if (learned == null) throw new ArgumentNullException(nameof(learned));
+            if (runes == null) throw new ArgumentNullException(nameof(runes));
+            if (spells == null) throw new ArgumentNullException(nameof(spells));
             // 디버그 판 데이터. 빌드에선 늘 Title부터 시작해서 이 이름이 화면에 안 나옴
             var run = new RunEntry { PlayerName = "디버그 마법사", HasArrived = true };
-            foreach (var element in learned)
-                if (element != null) run.LearnedElements.Add(element);
+            foreach (RuneSO rune in runes)
+                if (rune != null) run.LearnedRunes.Add(rune);
+            foreach (SpellSO spell in spells)
+                if (spell != null) run.CollectedSpells.Add(spell);
             return run;
         }
         #endregion

@@ -39,6 +39,10 @@ namespace Mage
         public virtual void Exit() { }
         #endregion
 
+        #region HandleCancel - 열린 공용 창이 없을 때 Esc를 상태가 먼저 받음. 처리했으면 true (일시정지 메뉴를 안 엶). 기본은 처리 안 함
+        public virtual bool HandleCancel() => false;
+        #endregion
+
         #region FindView - 지금 씬에서 View 하나 찾기. 없으면 에러 로그 후 null
         protected T FindView<T>() where T : Object
         {

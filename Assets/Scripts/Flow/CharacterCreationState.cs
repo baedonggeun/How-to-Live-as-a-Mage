@@ -4,7 +4,7 @@ using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>캐릭터 생성. 이름과 습득할 요소를 받아 판 데이터에 넣고 오프닝으로</summary>
+    /// <summary>캐릭터 생성. 이름과 습득할 룬을 받아 판 데이터에 넣고 오프닝으로</summary>
     public sealed class CharacterCreationState : FlowStateBase
     {
         /// <summary>이 상태의 씬 이름</summary>
@@ -13,14 +13,14 @@ namespace Mage
         /// <summary>이름 최대 글자 수</summary>
         public const int NameMaxLength = 12;
 
-        /// <summary>캐릭터 생성에서 고를 요소 수 (임시. 기획 02·12 미정)</summary>
-        public const int StartElementCount = 4;
+        /// <summary>캐릭터 생성에서 고를 룬 수 (임시. 기획 02·12 미정)</summary>
+        public const int StartRuneCount = 4;
 
         /// <summary>이름이 비었을 때 토스트 키</summary>
         const string NameEmptyKey = "creation.name_empty";
 
-        /// <summary>요소가 모자랄 때 토스트 키 ({0} 골라야 할 수)</summary>
-        const string ElementRequiredKey = "creation.element_required";
+        /// <summary>룬이 모자랄 때 토스트 키 ({0} 골라야 할 수)</summary>
+        const string RuneRequiredKey = "creation.rune_required";
 
         /// <summary>시작 확인창 문구 키</summary>
         const string StartConfirmKey = "creation.start_confirm";
@@ -34,10 +34,10 @@ namespace Mage
         /// <summary>이 씬의 화면 참조</summary>
         CharacterCreationView _view;
 
-        /// <summary>만든 카드와 그 요소 (DataManager 순서)</summary>
-        readonly List<(ElementCardView card, ElementSO element)> _cards = new();
+        /// <summary>만든 카드와 그 룬 (DataManager 순서)</summary>
+        readonly List<(RuneCardView card, RuneSO rune)> _cards = new();
 
-        #region OnSceneReady - 이름 입력 규칙, 확정 버튼, 요소 카드, 고른 수 표시
+        #region OnSceneReady - 이름 입력 규칙, 확정 버튼, 룬 카드, 고른 수 표시
         protected override void OnSceneReady()
         {
             _view = FindView<CharacterCreationView>();
@@ -58,29 +58,29 @@ namespace Mage
         }
         #endregion
 
-        #region CreateCards - 요소마다 카드를 만들어 이름·그림을 넣고 이름·설명은 툴팁으로, 켜고 끌 때 고른 수를 다시 셈
+        #region CreateCards - 룬마다 카드를 만들어 이름·그림을 넣고 이름·설명은 툴팁으로, 켜고 끌 때 고른 수를 다시 셈
         void CreateCards()
         {
-            if (_view.ElementCardPrefab == null || _view.ElementGrid == null)
+            if (_view.RuneCardPrefab == null || _view.RuneGrid == null)
             {
                 Debug.LogError("[Creation] 카드 프리팹·카드 자리 연결 안 됨");
                 return;
             }
-            foreach (var element in DataManager.Instance.Elements)
+            foreach (var rune in DataManager.Instance.Runes)
             {
                 // 빈 칸은 DataManager가 이미 에러를 남김
-                if (element == null) continue;
-                // 이 요소의 카드 (생성 씬 카드 자리 아래라 씬과 같이 지워짐)
-                ElementCardView card = Object.Instantiate(_view.ElementCardPrefab, _view.ElementGrid);
-                card.name = element.Id;
+                if (rune == null) continue;
+                // 이 룬의 카드 (생성 씬 카드 자리 아래라 씬과 같이 지워짐)
+                RuneCardView card = Object.Instantiate(_view.RuneCardPrefab, _view.RuneGrid);
+                card.name = rune.Id;
                 // SO의 LocalizedString을 같이 쓰지 않게 테이블·키만 넣음
-                card.NameText.StringReference.SetReference(element.Name.TableReference, element.Name.TableEntryReference);
-                card.Tooltip.Set(element.Name, element.Description);
-                card.Icon.sprite = element.Icon;
-                card.Icon.enabled = element.Icon != null;
+                card.NameText.StringReference.SetReference(rune.Name.TableReference, rune.Name.TableEntryReference);
+                card.Tooltip.Set(rune.Name, rune.Description);
+                card.Icon.sprite = rune.Icon;
+                card.Icon.enabled = rune.Icon != null;
                 card.Toggle.SetIsOnWithoutNotify(false);
                 card.Toggle.onValueChanged.AddListener(OnCardToggled);
-                _cards.Add((card, element));
+                _cards.Add((card, rune));
             }
         }
         #endregion
@@ -96,11 +96,11 @@ namespace Mage
             // 지금 고른 수
             int count = CountSelected();
             // 다 골랐는지
-            bool full = count >= StartElementCount;
+            bool full = count >= StartRuneCount;
             foreach (var (card, _) in _cards)
                 card.Toggle.interactable = card.Toggle.isOn || !full;
-            _view.ElementCountText.StringReference.Arguments = new object[] { count, StartElementCount };
-            _view.ElementCountText.RefreshString();
+            _view.RuneCountText.StringReference.Arguments = new object[] { count, StartRuneCount };
+            _view.RuneCountText.RefreshString();
         }
         #endregion
 
@@ -115,7 +115,7 @@ namespace Mage
         }
         #endregion
 
-        #region OnConfirm - 이름 빈칸·요소 모자람이면 토스트, 다 갖췄으면 시작 확인창
+        #region OnConfirm - 이름 빈칸·룬 모자람이면 토스트, 다 갖췄으면 시작 확인창
         void OnConfirm()
         {
             // 앞뒤 공백을 지운 이름
@@ -125,23 +125,23 @@ namespace Mage
                 UIManager.Instance.ShowToast(Table, NameEmptyKey);
                 return;
             }
-            if (CountSelected() != StartElementCount)
+            if (CountSelected() != StartRuneCount)
             {
-                UIManager.Instance.ShowToast(Table, ElementRequiredKey, StartElementCount);
+                UIManager.Instance.ShowToast(Table, RuneRequiredKey, StartRuneCount);
                 return;
             }
             UIManager.Instance.ShowConfirm(Table, StartConfirmKey, () => StartRun(playerName));
         }
         #endregion
 
-        #region StartRun - 이름·고른 요소(카드 순서)를 판 데이터에 넣고 전초기지로 (첫 도착이라 역마차 연출부터)
+        #region StartRun - 이름·고른 룬(카드 순서)을 판 데이터에 넣고 전초기지로 (첫 도착이라 역마차 연출부터)
         /// <param name="playerName">앞뒤 공백을 지운 이름</param>
         void StartRun(string playerName)
         {
             Game.Run.PlayerName = playerName;
-            Game.Run.LearnedElements.Clear();
-            foreach (var (card, element) in _cards)
-                if (card.Toggle.isOn) Game.Run.LearnedElements.Add(element);
+            Game.Run.LearnedRunes.Clear();
+            foreach (var (card, rune) in _cards)
+                if (card.Toggle.isOn) Game.Run.LearnedRunes.Add(rune);
             Game.ChangeState(new HubState());
         }
         #endregion

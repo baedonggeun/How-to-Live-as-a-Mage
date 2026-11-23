@@ -61,6 +61,13 @@ MonoBehaviour:
     - Locale-pt-BR
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7c88bd29f2877bd40a429532b6645bd0
+    m_Address: Spell_pt-BR
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-pt-BR
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 873415d7bff57bc46a58afc64798895d
     m_Address: Objective_pt-BR
     m_ReadOnly: 1
@@ -75,7 +82,7 @@ MonoBehaviour:
     - Locale-pt-BR
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c63c2c214f316fb49a6ffe6eb4433150
-    m_Address: Element_pt-BR
+    m_Address: Rune_pt-BR
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-pt-BR
@@ -86,8 +93,22 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-pt-BR
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: de10fe9a7e35cd04e92a2a0eab792eff
+    m_Address: Codex_pt-BR
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-pt-BR
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e1ef468720a7a9a468a2aceb562f6b8a
     m_Address: Name_pt-BR
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-pt-BR
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e3c280f1b3b5c9a44bfecf0e4c90cddc
+    m_Address: Cast_pt-BR
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-pt-BR

@@ -3,7 +3,7 @@
 ## Project
 - **Engine**: Unity 6000.3.9f1 (Unity 6), URP 17.3, Input System(새 입력만)
 - **Platform**: Windows
-- **Type**: 1인칭 3D 중세 판타지(용병 파티 의뢰·탐험·요소 조합 주문 그리기 전투, 가제 전초기지)
+- **Type**: 1인칭 3D 중세 판타지(용병 파티 의뢰·탐험·룬 조합 주문 그리기 전투, 가제 전초기지)
 - **기획 문서**: `d:\obsidian\Vault\1_Projects\How to live as a mage\`(시작은 `docs/design/README.md`. `docs/prototype/outpost.html`은 v1 기지 운영판, 현장 전투·그리기 수치만 참고)
 - **Unity MCP**: `unity-editor-mcp`. 에디터는 Unity Hub나 터미널 탭에서 열 것
 
@@ -22,6 +22,7 @@
 | **UIBinder** | UI 데이터 바인딩 (이벤트 → UI) | InventoryUIBinder, QueueUIBinder |
 | **Controller** | 로직 위주 (연출 혼합 허용) | PlayerTurnController, GachaController |
 | **Sequence** | 순수 연출 (비즈니스 로직 없음) | MapSequence, SynergyCounterShakeSequence |
+| **Drawer** | UGUI `Graphic` 상속, 받은 점을 이어 선 메시로 그림 (로직 없음) | StrokeDrawer |
 
 ### 인프라 13종 허용 리스트
 - **Manager** (MonoSingleton, Service 컴포지션) / **Service** (비즈니스 로직, MonoBehaviour 미상속) / **State** (FSM 노드, Enter/Update/Exit) / **SO** (ScriptableObject 데이터)
@@ -40,7 +41,7 @@
 - 문장 속 값은 자리표시자(`{0}`)로. 문자열 이어 붙이기 금지 (언어마다 어순이 다름). 이름 자리표시자(`{gold}`)·복수형은 그 항목 Smart 켬
 - 비교·파싱·키 조합: `StringComparison.Ordinal`, `CultureInfo.InvariantCulture` (터키어 i 같은 문화권 차이 방지)
 - 텍스트 원본: Google 시트 'How to Live as a Mage Localization' (탭 하나 = String Table 하나, 탭 이름 = 테이블 이름). 고친 뒤 탭을 CSV로 받아 `Assets/Localization/CSV/{테이블 이름}.csv`에 덮어씀 → `Tools > PaulowniaSky > Localization Kit > Import Tables from CSV` → Check Missing Translations·Check Missing Glyphs. CSV·테이블 창은 직접 고치지 않음 (고쳤으면 시트에도 옮김)
-- 테이블은 영역별로 나눔 (정보가 섞이지 않게): `UI`는 공용 버튼·타이틀·설정·공용 창, 화면은 화면마다(`Creation`·`Opening`·`Hub`·`Field`), 콘텐츠는 SO 종류마다(`Element`·`Spell`·`Quest`…). 새 영역은 새 테이블 + 시트 새 탭. UI에 남은 다른 영역 키는 그 영역 작업 때 옮김
+- 테이블은 영역별로 나눔 (정보가 섞이지 않게): `UI`는 공용 버튼·타이틀·설정·공용 창, 화면은 화면마다(`Creation`·`Opening`·`Hub`·`Field`), 콘텐츠는 SO 종류마다(`Rune`·`Spell`·`Quest`…). 새 영역은 새 테이블 + 시트 새 탭. UI에 남은 다른 영역 키는 그 영역 작업 때 옮김
 - 언어 선택 UI: 키트 샘플(Package Manager > Samples > Language Dropdown)을 가져와서 꾸밈
 - 키트: `Packages/com.paulowniasky.localization-kit/` (embedded). 사용법은 그 README
 

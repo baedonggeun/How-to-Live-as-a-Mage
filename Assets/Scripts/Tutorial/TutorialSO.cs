@@ -17,6 +17,9 @@ namespace Mage
 
         /// <summary>상호작용 (E). 12시 안내 없이 게임 코드가 처음 쓸 때 배움으로 알림</summary>
         Interact,
+
+        /// <summary>주문 그리기 (책상 연습). 12시 안내 없이 처음 판정까지 그리면 배움으로 알림</summary>
+        Draw,
     }
 
     /// <summary>튜토리얼 하나: 화면 12시 조작 안내 문구와 튜토리얼 탭에 남는 제목·설명. 배우면 이 PC에 기록</summary>

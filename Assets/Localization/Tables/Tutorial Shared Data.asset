@@ -70,6 +70,16 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2778220057739657308
+  - m_Id: 655830337355776
+    m_Key: tutorial.draw.title
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459032
+  - m_Id: 655830354132992
+    m_Key: tutorial.draw.body
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459033
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
@@ -124,6 +134,14 @@ MonoBehaviour:
       data:
         m_CommentText: "\uD29C\uD1A0\uB9AC\uC5BC \uD0ED \uC81C\uBAA9"
     - rid: 2778220057739657308
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD29C\uD1A0\uB9AC\uC5BC \uD0ED \uC124\uBA85 (\uC784\uC2DC)"
+    - rid: 2778220093525459032
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD29C\uD1A0\uB9AC\uC5BC \uD0ED \uC81C\uBAA9"
+    - rid: 2778220093525459033
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
         m_CommentText: "\uD29C\uD1A0\uB9AC\uC5BC \uD0ED \uC124\uBA85 (\uC784\uC2DC)"

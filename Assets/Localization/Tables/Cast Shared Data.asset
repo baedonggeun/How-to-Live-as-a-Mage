@@ -1,0 +1,183 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Cast Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Cast
+  m_TableCollectionNameGuidString: 60617f23d9fdae847a5ea391c210fb07
+  m_Entries:
+  - m_Id: 56946753536
+    m_Key: cast.result.cast
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459053
+  - m_Id: 56955142144
+    m_Key: cast.result.cast_exact
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459054
+  - m_Id: 56955142145
+    m_Key: cast.result.cancel
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459055
+  - m_Id: 56955142146
+    m_Key: cast.why.empty
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459056
+  - m_Id: 56955142147
+    m_Key: cast.why.small
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459057
+  - m_Id: 56955142148
+    m_Key: cast.why.none
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459058
+  - m_Id: 56963530752
+    m_Key: cast.why.nomatch
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459059
+  - m_Id: 56963530753
+    m_Key: cast.why.parts
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459060
+  - m_Id: 56963530754
+    m_Key: cast.why.unlearned
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459061
+  - m_Id: 56963530755
+    m_Key: cast.why.ambiguous
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459062
+  - m_Id: 56963530756
+    m_Key: cast.why.canceled
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459063
+  - m_Id: 56963530757
+    m_Key: cast.part
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459064
+  - m_Id: 56963530758
+    m_Key: cast.extra
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459065
+  - m_Id: 56963530759
+    m_Key: cast.parts
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459066
+  - m_Id: 56963530760
+    m_Key: cast.nearest
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459067
+  - m_Id: 56963530761
+    m_Key: cast.hint
+    m_Metadata:
+      m_Items:
+      - rid: 2778220093525459068
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 2778220093525459026
+  references:
+    version: 2
+    RefIds:
+    - rid: 2778220093525459026
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1795334867403
+    - rid: 2778220093525459053
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD310\uC815: \uC2DC\uC804. {0} \uC8FC\uBB38 \uC774\uB984,
+          {1} \uC77C\uCE58\uC728 %"
+    - rid: 2778220093525459054
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD310\uC815: \uC815\uD655 \uC2DC\uC804 (90% \uC774\uC0C1).
+          {0} \uC8FC\uBB38 \uC774\uB984, {1} \uC77C\uCE58\uC728 %"
+    - rid: 2778220093525459055
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD310\uC815: \uCDE8\uC18C. {0} \uC774\uC720"
+    - rid: 2778220093525459056
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uCDE8\uC18C \uC774\uC720"
+    - rid: 2778220093525459057
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uCDE8\uC18C \uC774\uC720"
+    - rid: 2778220093525459058
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uCDE8\uC18C \uC774\uC720"
+    - rid: 2778220093525459059
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uCDE8\uC18C \uC774\uC720"
+    - rid: 2778220093525459060
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uCDE8\uC18C \uC774\uC720. {0} \uC8FC\uBB38 \uC774\uB984,
+          {1} \uBAA8\uC790\uB780 \uBD80\uBD84 \uBAA9\uB85D, {2} \uBD80\uBD84 \uAE30\uC900
+          %"
+    - rid: 2778220093525459061
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uCDE8\uC18C \uC774\uC720. {0} \uC8FC\uBB38 \uC774\uB984,
+          {1} \uB8EC \uBAA9\uB85D"
+    - rid: 2778220093525459062
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uCDE8\uC18C \uC774\uC720. {0} \uC8FC\uBB38 \uC774\uB984
+          \uBAA9\uB85D"
+    - rid: 2778220093525459063
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uCDE8\uC18C \uC774\uC720 (Esc\xB7\uC6B0\uD074\uB9AD)"
+    - rid: 2778220093525459064
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uBD80\uBD84 \uD558\uB098. {0} \uB8EC \uC774\uB984, {1} \uC77C\uCE58\uC728
+          %"
+    - rid: 2778220093525459065
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uB0A8\uB294 \uC120. {0} %"
+    - rid: 2778220093525459066
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD310\uC815 \uC790\uC138\uD788: \uBD80\uBD84 \uC77C\uCE58\uC728.
+          {0} \uBD80\uBD84 \uBAA9\uB85D"
+    - rid: 2778220093525459067
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD310\uC815 \uC790\uC138\uD788: \uB9DE\uB294 \uC8FC\uBB38\uC774
+          \uC5C6\uC744 \uB54C. {0} \uC8FC\uBB38 \uC774\uB984, {1} \uC77C\uCE58\uC728
+          %"
+    - rid: 2778220093525459068
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uADF8\uB9AC\uAE30 \uCE78 \uC548\uB0B4. {0} \uB300\uAE30
+          \uCD08"

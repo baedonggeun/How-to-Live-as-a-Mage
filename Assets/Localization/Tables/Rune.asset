@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5be51871efa6c3e4eae1703925c8f5ac, type: 3}
+  m_Name: Rune
+  m_EditorClassIdentifier: Unity.Localization.Editor::UnityEditor.Localization.StringTableCollection
+  m_SharedTableData: {fileID: 11400000, guid: 8d387949a71ddbe4ca8bdd459a39843d, type: 2}
+  m_Tables:
+  - {fileID: 11400000, guid: 5daec4609ad59a042a6b9b28fb43dec1, type: 2}
+  - {fileID: 11400000, guid: b53070f6665cc664897c67c2244700a8, type: 2}
+  - {fileID: 11400000, guid: caa91729a6cc82d4fbf0d96ff89bb9ee, type: 2}
+  - {fileID: 11400000, guid: 57cf868b7a7363f40b7666c90e3b0b92, type: 2}
+  - {fileID: 11400000, guid: e74092bb0f9abc74caadd6a441eb997a, type: 2}
+  - {fileID: 11400000, guid: d8bbd44bfe7adb7448e81b1f560980b7, type: 2}
+  - {fileID: 11400000, guid: 4aebb1c29c74ce44c81716e0dece2867, type: 2}
+  - {fileID: 11400000, guid: c1e5a45eed4f8c14d8ed0709bc47bfd1, type: 2}
+  - {fileID: 11400000, guid: 22e2842716af6bc4884cf1f5482fe9b0, type: 2}
+  - {fileID: 11400000, guid: c63c2c214f316fb49a6ffe6eb4433150, type: 2}
+  - {fileID: 11400000, guid: 18df9facc54f7b0448be56b599030056, type: 2}
+  - {fileID: 11400000, guid: 76d039e951c0a0b42a6d1ef4ba81f4b2, type: 2}
+  - {fileID: 11400000, guid: e915bc1810167d242a5b86dfc4a84c8b, type: 2}
+  m_Extensions: []
+  m_Group: String Table
+  references:
+    version: 2
+    RefIds: []

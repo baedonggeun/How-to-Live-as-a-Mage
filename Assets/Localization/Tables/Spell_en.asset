@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Spell_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: 7ed42dcb59ba7984181f67d802ebf44a, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 56909004800
+    m_Localized: Flame Shot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56921587712
+    m_Localized: Launches fire in a straight line. One fire bolt.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56921587713
+    m_Localized: Fireball
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56921587714
+    m_Localized: Creates fire, condenses it and launches it straight. Bursts on impact.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56921587715
+    m_Localized: Water Shot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56921587716
+    m_Localized: (Test) Launches water straight, pushing the target back.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56921587717
+    m_Localized: Flame Fan
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56921587718
+    m_Localized: (Test) Spreads fire into a fan of three bolts.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56921587719
+    m_Localized: Flame Wall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56921587720
+    m_Localized: (Test) Raises a long wall of fire where you aim.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56921587721
+    m_Localized: Shield
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56921587722
+    m_Localized: (Test) Condensed mana forms a barrier that reduces damage taken.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56921587723
+    m_Localized: Fireball Scroll
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56921587724
+    m_Localized: A fireball drawn on a scroll, its mana held back until use.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56921587725
+    m_Localized: Flame Shot Scroll
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56929976320
+    m_Localized: (Test) A flame shot held on a scroll.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56929976321
+    m_Localized: Shield Scroll
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56929976322
+    m_Localized: (Test) A shield held on a scroll.
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

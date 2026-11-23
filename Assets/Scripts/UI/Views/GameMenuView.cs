@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Localization.Components;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Mage
@@ -67,6 +68,33 @@ namespace Mage
         /// <summary>튜토리얼: 보일 항목이 없을 때 글 (인스펙터에서만 연결)</summary>
         [SerializeField] GameObject _tutorialEmpty;
 
+        /// <summary>주문 도감: 코덱스 이름 머리글 (Codex/codex.name, {0} 플레이어 이름. 인스펙터에서만 연결)</summary>
+        [SerializeField] LocalizeStringEvent _codexName;
+
+        /// <summary>주문 도감: 주문 목록 자리 (VerticalLayoutGroup. 인스펙터에서만 연결)</summary>
+        [SerializeField] RectTransform _spellList;
+
+        /// <summary>주문 도감: 고른 주문 자세히 (인스펙터에서만 연결)</summary>
+        [SerializeField] GameObject _spellDetail;
+
+        /// <summary>주문 도감: 주문 이름 (인스펙터에서만 연결)</summary>
+        [SerializeField] LocalizeStringEvent _spellTitle;
+
+        /// <summary>주문 도감: 종류 (전투 주문·두루마리. 인스펙터에서만 연결)</summary>
+        [SerializeField] LocalizeStringEvent _spellKind;
+
+        /// <summary>주문 도감: 필요한 룬 (Menu/menu.spells.runes, {0} 룬 목록. 인스펙터에서만 연결)</summary>
+        [SerializeField, FormerlySerializedAs("_spellElements")] LocalizeStringEvent _spellRunes;
+
+        /// <summary>주문 도감: 주문 그림 (인스펙터에서만 연결)</summary>
+        [SerializeField] StrokeDrawer _spellDrawing;
+
+        /// <summary>주문 도감: 주문 설명 (인스펙터에서만 연결)</summary>
+        [SerializeField] LocalizeStringEvent _spellBody;
+
+        /// <summary>주문 도감: 등록한 주문이 없을 때 글 (인스펙터에서만 연결)</summary>
+        [SerializeField] GameObject _spellsEmpty;
+
         /// <summary>지도 탭 버튼</summary>
         public Button MapTab => _mapTab;
 
@@ -126,5 +154,32 @@ namespace Mage
 
         /// <summary>튜토리얼: 보일 항목이 없을 때 글</summary>
         public GameObject TutorialEmpty => _tutorialEmpty;
+
+        /// <summary>주문 도감: 코덱스 이름 머리글</summary>
+        public LocalizeStringEvent CodexName => _codexName;
+
+        /// <summary>주문 도감: 주문 목록 자리</summary>
+        public RectTransform SpellList => _spellList;
+
+        /// <summary>주문 도감: 고른 주문 자세히</summary>
+        public GameObject SpellDetail => _spellDetail;
+
+        /// <summary>주문 도감: 주문 이름</summary>
+        public LocalizeStringEvent SpellTitle => _spellTitle;
+
+        /// <summary>주문 도감: 종류</summary>
+        public LocalizeStringEvent SpellKind => _spellKind;
+
+        /// <summary>주문 도감: 필요한 룬</summary>
+        public LocalizeStringEvent SpellRunes => _spellRunes;
+
+        /// <summary>주문 도감: 주문 그림</summary>
+        public StrokeDrawer SpellDrawing => _spellDrawing;
+
+        /// <summary>주문 도감: 주문 설명</summary>
+        public LocalizeStringEvent SpellBody => _spellBody;
+
+        /// <summary>주문 도감: 등록한 주문이 없을 때 글</summary>
+        public GameObject SpellsEmpty => _spellsEmpty;
     }
 }

@@ -57,7 +57,7 @@ MonoBehaviour:
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 76d039e951c0a0b42a6d1ef4ba81f4b2
-    m_Address: Element_es
+    m_Address: Rune_es
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-es
@@ -81,11 +81,32 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-es
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a8a709d8d1ecb2a4b82b01d59ffa5023
+    m_Address: Codex_es
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-es
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b328342958e141e48b08a913c4a722e7
+    m_Address: Spell_es
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-es
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: cfc0d3e8024299e4fabb7be420503b10
     m_Address: Opening_es
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-es
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d601be61efbc4794ca35538582068ab2
+    m_Address: Cast_es
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-es
+    - Preload
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f2c1c3ded2a92884a958223faefa33d6
     m_Address: Hub_es

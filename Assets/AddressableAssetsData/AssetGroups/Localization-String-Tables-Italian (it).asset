@@ -22,6 +22,13 @@ MonoBehaviour:
     - Locale-it
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2446c88ad7f736c4981f8db4b5eb2b01
+    m_Address: Codex_it
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-it
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 370fbaa21ca4ae24998210b6d1644c5f
     m_Address: Quest_it
     m_ReadOnly: 1
@@ -55,6 +62,13 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-it
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 69c468b79daf8514b8f78a74ad4a3d99
+    m_Address: Spell_it
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-it
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 84648efcea5fea04885d9107e3082cdb
     m_Address: Hub_it
     m_ReadOnly: 1
@@ -81,10 +95,17 @@ MonoBehaviour:
     - Locale-it
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d8bbd44bfe7adb7448e81b1f560980b7
-    m_Address: Element_it
+    m_Address: Rune_it
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-it
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: df435407b16fab84f8ae9aebf30da59f
+    m_Address: Cast_it
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-it
+    - Preload
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e511fc7f293966748865e6ada7a90e17
     m_Address: Objective_it

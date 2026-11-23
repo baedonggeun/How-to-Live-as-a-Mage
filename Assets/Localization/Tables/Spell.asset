@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5be51871efa6c3e4eae1703925c8f5ac, type: 3}
+  m_Name: Spell
+  m_EditorClassIdentifier: Unity.Localization.Editor::UnityEditor.Localization.StringTableCollection
+  m_SharedTableData: {fileID: 11400000, guid: 7ed42dcb59ba7984181f67d802ebf44a, type: 2}
+  m_Tables:
+  - {fileID: 11400000, guid: ddd19c3eb49352e4187a8715b7aa11de, type: 2}
+  - {fileID: 11400000, guid: d1d6399afd8729240a4bf69a5b7195b1, type: 2}
+  - {fileID: 11400000, guid: 6a366c9f4fa0cfb4cb86e89e707c5109, type: 2}
+  - {fileID: 11400000, guid: 5ae7eae73750a144d80bf12153afe3c2, type: 2}
+  - {fileID: 11400000, guid: 531109562b7216149a9c5a1a7254a991, type: 2}
+  - {fileID: 11400000, guid: 69c468b79daf8514b8f78a74ad4a3d99, type: 2}
+  - {fileID: 11400000, guid: 6dd389691b6efab499695127555f56f1, type: 2}
+  - {fileID: 11400000, guid: 40547ae6d9df3a146abba08b40dbc52c, type: 2}
+  - {fileID: 11400000, guid: 3823798a9539ea8419cad6f96c23b4ed, type: 2}
+  - {fileID: 11400000, guid: 7c88bd29f2877bd40a429532b6645bd0, type: 2}
+  - {fileID: 11400000, guid: 35f3c6d863fe48e48a8dc57c9bdd0001, type: 2}
+  - {fileID: 11400000, guid: b328342958e141e48b08a913c4a722e7, type: 2}
+  - {fileID: 11400000, guid: abc1b4a67e678b841b3a49a8099120bb, type: 2}
+  m_Extensions: []
+  m_Group: String Table
+  references:
+    version: 2
+    RefIds: []

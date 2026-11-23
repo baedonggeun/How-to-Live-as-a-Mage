@@ -63,6 +63,16 @@ MonoBehaviour:
       it.
     m_Metadata:
       m_Items: []
+  - m_Id: 655830337355776
+    m_Localized: Drawing Spells
+    m_Metadata:
+      m_Items: []
+  - m_Id: 655830354132992
+    m_Localized: Draw with left-click on the Spell Practice tab of your codex. You
+      can keep drawing within 3 seconds after letting go; after 3 seconds without
+      drawing it is judged. Space judges right away, right-click or Esc cancels.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

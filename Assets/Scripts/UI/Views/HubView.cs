@@ -52,6 +52,15 @@ namespace Mage
         /// <summary>숲에서 돌아오면 서는 곳 (정문 밖, 정문을 봄. 인스펙터에서만 연결)</summary>
         [SerializeField] Transform _returnPoint;
 
+        /// <summary>코덱스 (RoomInterior/Codex의 CodexController. 인스펙터에서만 연결)</summary>
+        [SerializeField] CodexController _codex;
+
+        /// <summary>책상 시점 연출 (RoomInterior/Codex의 DeskSequence. 인스펙터에서만 연결)</summary>
+        [SerializeField] DeskSequence _deskSequence;
+
+        /// <summary>책상 시점 자리 (머리가 옮겨 갈 위치·방향. 인스펙터에서만 연결)</summary>
+        [SerializeField] Transform _deskSeat;
+
         /// <summary>파티 수 글자</summary>
         public LocalizeStringEvent PartyText => _partyText;
 
@@ -96,5 +105,14 @@ namespace Mage
 
         /// <summary>숲에서 돌아오면 서는 곳</summary>
         public Transform ReturnPoint => _returnPoint;
+
+        /// <summary>코덱스</summary>
+        public CodexController Codex => _codex;
+
+        /// <summary>책상 시점 연출</summary>
+        public DeskSequence DeskSequence => _deskSequence;
+
+        /// <summary>책상 시점 자리</summary>
+        public Transform DeskSeat => _deskSeat;
     }
 }

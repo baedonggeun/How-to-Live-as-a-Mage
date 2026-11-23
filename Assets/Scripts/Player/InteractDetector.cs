@@ -25,6 +25,9 @@ namespace Mage
         /// <summary>상호작용 입력. 없으면 null (Awake에서 에러 로그)</summary>
         InputAction _interact;
 
+        /// <summary>레이에 맞은 것 (순서 없음. 매 프레임 다시 씀)</summary>
+        readonly RaycastHit[] _hits = new RaycastHit[8];
+
         /// <summary>지금 바라보는 지점. 없으면 null</summary>
         public InteractPointView Target { get; private set; }
 
@@ -64,15 +67,24 @@ namespace Mage
         }
         #endregion
 
-        #region Update - 눈 앞으로 레이를 쏴서 맞은 콜라이더(트리거 포함)의 지점 표지를 대상으로
+        #region Update - 눈 앞으로 레이를 쏴서 맞은 것 중 자기 몸(플레이어 아래 콜라이더)을 뺀 가장 가까운 콜라이더(트리거 포함)의 지점 표지를 대상으로. 아래를 볼 때 자기 CharacterController에 먼저 맞아서
         void Update()
         {
             if (_eye == null) return;
-            // 맞은 곳의 지점 표지 (없으면 null)
-            InteractPointView found = null;
-            if (Physics.Raycast(_eye.position, _eye.forward, out RaycastHit hit, _range, _mask, QueryTriggerInteraction.Collide))
-                found = hit.collider.GetComponentInParent<InteractPointView>();
-            SetTarget(found);
+            // 레이에 맞은 수
+            int count = Physics.RaycastNonAlloc(_eye.position, _eye.forward, _hits, _range, _mask, QueryTriggerInteraction.Collide);
+            // 자기 몸을 뺀 가장 가까운 콜라이더와 거리
+            Collider nearest = null;
+            float best = float.PositiveInfinity;
+            for (int i = 0; i < count; i++)
+            {
+                // 이번에 맞은 콜라이더
+                Collider hit = _hits[i].collider;
+                if (hit == null || hit.transform.IsChildOf(transform) || _hits[i].distance >= best) continue;
+                best = _hits[i].distance;
+                nearest = hit;
+            }
+            SetTarget(nearest != null ? nearest.GetComponentInParent<InteractPointView>() : null);
         }
         #endregion
 

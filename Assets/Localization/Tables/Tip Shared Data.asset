@@ -26,12 +26,12 @@ MonoBehaviour:
       m_Items:
       - rid: 2778220039273971716
   - m_Id: 25250398209
-    m_Key: tip.elements.title
+    m_Key: tip.runes.title
     m_Metadata:
       m_Items:
       - rid: 2778220039273971717
   - m_Id: 25250398210
-    m_Key: tip.elements.body
+    m_Key: tip.runes.body
     m_Metadata:
       m_Items:
       - rid: 2778220039273971718
@@ -67,11 +67,11 @@ MonoBehaviour:
     - rid: 2778220039273971717
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_CommentText: "\uB85C\uB529\uCC3D \uD301: \uC694\uC18C \uC81C\uBAA9"
+        m_CommentText: "\uB85C\uB529\uCC3D \uD301: \uB8EC \uC81C\uBAA9"
     - rid: 2778220039273971718
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_CommentText: "\uB85C\uB529\uCC3D \uD301: \uC694\uC18C \uBCF8\uBB38"
+        m_CommentText: "\uB85C\uB529\uCC3D \uD301: \uB8EC \uBCF8\uBB38"
     - rid: 2778220039273971719
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
