@@ -68,6 +68,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-ru
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 60bedf91777155a449c2c79dec46e418
+    m_Address: Monster_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 74f996434c9eed14cbe8e6a8debf7221
     m_Address: Tutorial_ru
     m_ReadOnly: 1
@@ -81,6 +87,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-ru
     - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9cdeabd70bd6e2e4a9e54983aa8dc026
+    m_Address: Field_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: aa8766fa8f67be540ab94c1ee1bfd683
     m_Address: Codex_ru

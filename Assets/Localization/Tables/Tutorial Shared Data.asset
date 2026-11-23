@@ -80,6 +80,36 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2778220093525459033
+  - m_Id: 1103303975534592
+    m_Key: tutorial.field_cast.prompt
+    m_Metadata:
+      m_Items:
+      - rid: 2778220126650499159
+  - m_Id: 1103304004894720
+    m_Key: tutorial.field_cast.title
+    m_Metadata:
+      m_Items:
+      - rid: 2778220126650499160
+  - m_Id: 1103304004894721
+    m_Key: tutorial.field_cast.body
+    m_Metadata:
+      m_Items:
+      - rid: 2778220126650499161
+  - m_Id: 1103304004894722
+    m_Key: tutorial.map.prompt
+    m_Metadata:
+      m_Items:
+      - rid: 2778220126650499162
+  - m_Id: 1103304004894723
+    m_Key: tutorial.map.title
+    m_Metadata:
+      m_Items:
+      - rid: 2778220126650499163
+  - m_Id: 1103304004894724
+    m_Key: tutorial.map.body
+    m_Metadata:
+      m_Items:
+      - rid: 2778220126650499164
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
@@ -145,3 +175,28 @@ MonoBehaviour:
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
         m_CommentText: "\uD29C\uD1A0\uB9AC\uC5BC \uD0ED \uC124\uBA85 (\uC784\uC2DC)"
+    - rid: 2778220126650499159
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "12\uC2DC \uC548\uB0B4: \uC232\uC5D0\uC11C \uCC98\uC74C"
+    - rid: 2778220126650499160
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD29C\uD1A0\uB9AC\uC5BC \uD0ED \uC81C\uBAA9"
+    - rid: 2778220126650499161
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD29C\uD1A0\uB9AC\uC5BC \uD0ED \uC124\uBA85"
+    - rid: 2778220126650499162
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "12\uC2DC \uC548\uB0B4: \uC232\uC5D0\uC11C \uC870\uAE08 \uAC78\uC740
+          \uB4A4"
+    - rid: 2778220126650499163
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD29C\uD1A0\uB9AC\uC5BC \uD0ED \uC81C\uBAA9"
+    - rid: 2778220126650499164
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD29C\uD1A0\uB9AC\uC5BC \uD0ED \uC124\uBA85"

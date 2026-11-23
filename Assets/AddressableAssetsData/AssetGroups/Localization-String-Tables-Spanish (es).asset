@@ -68,6 +68,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-es
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 86ef54a7e0409a743a56a08b2028b4a0
+    m_Address: Field_es
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-es
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a26dc83a6e0853342b2f04a20d554480
     m_Address: Menu_es
     m_ReadOnly: 1
@@ -94,6 +100,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-es
     - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bf3274f62b2eb324da01ff4cd5c72226
+    m_Address: Monster_es
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-es
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: cfc0d3e8024299e4fabb7be420503b10
     m_Address: Opening_es

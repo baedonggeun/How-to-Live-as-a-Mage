@@ -66,6 +66,12 @@ MonoBehaviour:
     - _points:
       - {x: 0, y: 0.75}
       - {x: 0, y: -1}
+  _fieldEffect: 3
+  _manaCost: 8
+  _power: 9
+  _area: 4
+  _duration: 0
+  _cooldown: 0
   references:
     version: 2
     RefIds: []

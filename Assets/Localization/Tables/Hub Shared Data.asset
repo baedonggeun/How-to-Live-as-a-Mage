@@ -230,6 +230,26 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2778220093525459028
+  - m_Id: 1257462976643072
+    m_Key: hub.board.done
+    m_Metadata:
+      m_Items:
+      - rid: 2778220126650499151
+  - m_Id: 1257463006003200
+    m_Key: hub.quest_done
+    m_Metadata:
+      m_Items:
+      - rid: 2778220126650499152
+  - m_Id: 1257463006003201
+    m_Key: hub.respawn.inn
+    m_Metadata:
+      m_Items:
+      - rid: 2778220126650499153
+  - m_Id: 1257463006003202
+    m_Key: hub.respawn.gate
+    m_Metadata:
+      m_Items:
+      - rid: 2778220126650499154
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
@@ -434,3 +454,22 @@ MonoBehaviour:
       data:
         m_CommentText: "\uC5EC\uAD00 \uBC29 \uCC45\uC0C1 \uC704 \uCF54\uB371\uC2A4
           (\uC9C0\uC810 \uC774\uB984)"
+    - rid: 2778220126650499151
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uAC8C\uC2DC\uD310 \uBC84\uD2BC: \uB05D\uB0B8 \uC758\uB8B0"
+    - rid: 2778220126650499152
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD1A0\uC2A4\uD2B8: \uC758\uB8B0\uB97C \uB05D\uB0C4. {0}
+          \uC758\uB8B0 \uC774\uB984"
+    - rid: 2778220126650499153
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD1A0\uC2A4\uD2B8: \uC232\uC5D0\uC11C \uC8FD\uC5B4 \uC5EC\uAD00
+          \uBC29\uC5D0\uC11C \uAE68\uC5B4\uB0A8"
+    - rid: 2778220126650499154
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD1A0\uC2A4\uD2B8: \uC232\uC5D0\uC11C \uC8FD\uC5B4 \uC815\uBB38\uC5D0\uC11C
+          \uAE68\uC5B4\uB0A8 (\uBC29 \uC5C6\uC74C)"

@@ -25,6 +25,9 @@ namespace Mage
         /// <summary>전투 수치 (1~5, 임시). 숲 단계에서 동료 체력·공격에 씀</summary>
         [SerializeField, Range(MinCombat, MaxCombat)] int _combat = 3;
 
+        /// <summary>현장에서 활로 떨어져서 쏘는지 (레인저). 아니면 붙어서 싸움</summary>
+        [SerializeField] bool _ranged;
+
         /// <summary>바뀌지 않는 id</summary>
         public string Id => _id;
 
@@ -36,5 +39,8 @@ namespace Mage
 
         /// <summary>전투 수치 (1~5)</summary>
         public int Combat => _combat;
+
+        /// <summary>현장에서 활로 떨어져서 쏘는지</summary>
+        public bool Ranged => _ranged;
     }
 }

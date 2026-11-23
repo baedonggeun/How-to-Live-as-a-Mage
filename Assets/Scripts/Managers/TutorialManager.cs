@@ -52,6 +52,9 @@ namespace Mage
         /// <summary>다음 안내까지 남은 쉬는 시간 (초)</summary>
         float _gap;
 
+        /// <summary>전투 상황이라 12시 안내를 숨기는지 (다루던 안내는 그대로 두고 화면에서만 숨김)</summary>
+        bool _suppressed;
+
         /// <summary>이동 입력. 없으면 null</summary>
         InputAction _move;
 
@@ -105,13 +108,32 @@ namespace Mage
         }
         #endregion
 
-        #region MarkLearned - 안내 없이 배움으로 기록 (상호작용처럼 처음 써 본 걸 게임 코드가 알림). 새로 배웠으면 파일 저장
+        #region MarkLearned - 배움으로 기록 (상호작용·지도·현장 시전처럼 게임 코드가 처음 쓴 걸 알림). 새로 배웠으면 파일 저장. 지금 다루는 안내면 끝냄
         /// <param name="id">튜토리얼 id</param>
         public void MarkLearned(string id)
+        {
+            SaveLearned(id);
+            if (_current != null && string.Equals(_current.Id, id, System.StringComparison.Ordinal)) Complete();
+        }
+        #endregion
+
+        #region SaveLearned - 이 PC 배운 기록에 넣고 새로 배웠으면 파일 저장
+        /// <param name="id">튜토리얼 id</param>
+        void SaveLearned(string id)
         {
             // 기기 설정 담당 (배운 기록이 여기 있음)
             var settings = SettingsManager.Instance;
             if (settings != null && settings.Device.AddLearnedTutorial(id)) settings.Save();
+        }
+        #endregion
+
+        #region SetSuppressed - 전투 상황이면 12시 안내를 숨기고, 끝나면 떠 있던 안내를 다시 보임 (숲)
+        /// <param name="suppressed">숨길지</param>
+        public void SetSuppressed(bool suppressed)
+        {
+            if (suppressed == _suppressed) return;
+            _suppressed = suppressed;
+            if (_prompt != null && _current != null && _shown) _prompt.Root.SetActive(!suppressed);
         }
         #endregion
 
@@ -127,6 +149,7 @@ namespace Mage
             _current = null;
             _shown = false;
             _gap = 0f;
+            _suppressed = false;
             if (_prompt != null) _prompt.Root.SetActive(false);
         }
         #endregion
@@ -182,14 +205,14 @@ namespace Mage
             _shown = true;
             if (_prompt == null) return;
             _prompt.Text.StringReference.SetReference(_current.Prompt.TableReference, _current.Prompt.TableEntryReference);
-            _prompt.Root.SetActive(true);
+            _prompt.Root.SetActive(!_suppressed);
         }
         #endregion
 
         #region Complete - 배움 저장, 안내 숨김, 쉬는 시간 뒤 다음 안내
         void Complete()
         {
-            MarkLearned(_current.Id);
+            SaveLearned(_current.Id);
             _current = null;
             _shown = false;
             if (_prompt != null) _prompt.Root.SetActive(false);

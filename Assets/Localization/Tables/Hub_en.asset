@@ -194,6 +194,22 @@ MonoBehaviour:
     m_Localized: Codex
     m_Metadata:
       m_Items: []
+  - m_Id: 1257462976643072
+    m_Localized: Done
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1257463006003200
+    m_Localized: 'Quest complete: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1257463006003201
+    m_Localized: You came to in your room at the inn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1257463006003202
+    m_Localized: You came to by the gate
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

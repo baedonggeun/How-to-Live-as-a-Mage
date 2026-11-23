@@ -10,7 +10,7 @@ using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>주문 그리기 칸: 좌클릭으로 시전 상태, 버튼을 떼도 이어 그리기, 마지막 입력 뒤 대기 시간이 지나거나 Space(Player/Cast)면 판정, 우클릭은 취소. 그린 획을 칸 좌표로 모으고, 판정은 받은 함수가 하고 결과 글은 여기서 보임. 대기 시간은 게임 시간 (일시정지 중엔 멈춤)</summary>
+    /// <summary>주문 그리기 칸: 좌클릭으로 시전 상태, 버튼을 떼도 이어 그리기, 마지막 입력 뒤 대기 시간이 지나거나 Space(Player/Cast)면 판정, 우클릭은 취소. 그린 획을 칸 좌표로 모으고, 판정은 받은 함수가 하고 결과 글은 여기서 보임. 대기 시간은 게임 시간 (일시정지 중엔 멈춤). 포인터 대신 PenDown·PenMove·PenUp으로 칸 좌표를 직접 넣을 수 있음 (숲: 커서를 잠근 채 마우스 이동량으로 그림)</summary>
     public sealed class SpellDrawController : MonoBehaviour, IPointerDownHandler, IInitializePotentialDragHandler, IDragHandler, IPointerUpHandler
     {
         /// <summary>바로 판정 입력 액션 경로 (전역 액션, Space)</summary>
@@ -72,6 +72,9 @@ namespace Mage
 
         /// <summary>마지막 입력 뒤 판정까지 시간 (초, 게임 시간. 임시 3초)</summary>
         [SerializeField, Min(0.5f)] float _waitSeconds = 3f;
+
+        /// <summary>그리기 전 가운데 안내 글을 보일지 (책상 연습은 켬, 숲은 끔)</summary>
+        [SerializeField] bool _showHint = true;
 
         /// <summary>끝난 획 (칸 좌표, 점 2개 이상)</summary>
         readonly List<Vector2[]> _strokes = new();
@@ -159,7 +162,7 @@ namespace Mage
             if (_view == null) return;
             if (shape == null) _view.Guide.Clear();
             else _view.Guide.SetStrokes(shape.PartStrokes.SelectMany(part => part), true);
-            if (!_casting) _view.Hint.gameObject.SetActive(shape == null);
+            if (!_casting) _view.Hint.gameObject.SetActive(_showHint && shape == null);
         }
         #endregion
 
@@ -202,11 +205,7 @@ namespace Mage
                 return;
             }
             if (eventData.button != PointerEventData.InputButton.Left) return;
-            if (!_casting) StartCast();
-            EndStroke();
-            _stroke = new List<Vector2> { ToLocal(eventData) };
-            _idle = 0f;
-            RefreshInk();
+            PenDown(ToLocal(eventData));
         }
         #endregion
 
@@ -214,13 +213,8 @@ namespace Mage
         /// <param name="eventData">포인터 정보</param>
         public void OnDrag(PointerEventData eventData)
         {
-            if (_stroke == null || eventData.button != PointerEventData.InputButton.Left) return;
-            // 칸 좌표 점
-            Vector2 point = ToLocal(eventData);
-            if ((point - _stroke[_stroke.Count - 1]).sqrMagnitude < MinPointGap * MinPointGap) return;
-            _stroke.Add(point);
-            _idle = 0f;
-            RefreshInk();
+            if (eventData.button != PointerEventData.InputButton.Left) return;
+            PenMove(ToLocal(eventData));
         }
         #endregion
 
@@ -229,8 +223,37 @@ namespace Mage
         public void OnPointerUp(PointerEventData eventData)
         {
             if (eventData.button != PointerEventData.InputButton.Left) return;
-            EndStroke();
+            PenUp();
         }
+        #endregion
+
+        #region PenDown - 펜을 누름: 그리기를 받는 중이면 (시전 상태가 아니면 시작하고) 그 점에서 새 획 시작
+        /// <param name="point">칸 좌표 점 (가운데 기준)</param>
+        public void PenDown(Vector2 point)
+        {
+            if (!IsActive) return;
+            if (!_casting) StartCast();
+            EndStroke();
+            _stroke = new List<Vector2> { point };
+            _idle = 0f;
+            RefreshInk();
+        }
+        #endregion
+
+        #region PenMove - 그리는 중이면 점을 더함 (앞 점과 너무 가까우면 뺌)
+        /// <param name="point">칸 좌표 점</param>
+        public void PenMove(Vector2 point)
+        {
+            if (_stroke == null) return;
+            if ((point - _stroke[_stroke.Count - 1]).sqrMagnitude < MinPointGap * MinPointGap) return;
+            _stroke.Add(point);
+            _idle = 0f;
+            RefreshInk();
+        }
+        #endregion
+
+        #region PenUp - 펜을 뗌: 그리던 획 끝 (그 뒤 대기 시간이 흐름)
+        public void PenUp() => EndStroke();
         #endregion
 
         #region OnCastPerformed - Space: 시전 상태면 그리던 획을 끝내고 바로 판정
@@ -302,7 +325,7 @@ namespace Mage
             _view.Timer.gameObject.SetActive(false);
             _view.Result.gameObject.SetActive(false);
             _view.Detail.gameObject.SetActive(false);
-            _view.Hint.gameObject.SetActive(true);
+            _view.Hint.gameObject.SetActive(_showHint);
         }
         #endregion
 

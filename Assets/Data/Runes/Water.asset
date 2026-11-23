@@ -59,6 +59,10 @@ MonoBehaviour:
     - {x: 0.833, y: 0.318}
     - {x: 0.917, y: 0.172}
     - {x: 1, y: 0}
+  _soloEffect: 3
+  _soloManaCost: 4
+  _soloPower: 5
+  _soloArea: 2
   references:
     version: 2
     RefIds: []

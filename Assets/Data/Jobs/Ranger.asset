@@ -32,6 +32,7 @@ MonoBehaviour:
     m_WaitForCompletion: 0
     m_LocalVariables: []
   _combat: 3
+  _ranged: 1
   references:
     version: 2
     RefIds: []

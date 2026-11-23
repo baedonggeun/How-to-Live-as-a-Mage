@@ -36,6 +36,12 @@ MonoBehaviour:
     - Locale-ko
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 562b0eccd04ab4a429b1efd95f0d5809
+    m_Address: Field_ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6c9aec7f67a287c4e839958aa86fb7e6
     m_Address: UI_ko
     m_ReadOnly: 1
@@ -83,6 +89,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: cad1c510130d21d48854cb1c14aa0461
     m_Address: Creation_ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cf45af42ee176c149ab1863a92dcc116
+    m_Address: Monster_ko
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ko

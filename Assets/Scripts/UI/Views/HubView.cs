@@ -61,6 +61,15 @@ namespace Mage
         /// <summary>책상 시점 자리 (머리가 옮겨 갈 위치·방향. 인스펙터에서만 연결)</summary>
         [SerializeField] Transform _deskSeat;
 
+        /// <summary>숲에서 죽어 깨어나는 곳 (여관 방 침대 옆, 방 문을 봄. 인스펙터에서만 연결)</summary>
+        [SerializeField] Transform _bedPoint;
+
+        /// <summary>의뢰를 받고 한 번 나간 뒤 목표 (숲 외곽의 고블린 소탕. 인스펙터에서만 연결)</summary>
+        [SerializeField] ObjectiveSO _forestObjective;
+
+        /// <summary>스태미나 막대 (Canvas/Hud/Stamina. 인스펙터에서만 연결)</summary>
+        [SerializeField] StaminaUIBinder _stamina;
+
         /// <summary>파티 수 글자</summary>
         public LocalizeStringEvent PartyText => _partyText;
 
@@ -114,5 +123,14 @@ namespace Mage
 
         /// <summary>책상 시점 자리</summary>
         public Transform DeskSeat => _deskSeat;
+
+        /// <summary>숲에서 죽어 깨어나는 곳</summary>
+        public Transform BedPoint => _bedPoint;
+
+        /// <summary>의뢰를 받고 한 번 나간 뒤 목표</summary>
+        public ObjectiveSO ForestObjective => _forestObjective;
+
+        /// <summary>스태미나 막대</summary>
+        public StaminaUIBinder Stamina => _stamina;
     }
 }

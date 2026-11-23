@@ -53,6 +53,12 @@ MonoBehaviour:
     - Locale-zh-Hant
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 92843f592956a2f48824bf81ef867927
+    m_Address: Field_zh-Hant
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hant
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b2253ebb232f6614b9b6f081ded6b047
     m_Address: Name_zh-Hant
     m_ReadOnly: 1
@@ -106,6 +112,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-zh-Hant
     - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e1ee692ba4a463143b86980d2ff0c08d
+    m_Address: Monster_zh-Hant
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hant
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: fb97e71e50436e84bb0a52aecf920336
     m_Address: Cast_zh-Hant

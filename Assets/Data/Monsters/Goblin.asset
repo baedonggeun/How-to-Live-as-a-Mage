@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a9afef20b5851d4587cb318e3d7ee9a, type: 3}
+  m_Name: Goblin
+  m_EditorClassIdentifier: Mage::Mage.MonsterSO
+  _id: goblin
+  _name:
+    m_TableReference:
+      m_TableCollectionName: GUID:f15d1ace845f8bd4b9347ea78f92c28d
+    m_TableEntryReference:
+      m_KeyId: 56443437056
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  _maxHp: 35
+  _speed: 5.2
+  _damage: 7
+  _attackInterval: 1.2
+  _attackRange: 1.4
+  _aggroRange: 18
+  _mageFocusChance: 0.15
+  _size: 0.82
+  _color: {r: 0.33, g: 0.5, b: 0.24, a: 1}
+  references:
+    version: 2
+    RefIds: []

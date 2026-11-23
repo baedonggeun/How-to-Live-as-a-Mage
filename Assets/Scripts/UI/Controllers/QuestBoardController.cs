@@ -13,6 +13,9 @@ namespace Mage
         /// <summary>받은 뒤 버튼 글자 키</summary>
         const string TakenKey = "hub.board.taken";
 
+        /// <summary>끝낸 의뢰 버튼 글자 키</summary>
+        const string DoneKey = "hub.board.done";
+
         /// <summary>기간 글자 키 ({0} 일 수)</summary>
         const string DaysKey = "hub.board.days";
 
@@ -43,11 +46,12 @@ namespace Mage
         }
         #endregion
 
-        #region Show - 의뢰 이름·설명·기간을 넣고 켬. 이미 받았으면 버튼을 '받음'으로
+        #region Show - 의뢰 이름·설명·기간을 넣고 켬. 이미 받았으면 버튼을 '받음', 끝냈으면 '끝냄'으로
         /// <param name="quest">보일 의뢰</param>
         /// <param name="taken">이미 받았는지</param>
+        /// <param name="completed">이미 끝냈는지</param>
         /// <param name="onTake">받기를 누르면 할 일</param>
-        public void Show(QuestSO quest, bool taken, Action onTake)
+        public void Show(QuestSO quest, bool taken, bool completed, Action onTake)
         {
             if (_view == null)
             {
@@ -64,7 +68,7 @@ namespace Mage
             days.Arguments = new object[] { quest.Days };
             gameObject.SetActive(true);
             _view.QuestDays.RefreshString();
-            SetTaken(taken);
+            SetTaken(taken, completed);
         }
         #endregion
 
@@ -80,16 +84,17 @@ namespace Mage
         void OnTakeClicked()
         {
             _onTake?.Invoke();
-            SetTaken(true);
+            SetTaken(true, false);
         }
         #endregion
 
-        #region SetTaken - 받았으면 버튼을 못 누르게 하고 글자를 '받음'으로
+        #region SetTaken - 받았거나 끝냈으면 버튼을 못 누르게 하고 글자를 '끝냄'·'받음'으로
         /// <param name="taken">받았는지</param>
-        void SetTaken(bool taken)
+        /// <param name="completed">끝냈는지</param>
+        void SetTaken(bool taken, bool completed)
         {
-            _view.TakeButton.interactable = !taken;
-            _view.TakeLabel.StringReference.SetReference(Table, taken ? TakenKey : TakeKey);
+            _view.TakeButton.interactable = !taken && !completed;
+            _view.TakeLabel.StringReference.SetReference(Table, completed ? DoneKey : taken ? TakenKey : TakeKey);
         }
         #endregion
     }

@@ -68,6 +68,9 @@ namespace Mage
         /// <summary>임무 게시판 창 (Boot 씬 UICanvas 자식)</summary>
         [SerializeField] QuestBoardController _questBoard;
 
+        /// <summary>메뉴 창 지도 탭 지도 (Boot 씬 UICanvas/GameMenu/…/MapPage/Map. 출처는 상태가 SetMapSource로 넘김)</summary>
+        [SerializeField] MapUIBinder _menuMap;
+
         /// <summary>자막을 숨기는 코루틴. 새 자막이 오면 끊고 다시 시작</summary>
         Coroutine _hideSubtitle;
 
@@ -224,6 +227,8 @@ namespace Mage
                 _questBoard.gameObject.SetActive(false);
                 if (_questBoard.View != null) _questBoard.View.CloseButton.onClick.AddListener(HideQuestBoard);
             }
+
+            if (_menuMap == null) Debug.LogError("[UI] 메뉴 지도 MapUIBinder 연결 안 됨");
 
             _map = FindAction(MapActionPath);
             if (_map != null) _map.performed += OnMap;
@@ -501,15 +506,16 @@ namespace Mage
         #region ShowQuestBoard - 게시판 창을 띄우고 게임 멈춤 (의뢰·할 일은 상태가 넘김)
         /// <param name="quest">보일 의뢰</param>
         /// <param name="taken">이미 받았는지</param>
+        /// <param name="completed">이미 끝냈는지</param>
         /// <param name="onTake">받기를 누르면 할 일</param>
-        public void ShowQuestBoard(QuestSO quest, bool taken, Action onTake)
+        public void ShowQuestBoard(QuestSO quest, bool taken, bool completed, Action onTake)
         {
             if (_questBoard == null)
             {
                 Debug.LogError("[UI] QuestBoardController 연결 안 됨");
                 return;
             }
-            _questBoard.Show(quest, taken, onTake);
+            _questBoard.Show(quest, taken, completed, onTake);
             RefreshMenuPause();
         }
         #endregion
@@ -519,6 +525,24 @@ namespace Mage
         {
             if (_questBoard != null) _questBoard.Hide();
             RefreshMenuPause();
+        }
+        #endregion
+
+        #region SetMapSource - 메뉴 창 지도 탭에 안개 지도·플레이어·목표·입구를 넘김 (숲이 부름)
+        /// <param name="fog">안개 지도</param>
+        /// <param name="player">플레이어</param>
+        /// <param name="objective">현재 목표 위치 (없으면 null을 돌려줌)</param>
+        /// <param name="exit">숲 입구 위치</param>
+        public void SetMapSource(FogMapService fog, Transform player, Func<Vector3?> objective, Vector3 exit)
+        {
+            if (_menuMap != null) _menuMap.Bind(fog, player, objective, exit);
+        }
+        #endregion
+
+        #region ClearMapSource - 메뉴 창 지도 탭을 자리 글로 (숲을 나갈 때)
+        public void ClearMapSource()
+        {
+            if (_menuMap != null) _menuMap.Unbind();
         }
         #endregion
 

@@ -90,6 +90,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-pl
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ad37c5e525d49cb4497b0c9d506dde52
+    m_Address: Monster_pl
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-pl
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ad77d2d7d152a104c86dbc313abb89b0
     m_Address: Creation_pl
     m_ReadOnly: 1
@@ -104,6 +110,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c3abba7c8049e014d920a302ac6dc192
     m_Address: Tip_pl
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-pl
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e2074a2a414c39048b66320e334a7df0
+    m_Address: Field_pl
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-pl

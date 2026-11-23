@@ -20,6 +20,12 @@ namespace Mage
 
         /// <summary>주문 그리기 (책상 연습). 12시 안내 없이 처음 판정까지 그리면 배움으로 알림</summary>
         Draw,
+
+        /// <summary>현장 시전 (숲). 12시 안내를 띄우고, 숲에서 처음 판정까지 그리면 게임 코드가 배움으로 알림</summary>
+        FieldCast,
+
+        /// <summary>지도 (M). 12시 안내를 띄우고, M을 누르면 게임 코드가 배움으로 알림</summary>
+        Map,
     }
 
     /// <summary>튜토리얼 하나: 화면 12시 조작 안내 문구와 튜토리얼 탭에 남는 제목·설명. 배우면 이 PC에 기록</summary>

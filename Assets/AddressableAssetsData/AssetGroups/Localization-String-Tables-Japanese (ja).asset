@@ -29,6 +29,12 @@ MonoBehaviour:
     - Locale-ja
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 119dbf864733b234bbb1d1bab0dec191
+    m_Address: Field_ja
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ja
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 14bfd4e6b82fb184c8b0391b782a23a2
     m_Address: Codex_ja
     m_ReadOnly: 1
@@ -38,6 +44,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1cf6260d6855f2c4f92c22a236645ccd
     m_Address: Hub_ja
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ja
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2089d28449d11d840a53584e6a49cd49
+    m_Address: Monster_ja
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ja

@@ -19,6 +19,9 @@ namespace Mage
         /// <summary>원정 기간 (일). 식량이 (플레이어 + 용병) × 기간 인분만큼 듦</summary>
         [SerializeField, Min(1)] int _days = 3;
 
+        /// <summary>소탕 대상 몬스터 (숲에서 이 몬스터를 다 쓰러뜨리면 의뢰 목표 달성). 비면 소탕 없음</summary>
+        [SerializeField] MonsterSO _target;
+
         /// <summary>바뀌지 않는 id</summary>
         public string Id => _id;
 
@@ -30,5 +33,8 @@ namespace Mage
 
         /// <summary>원정 기간 (일)</summary>
         public int Days => _days;
+
+        /// <summary>소탕 대상 몬스터 (없으면 null)</summary>
+        public MonsterSO Target => _target;
     }
 }

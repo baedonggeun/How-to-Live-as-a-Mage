@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Mage
 {
@@ -53,6 +54,30 @@ namespace Mage
 
         /// <summary>생략 가능 수 (레벨이 생기면 레벨이 정함. 지금은 프로토타입 기본 0)</summary>
         public int OmitLimit { get; set; }
+
+        /// <summary>받은 의뢰의 목표를 숲에서 끝냈는지 (소탕 대상을 다 쓰러뜨림). 마을로 오면 HubState가 의뢰를 끝냄</summary>
+        public bool QuestCleared { get; set; }
+
+        /// <summary>끝낸 의뢰 id (게시판이 '끝냄'으로 보임)</summary>
+        public HashSet<string> CompletedQuestIds { get; } = new(StringComparer.Ordinal);
+
+        /// <summary>숲에서 쓰러뜨린 적: 적 자리 키({자리 id}.{번호}) → 쓰러진 곳. 다시 들어가도 그 자리에 시체로 남음</summary>
+        public Dictionary<string, Vector3> ForestDead { get; } = new(StringComparer.Ordinal);
+
+        /// <summary>숲 안개 지도에서 밝힌 칸 (FogMapService가 만들어 넣음. 아직 안 들어갔으면 null)</summary>
+        public bool[] ForestFog { get; set; }
+
+        /// <summary>차원문 위치 (그 판에서 처음 숲에 들어갈 때 3구역 먼 쪽 절반에서 정함). 안 정했으면 null</summary>
+        public Vector3? PortalPosition { get; set; }
+
+        /// <summary>떨어진 금화 (마법사가 죽은 자리). 없으면 0. 또 죽으면 앞의 것은 사라지고 새로 떨굼</summary>
+        public int DroppedGold { get; set; }
+
+        /// <summary>떨어진 금화 자리</summary>
+        public Vector3 DroppedGoldPosition { get; set; }
+
+        /// <summary>숲에서 죽어 마을에서 부활하는 중인지 (HubState가 여관 방 침대·정문에서 시작하고 한 번 쓰면 끔)</summary>
+        public bool RespawningFromDeath { get; set; }
 
         #region CreateDebug - 에디터에서 중간 씬부터 Play할 때 쓰는 판 데이터 (도착한 판). 룬을 다 익히고 다중 룬 마법을 다 등록함 (코덱스 탭·묶음을 바로 확인)
         /// <param name="runes">룬 목록 (DataManager 순서, 빈 칸은 건너뜀)</param>

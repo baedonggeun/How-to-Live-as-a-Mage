@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Localization.Settings;
@@ -40,6 +41,9 @@ namespace Mage
         /// <summary>일시정지 메뉴가 떠 있는지. 떠 있는 동안 게임 시간 0, 게임 조작 입력 꺼짐</summary>
         bool _menuPaused;
 
+        /// <summary>게임 속도 (로딩창·일시정지가 아닐 때 Time.timeScale. 기본 1, 숲 죽음 뒤 도망 시뮬만 올림)</summary>
+        float _gameSpeed = 1f;
+
         /// <summary>일시정지 메뉴를 열기 전 커서 잠금 상태. 메뉴를 닫으면 이 값으로 되돌림 (숲은 잠겨 있음)</summary>
         CursorLockMode _cursorBeforePause;
 
@@ -79,6 +83,7 @@ namespace Mage
 
             // 타이틀·생성 화면이 아니면 중간부터 시작한 것 → 디버그 데이터
             Run = start is TitleState or CharacterCreationState ? new RunEntry() : RunEntry.CreateDebug(DataManager.Instance.Runes, DataManager.Instance.Spells);
+            if (start is FieldState) FillDebugExpedition(Run);
             ChangeState(start);
         }
         #endregion
@@ -102,6 +107,26 @@ namespace Mage
             };
             if (state == null) Debug.LogError($"[Flow] {sceneName}에 맞는 상태 없음");
             return state;
+        }
+        #endregion
+
+        #region FillDebugExpedition - 숲에서 바로 Play할 때 디버그 판에 원정을 채움: 첫 후보 추첨에서 용병 2명(나머지는 후보), 첫 의뢰, 방, 출발함 (숲 소탕·죽은 뒤 여관 부활 확인용)
+        /// <param name="run">디버그 판 데이터</param>
+        static void FillDebugExpedition(RunEntry run)
+        {
+            // 첫 후보 추첨
+            List<MercenaryEntry> drawn = RecruitPool.Draw(DataManager.Instance.Jobs);
+            foreach (MercenaryEntry entry in drawn)
+            {
+                if (run.Party.Count < HubState.RequiredMercenaries) run.Party.Add(entry);
+                else run.RecruitCandidates.Add(entry);
+            }
+            run.CandidatesDrawn = true;
+            // 의뢰 목록
+            IReadOnlyList<QuestSO> quests = DataManager.Instance.Quests;
+            run.Quest = quests.Count > 0 ? quests[0] : null;
+            run.HasRoom = true;
+            run.HasDeparted = true;
         }
         #endregion
 
@@ -218,8 +243,17 @@ namespace Mage
         public bool HandleCancel() => !_isSwitching && _state != null && _state.HandleCancel();
         #endregion
 
-        #region ApplyTimeScale - 멈출 이유(로딩창·일시정지 메뉴)가 하나라도 있으면 게임 시간 0, 없으면 1
-        void ApplyTimeScale() => Time.timeScale = _covered || _menuPaused ? 0f : 1f;
+        #region SetGameSpeed - 게임 속도를 바꿈 (0 이상. 로딩창·일시정지가 아니면 바로 적용)
+        /// <param name="speed">게임 속도 (1 = 보통)</param>
+        public void SetGameSpeed(float speed)
+        {
+            _gameSpeed = Mathf.Max(0f, speed);
+            ApplyTimeScale();
+        }
+        #endregion
+
+        #region ApplyTimeScale - 멈출 이유(로딩창·일시정지 메뉴)가 하나라도 있으면 게임 시간 0, 없으면 게임 속도
+        void ApplyTimeScale() => Time.timeScale = _covered || _menuPaused ? 0f : _gameSpeed;
         #endregion
 
         #region SetUnfocused - 창 비활성 처리: 프레임 제한, 설정 '창이 비활성이면 음소거'가 켜져 있으면 소리 0. 게임은 계속 돎. 돌아오면 되돌림

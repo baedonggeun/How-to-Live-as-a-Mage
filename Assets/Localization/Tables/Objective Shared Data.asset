@@ -45,6 +45,26 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2778220057739657374
+  - m_Id: 1103287210901504
+    m_Key: objective.forest_clear.title
+    m_Metadata:
+      m_Items:
+      - rid: 2778220126650499155
+  - m_Id: 1103287215095808
+    m_Key: objective.forest_clear.desc
+    m_Metadata:
+      m_Items:
+      - rid: 2778220126650499156
+  - m_Id: 1103287231873024
+    m_Key: objective.forest_return.title
+    m_Metadata:
+      m_Items:
+      - rid: 2778220126650499157
+  - m_Id: 1103287231873025
+    m_Key: objective.forest_return.desc
+    m_Metadata:
+      m_Items:
+      - rid: 2778220126650499158
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
@@ -83,3 +103,19 @@ MonoBehaviour:
       data:
         m_CommentText: "\uD30C\uD2F0\xB7\uC758\uB8B0\uB97C \uAC16\uCD98 \uB4A4 \uBAA9\uD45C
           \uC124\uBA85 (\uC784\uC2DC)"
+    - rid: 2778220126650499155
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uBAA9\uD45C \uC774\uB984"
+    - rid: 2778220126650499156
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uBAA9\uD45C \uC124\uBA85"
+    - rid: 2778220126650499157
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uBAA9\uD45C \uC774\uB984"
+    - rid: 2778220126650499158
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uBAA9\uD45C \uC124\uBA85"

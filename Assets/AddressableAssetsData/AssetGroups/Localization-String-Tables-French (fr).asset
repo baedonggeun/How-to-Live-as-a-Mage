@@ -87,6 +87,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-fr
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 97e04a590b547294d97873544c978a99
+    m_Address: Monster_fr
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-fr
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9dcbf2c7ae9876748835349e5a38fe29
     m_Address: Job_fr
     m_ReadOnly: 1
@@ -113,6 +119,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-fr
     - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f5d0fdd7b49422a48aa8b47c5516c8a1
+    m_Address: Field_fr
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-fr
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: f2b523eaf6371f2488f5ccc7a3401608, type: 2}

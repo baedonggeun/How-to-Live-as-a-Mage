@@ -73,6 +73,36 @@ MonoBehaviour:
       drawing it is judged. Space judges right away, right-click or Esc cancels.
     m_Metadata:
       m_Items: []
+  - m_Id: 1103303975534592
+    m_Localized: Left-click to draw a spell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1103304004894720
+    m_Localized: Casting in the Field
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1103304004894721
+    m_Localized: Left-click to draw in the middle of the screen. The pen follows
+      your mouse, and you can keep drawing for 3 seconds after letting go. Press
+      Space to judge right away. If it matches, aim for 3 seconds and left-click
+      to fire (it fires on its own when time runs out). Right-click cancels. Fire
+      and Water runes can be thrown on their own.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1103304004894722
+    m_Localized: Press M for the map
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1103304004894723
+    m_Localized: Map
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1103304004894724
+    m_Localized: Walk to reveal the forest map. Revealed areas stay revealed. The
+      minimap at the top right shows your surroundings; press M to see the whole
+      forest.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -45,6 +45,11 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6dd33dd47c9f9b542a59a08adc2194e2
+    m_Address: Assets/Localization/Tables/Field Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 799e382cfb91be24b8197441d0b530b8
     m_Address: Assets/Localization/Tables/Quest Shared Data.asset
     m_ReadOnly: 1
@@ -87,6 +92,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: efe2cebe73908cb4881b8c876af93927
     m_Address: Assets/Localization/Tables/Menu Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f15d1ace845f8bd4b9347ea78f92c28d
+    m_Address: Assets/Localization/Tables/Monster Shared Data.asset
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

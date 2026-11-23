@@ -54,6 +54,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-de
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5f5c8729caababf4ca6f5ef66361d6f6
+    m_Address: Monster_de
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-de
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 79889490bd5fb3b4481f0cfef6fd51d3
     m_Address: Job_de
     m_ReadOnly: 1
@@ -97,6 +103,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d96d8a67ed390d24189d446b2aaa677b
     m_Address: Hub_de
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-de
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dae218fd49ec1f84aadf51a2a2e06a49
+    m_Address: Field_de
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-de

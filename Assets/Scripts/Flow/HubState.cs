@@ -84,6 +84,15 @@ namespace Mage
         /// <summary>경비병: 숲에서 돌아왔을 때 자막 키</summary>
         const string GuardWelcomeKey = "hub.guard.welcome";
 
+        /// <summary>숲에서 죽어 여관 방에서 깨어났을 때 토스트 키</summary>
+        const string RespawnInnKey = "hub.respawn.inn";
+
+        /// <summary>숲에서 죽어 정문에서 깨어났을 때 토스트 키 (방을 안 잡았을 때)</summary>
+        const string RespawnGateKey = "hub.respawn.gate";
+
+        /// <summary>의뢰를 끝냈을 때 토스트 키 ({0} 의뢰 이름)</summary>
+        const string QuestDoneKey = "hub.quest_done";
+
         /// <summary>선택지: 방 잡기 키 ({0} 방값)</summary>
         const string ChoiceRentKey = "hub.choice.rent";
 
@@ -144,27 +153,32 @@ namespace Mage
         /// <summary>이번 진입이 숲에서 돌아온 것인지 (정문 밖에서 시작. OnSceneReady에서 정함)</summary>
         bool _returning;
 
+        /// <summary>이번 진입이 숲에서 죽어 부활한 것인지 (여관 방 침대·정문에서 시작. OnSceneReady에서 정함)</summary>
+        bool _respawning;
+
         /// <summary>책상 시점인지 (앉는·일어나는 연출 중 포함)</summary>
         bool _atDesk;
 
-        #region OnSceneReady - 첫 도착이면 플레이어를 하차 지점에 두고 숨김·화면 글자 숨김(연출 뒤 켬), 숲에서 돌아왔으면 정문 밖, 아니면 시작 위치. 파티 수·금화 표시, 안내 글 숨김, 코덱스 표지(이름·마법진)
+        #region OnSceneReady - 첫 도착이면 플레이어를 하차 지점에 두고 숨김·화면 글자 숨김(연출 뒤 켬), 숲에서 죽었으면 여관 방 침대(방이 없으면 정문 안쪽), 숲에서 돌아왔으면 정문 밖, 아니면 시작 위치. 파티 수·금화 표시, 안내 글 숨김, 코덱스 표지(이름·마법진), 스태미나 막대
         protected override void OnSceneReady()
         {
             _view = FindView<HubView>();
             if (_view == null) return;
             _arriving = !Game.Run.HasArrived;
-            _returning = !_arriving && Game.Run.ReturningFromField;
-            _view.Player.PlaceAt(_arriving ? _view.ArrivalPoint : _returning ? _view.ReturnPoint : _view.Spawn);
+            _respawning = !_arriving && Game.Run.RespawningFromDeath;
+            _returning = !_arriving && !_respawning && Game.Run.ReturningFromField;
+            _view.Player.PlaceAt(_arriving ? _view.ArrivalPoint : _respawning ? RespawnPoint() : _returning ? _view.ReturnPoint : _view.Spawn);
             _view.Player.gameObject.SetActive(!_arriving);
             _view.Hud.SetActive(!_arriving);
             _view.InteractPrompt.gameObject.SetActive(false);
             RefreshParty();
             RefreshMoney();
             _view.Codex.ShowCover(Game.Run.PlayerName, DataManager.Instance.Runes);
+            _view.Stamina.Bind(_view.Player);
         }
         #endregion
 
-        #region Reveal - 커서 잠금. 첫 도착이면 연출을 틀고 끝나면 조작 시작, 아니면 바로 조작 시작. 숲에서 돌아왔으면 의뢰를 비우고 경비병 자막 → 끝나면 목표 알림
+        #region Reveal - 커서 잠금. 첫 도착이면 연출을 틀고 끝나면 조작 시작, 아니면 바로 조작 시작. 숲에서 죽어 왔으면 소탕을 끝냈을 때 의뢰를 끝내고 깨어남 토스트. 숲에서 돌아왔으면 소탕을 끝냈을 때 의뢰를 끝내고(토스트) 경비병 자막 → 끝나면 목표 알림
         public override void Reveal()
         {
             if (_view == null) return;
@@ -176,16 +190,45 @@ namespace Mage
                 return;
             }
             StartControl();
+            if (_respawning)
+            {
+                Game.Run.RespawningFromDeath = false;
+                Game.Run.ReturningFromField = false;
+                FinishQuestIfCleared(false);
+                UpdateObjective(false);
+                UIManager.Instance.ShowToast(Table, Game.Run.HasRoom ? RespawnInnKey : RespawnGateKey);
+                return;
+            }
             if (!_returning)
             {
                 UpdateObjective(false);
                 return;
             }
-            // 숲에서 돌아옴: 받은 의뢰는 다녀온 걸로 비움 (정산은 나중)
+            // 숲에서 돌아옴: 소탕을 끝냈으면 의뢰를 끝냄 (정산은 나중. 못 끝냈으면 의뢰는 남음)
             Game.Run.ReturningFromField = false;
-            Game.Run.Quest = null;
+            FinishQuestIfCleared(true);
             UpdateObjective(false);
             UIManager.Instance.ShowSubtitle(new LocalizedString(Table, GuardKey), new LocalizedString(Table, GuardWelcomeKey), NotifyObjective);
+        }
+        #endregion
+
+        #region RespawnPoint - 숲에서 죽어 깨어나는 곳: 방을 잡았으면 여관 방 침대 옆, 아니면 정문 안쪽
+        Transform RespawnPoint() => Game.Run.HasRoom ? _view.BedPoint : _view.Spawn;
+        #endregion
+
+        #region FinishQuestIfCleared - 받은 의뢰의 소탕을 끝냈으면 끝낸 의뢰로 남기고 비움 (notify면 토스트)
+        /// <param name="notify">"의뢰를 끝냈어" 토스트를 띄울지</param>
+        void FinishQuestIfCleared(bool notify)
+        {
+            // 이번 판 데이터
+            RunEntry run = Game.Run;
+            if (run.Quest == null || !run.QuestCleared) return;
+            // 끝낸 의뢰
+            QuestSO quest = run.Quest;
+            run.CompletedQuestIds.Add(quest.Id);
+            run.Quest = null;
+            run.QuestCleared = false;
+            if (notify) UIManager.Instance.ShowToast(Table, QuestDoneKey, quest.Title.GetLocalizedString());
         }
         #endregion
 
@@ -486,7 +529,7 @@ namespace Mage
             }
             // 붙어 있는 의뢰
             QuestSO quest = quests[0];
-            UIManager.Instance.ShowQuestBoard(quest, Game.Run.Quest == quest, () => TakeQuest(quest));
+            UIManager.Instance.ShowQuestBoard(quest, Game.Run.Quest == quest, Game.Run.CompletedQuestIds.Contains(quest.Id), () => TakeQuest(quest));
         }
         #endregion
 
@@ -495,6 +538,7 @@ namespace Mage
         void TakeQuest(QuestSO quest)
         {
             Game.Run.Quest = quest;
+            Game.Run.QuestCleared = false;
             if (!UpdateObjective(true)) UIManager.Instance.ShowToast(Table, QuestTakenKey, quest.Title.GetLocalizedString());
         }
         #endregion
@@ -568,13 +612,14 @@ namespace Mage
         int NeededRations() => Game.Run.Quest != null ? Game.Run.Quest.Days * PartySize() : 0;
         #endregion
 
-        #region NextObjective - 판 데이터로 지금 목표를 정함: 방 → 길드(파티·의뢰) → 정문 → (첫 출발 뒤) 없음
+        #region NextObjective - 판 데이터로 지금 목표를 정함: 방 → 길드(파티·의뢰) → 정문 → (의뢰를 받고 나간 뒤) 숲 소탕 → (끝낸 뒤) 없음
         ObjectiveSO NextObjective()
         {
             // 이번 판 데이터
             RunEntry run = Game.Run;
             if (!run.HasRoom) return _view.FirstObjective;
-            if (run.Party.Count < RequiredMercenaries || run.Quest == null) return _view.GuildObjective;
+            if (run.Quest != null && run.HasDeparted) return _view.ForestObjective;
+            if (run.Party.Count < RequiredMercenaries || run.Quest == null) return run.CompletedQuestIds.Count > 0 ? null : _view.GuildObjective;
             return run.HasDeparted ? null : _view.DepartObjective;
         }
         #endregion

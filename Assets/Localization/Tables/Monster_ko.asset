@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Monster_ko
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: ko
+  m_SharedData: {fileID: 11400000, guid: f15d1ace845f8bd4b9347ea78f92c28d, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 56443437056
+    m_Localized: "\uACE0\uBE14\uB9B0"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56472797184
+    m_Localized: "\uB291\uB300"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56472797185
+    m_Localized: "\uBA67\uB3FC\uC9C0"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56472797186
+    m_Localized: "\uAC70\uB300 \uAC70\uBBF8"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56472797187
+    m_Localized: "\uACF0"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56472797188
+    m_Localized: "\uBCC0\uC774 \uC9D0\uC2B9"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []
