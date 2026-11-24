@@ -55,6 +55,12 @@ namespace Mage
         /// <summary>시체가 누운 높이 (몸 반지름 대비)</summary>
         const float CorpseLift = 0.5f;
 
+        /// <summary>떨어진 금화를 주웠다고 칠 거리 (m)</summary>
+        const float PickupDistance = 1.5f;
+
+        /// <summary>보관 장소에 닿았다고 칠 거리 (m)</summary>
+        const float StoreDistance = 3f;
+
         /// <summary>회색 도형 색 셰이더 속성 (URP)</summary>
         static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
@@ -66,6 +72,12 @@ namespace Mage
 
             /// <summary>대상을 쫓거나 때림</summary>
             Chase,
+
+            /// <summary>떨어진 금화로 감 (줍는 몬스터)</summary>
+            Fetch,
+
+            /// <summary>주운 금화를 보관 장소로 가져감</summary>
+            Carry,
 
             /// <summary>죽음 (시체)</summary>
             Dead,
@@ -140,6 +152,9 @@ namespace Mage
         /// <summary>쫓는 대상 (쫓는 중이 아니면 null)</summary>
         public FieldUnitController Target => _state == EnemyState.Chase ? _target : null;
 
+        /// <summary>들고 있는 금화 (줍는 몬스터)</summary>
+        public int CarriedGold { get; private set; }
+
         /// <summary>죽음 (이 적)</summary>
         public event System.Action<EnemyController> Died;
 
@@ -208,7 +223,7 @@ namespace Mage
         }
         #endregion
 
-        #region Update - 멈췄으면(로딩창·메뉴) 안 함. 쉴 때는 알아채기·돌아다니기, 쫓을 때는 쫓기·때리기
+        #region Update - 멈췄으면(로딩창·메뉴) 안 함. 상태마다: 쉼(알아채기·줍기·돌아다니기), 줍기, 가져가기, 쫓기·때리기
         void Update()
         {
             if (_service == null || _state == EnemyState.Dead) return;
@@ -216,20 +231,32 @@ namespace Mage
             float dt = Time.deltaTime;
             if (dt <= 0f) return;
             _cooldown -= dt;
-            if (_state == EnemyState.Idle) UpdateIdle(dt);
-            else UpdateChase(dt);
+            _repath -= dt;
+            switch (_state)
+            {
+                case EnemyState.Idle: UpdateIdle(dt); break;
+                case EnemyState.Fetch: UpdateFetch(); break;
+                case EnemyState.Carry: UpdateCarry(); break;
+                default: UpdateChase(dt); break;
+            }
         }
         #endregion
 
-        #region UpdateIdle - 알아채는 거리 안에 파티가 있으면 무리를 깨움. 없으면 가끔 집 둘레 아무 곳으로 천천히 걸음
+        #region UpdateIdle - 알아채면 무리를 깨움. 들고 있는 금화가 있으면 가져가기, 줍는 몬스터면 알아채는 거리 안 떨어진 금화로. 아니면 가끔 집 둘레를 천천히 걸음
         /// <param name="dt">프레임 시간 (초)</param>
         void UpdateIdle(float dt)
         {
-            // 알아챈 파티 몸 (알아채는 거리 안 가장 가까운 것)
-            FieldUnitController seen = _service.Nearest(FieldTeam.Party, transform.position, Monster.AggroRange);
-            if (seen != null)
+            if (TryNotice()) return;
+            if (CarriedGold > 0 && _service.StashPoint != null)
             {
-                _service.WakePack(Pack, seen);
+                _state = EnemyState.Carry;
+                _repath = 0f;
+                return;
+            }
+            if (Monster.PicksUpItems && _service.Loot != null && FlatDistance(_service.Loot.position) <= Monster.AggroRange)
+            {
+                _state = EnemyState.Fetch;
+                _repath = 0f;
                 return;
             }
             _wanderWait -= dt;
@@ -242,11 +269,76 @@ namespace Mage
         }
         #endregion
 
-        #region Wake - 쉬고 있으면 깨어 target을 쫓음 (무리 깨우기·맞았을 때)
+        #region TryNotice - 알아채는 거리 안에 파티가 있으면 무리를 깨움 (깨웠으면 true)
+        bool TryNotice()
+        {
+            // 알아챈 파티 몸 (알아채는 거리 안 가장 가까운 것)
+            FieldUnitController seen = _service.Nearest(FieldTeam.Party, transform.position, Monster.AggroRange);
+            if (seen == null) return false;
+            _service.WakePack(Pack, seen);
+            return true;
+        }
+        #endregion
+
+        #region UpdateFetch - 떨어진 금화로 감. 닿으면 다 주워 가져가기 (보관 장소가 없으면 쉼). 금화가 없어졌으면 쉼
+        void UpdateFetch()
+        {
+            if (TryNotice()) return;
+            // 떨어진 금화 지점
+            Transform loot = _service.Loot;
+            if (loot == null)
+            {
+                _state = EnemyState.Idle;
+                return;
+            }
+            if (FlatDistance(loot.position) <= PickupDistance)
+            {
+                CarriedGold += _service.TakeLoot();
+                _state = CarriedGold > 0 && _service.StashPoint != null ? EnemyState.Carry : EnemyState.Idle;
+                _repath = 0f;
+                return;
+            }
+            if (_repath > 0f) return;
+            _repath = RepathSeconds;
+            MoveTo(loot.position, Monster.Speed);
+        }
+        #endregion
+
+        #region UpdateCarry - 보관 장소로 감. 닿으면 보관하고 집으로 돌아가며 쉼
+        void UpdateCarry()
+        {
+            if (TryNotice()) return;
+            // 보관 장소
+            Transform stash = _service.StashPoint;
+            if (stash == null)
+            {
+                _state = EnemyState.Idle;
+                return;
+            }
+            if (FlatDistance(stash.position) <= StoreDistance)
+            {
+                _service.StoreLoot(CarriedGold);
+                CarriedGold = 0;
+                _state = EnemyState.Idle;
+                MoveTo(_home, Monster.Speed * WanderSpeedScale);
+                return;
+            }
+            if (_repath > 0f) return;
+            _repath = RepathSeconds;
+            MoveTo(stash.position, Monster.Speed);
+        }
+        #endregion
+
+        #region FlatDistance - 그 곳까지 평면 거리
+        /// <param name="point">곳</param>
+        float FlatDistance(Vector3 point) => Vector3.ProjectOnPlane(point - transform.position, Vector3.up).magnitude;
+        #endregion
+
+        #region Wake - 쫓는 중·죽은 게 아니면 깨어 target을 쫓음 (무리 깨우기·맞았을 때. 쉬는 중·금화 줍는 중·가져가는 중 다)
         /// <param name="target">쫓을 몸</param>
         public void Wake(FieldUnitController target)
         {
-            if (_state != EnemyState.Idle || target == null || !target.IsAlive) return;
+            if (_state == EnemyState.Chase || _state == EnemyState.Dead || target == null || !target.IsAlive) return;
             _state = EnemyState.Chase;
             _target = target;
             _retarget = RetargetSeconds;
@@ -265,7 +357,7 @@ namespace Mage
                 _retarget = RetargetSeconds;
                 _target = PickTarget();
             }
-            if (_target == null)
+            if (_target == null || !FieldService.SameLevel(_target.transform.position, transform.position))
             {
                 GiveUp();
                 return;
@@ -301,7 +393,6 @@ namespace Mage
                 return;
             }
             if (_wind > 0f && distance > reach + WindCancelMargin) _wind = 0f;
-            _repath -= dt;
             if (_repath > 0f) return;
             _repath = RepathSeconds;
             MoveTo(_target.transform.position, Monster.Speed);
@@ -353,7 +444,7 @@ namespace Mage
         void OnDamaged(FieldUnitController unit, float amount, FieldUnitController source)
         {
             if (source != null && source == _service.Player) _service.ReportHit(_unit);
-            if (_state == EnemyState.Idle && source != null && source.IsAlive) _service.WakePack(Pack, source);
+            if (_state != EnemyState.Chase && _state != EnemyState.Dead && source != null && source.IsAlive) _service.WakePack(Pack, source);
         }
         #endregion
 
@@ -368,6 +459,11 @@ namespace Mage
             if (_agent.isOnNavMesh) _agent.isStopped = true;
             _agent.enabled = false;
             _collider.enabled = false;
+            if (CarriedGold > 0)
+            {
+                _service.DropLoot(transform.position, CarriedGold);
+                CarriedGold = 0;
+            }
             LieDown();
             Died?.Invoke(this);
         }
@@ -410,10 +506,39 @@ namespace Mage
         #endregion
 
         #region LieDown - 도형을 옆으로 눕힘 (시체)
-        void LieDown()
+        void LieDown() => SetRise(0f);
+        #endregion
+
+        #region SetRise - 누움(0) ~ 섬(1) 사이 모습 (리셋 연출이 일어나는 동안 부름)
+        /// <param name="t">일어난 비율 (0~1)</param>
+        public void SetRise(float t)
         {
-            _visual.localRotation = Quaternion.Euler(0f, 0f, 90f);
-            _visual.localPosition = Vector3.up * (_unit.Radius * CorpseLift);
+            t = Mathf.Clamp01(t);
+            _visual.localRotation = Quaternion.Slerp(Quaternion.Euler(0f, 0f, 90f), Quaternion.identity, t);
+            _visual.localPosition = Vector3.up * (_unit.Radius * CorpseLift * (1f - t));
+        }
+        #endregion
+
+        #region Revive - 시체면 다시 일어남 (숲 리셋): 체력을 채우고 움직임·콜라이더를 켜고 그 집에서 쉼, 현장 규칙에 등록
+        /// <param name="service">현장 규칙</param>
+        /// <param name="home">돌아다닐 집 (원래 적 자리)</param>
+        public void Revive(FieldService service, Vector3 home)
+        {
+            if (_state != EnemyState.Dead || Monster == null) return;
+            _service = service ?? throw new System.ArgumentNullException(nameof(service));
+            _home = home;
+            _unit.Init(Monster.MaxHp);
+            _focusMage = Random.value < Monster.MageFocusChance;
+            _wanderWait = Random.Range(0f, WanderWaitMax);
+            _collider.enabled = true;
+            _agent.enabled = true;
+            SetRise(1f);
+            _state = EnemyState.Idle;
+            _unit.Damaged -= OnDamaged;
+            _unit.Damaged += OnDamaged;
+            _unit.Died -= OnUnitDied;
+            _unit.Died += OnUnitDied;
+            service.RegisterEnemy(this);
         }
         #endregion
 

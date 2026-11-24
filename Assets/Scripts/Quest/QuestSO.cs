@@ -22,6 +22,9 @@ namespace Mage
         /// <summary>소탕 대상 몬스터 (숲에서 이 몬스터를 다 쓰러뜨리면 의뢰 목표 달성). 비면 소탕 없음</summary>
         [SerializeField] MonsterSO _target;
 
+        /// <summary>의뢰 기간 (일). 0이면 원정 기간(_days)과 같음 (튜토리얼 의뢰)</summary>
+        [SerializeField, Min(0)] int _periodDays;
+
         /// <summary>바뀌지 않는 id</summary>
         public string Id => _id;
 
@@ -36,5 +39,8 @@ namespace Mage
 
         /// <summary>소탕 대상 몬스터 (없으면 null)</summary>
         public MonsterSO Target => _target;
+
+        /// <summary>의뢰 기간 (일, 0이면 원정 기간)</summary>
+        public int PeriodDays => _periodDays > 0 ? _periodDays : _days;
     }
 }

@@ -3,6 +3,19 @@ using UnityEngine.Localization;
 
 namespace Mage
 {
+    /// <summary>보스 패턴</summary>
+    public enum BossPattern
+    {
+        /// <summary>없음 (보통 적)</summary>
+        None,
+
+        /// <summary>마법사 자리에 붉은 원을 예고하고 지연 뒤 강타 (v1 족장)</summary>
+        Slam,
+
+        /// <summary>마법사에게 불탄을 쏨</summary>
+        FireBolt,
+    }
+
     /// <summary>몬스터 하나 (현장 적). 수치는 v1 값 임시. 숲 적 자리(SpawnPointView)와 의뢰 소탕 대상(QuestSO)이 가리킴</summary>
     [CreateAssetMenu(fileName = "Monster", menuName = "Mage/Monster")]
     public sealed class MonsterSO : ScriptableObject
@@ -40,6 +53,33 @@ namespace Mage
         /// <summary>회색 도형 색</summary>
         [SerializeField] Color _color = Color.gray;
 
+        /// <summary>떨어진 물건을 주워 던전에 보관하는지 (고블린)</summary>
+        [SerializeField] bool _picksUpItems;
+
+        /// <summary>보스 패턴 (보통 적은 None)</summary>
+        [SerializeField] BossPattern _bossPattern;
+
+        /// <summary>패턴 사이 최소 시간 (초)</summary>
+        [SerializeField, Min(0.1f)] float _patternIntervalMin = 6f;
+
+        /// <summary>패턴 사이 최대 시간 (초)</summary>
+        [SerializeField, Min(0.1f)] float _patternIntervalMax = 8f;
+
+        /// <summary>강타 예고 시간 (초)</summary>
+        [SerializeField, Min(0f)] float _patternDelay = 1.1f;
+
+        /// <summary>강타 반지름 (m)</summary>
+        [SerializeField, Min(0f)] float _patternRadius = 5f;
+
+        /// <summary>패턴 피해 (강타·불탄)</summary>
+        [SerializeField, Min(0f)] float _patternDamage = 38f;
+
+        /// <summary>체력 절반에서 부르는 수 (0이면 안 부름)</summary>
+        [SerializeField, Min(0)] int _summonCount;
+
+        /// <summary>부르는 몬스터</summary>
+        [SerializeField] MonsterSO _summon;
+
         /// <summary>바뀌지 않는 id</summary>
         public string Id => _id;
 
@@ -72,5 +112,32 @@ namespace Mage
 
         /// <summary>회색 도형 색</summary>
         public Color Color => _color;
+
+        /// <summary>떨어진 물건을 주워 던전에 보관하는지</summary>
+        public bool PicksUpItems => _picksUpItems;
+
+        /// <summary>보스 패턴</summary>
+        public BossPattern Pattern => _bossPattern;
+
+        /// <summary>패턴 사이 최소 시간 (초)</summary>
+        public float PatternIntervalMin => _patternIntervalMin;
+
+        /// <summary>패턴 사이 최대 시간 (초)</summary>
+        public float PatternIntervalMax => Mathf.Max(_patternIntervalMin, _patternIntervalMax);
+
+        /// <summary>강타 예고 시간 (초)</summary>
+        public float PatternDelay => _patternDelay;
+
+        /// <summary>강타 반지름 (m)</summary>
+        public float PatternRadius => _patternRadius;
+
+        /// <summary>패턴 피해</summary>
+        public float PatternDamage => _patternDamage;
+
+        /// <summary>체력 절반에서 부르는 수</summary>
+        public int SummonCount => _summonCount;
+
+        /// <summary>부르는 몬스터 (없으면 null)</summary>
+        public MonsterSO Summon => _summon;
     }
 }

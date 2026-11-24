@@ -85,6 +85,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2778220093525459031
+  - m_Id: 1348810404691968
+    m_Key: menu.journal.quest_left
+    m_Metadata:
+      m_Items:
+      - rid: 2778220139109941357
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
@@ -159,3 +164,8 @@ MonoBehaviour:
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
         m_CommentText: "\uC8FC\uBB38 \uB3C4\uAC10 \uC885\uB958"
+    - rid: 2778220139109941357
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uC784\uBB34 \uC77C\uC9C0 \uC758\uB8B0 \uC904, \uAE30\uAC04\uC744
+          \uC138\uB294 \uC911. {0} \uC758\uB8B0 \uC774\uB984, {1} \uB0A8\uC740 \uB0A0"

@@ -79,10 +79,11 @@ namespace Mage
         }
         #endregion
 
-        #region Reveal - 위치에서 반지름 24m 안 칸을 밝힘. 새로 밝힌 칸이 있으면 구획을 다시 세고 Version을 올림
+        #region Reveal - 위치에서 반지름 24m 안 칸을 밝힘 (숲 층이 아니면 안 밝힘: 던전 안). 새로 밝힌 칸이 있으면 구획을 다시 세고 Version을 올림
         /// <param name="position">월드 위치</param>
         public void Reveal(Vector3 position)
         {
+            if (Mathf.Abs(position.y) > FieldService.LevelGap) return;
             // 위치 칸 좌표
             int cx = Mathf.FloorToInt((position.x - Area.xMin) / CellSize);
             int cz = Mathf.FloorToInt((position.z - Area.yMin) / CellSize);

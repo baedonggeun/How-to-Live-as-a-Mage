@@ -79,6 +79,39 @@ namespace Mage
         /// <summary>숲에서 죽어 마을에서 부활하는 중인지 (HubState가 여관 방 침대·정문에서 시작하고 한 번 쓰면 끔)</summary>
         public bool RespawningFromDeath { get; set; }
 
+        /// <summary>하루 길이 (게임 초, 기획: 하루 10분)</summary>
+        public const float DaySeconds = 600f;
+
+        /// <summary>판에서 흐른 게임 시간 (초). 구현 임시: 숲에서만 흐름</summary>
+        public float PlaySeconds { get; set; }
+
+        /// <summary>지금 날짜 (1일부터)</summary>
+        public int Day => 1 + Mathf.FloorToInt(PlaySeconds / DaySeconds);
+
+        /// <summary>받은 의뢰가 끝나는 시각 (PlaySeconds 기준). 0이면 아직 안 셈 (처음 출발할 때 정함)</summary>
+        public float QuestDeadline { get; set; }
+
+        /// <summary>다음에 숲에 들어갈 때 리셋할지 (숲을 나갈 때 쓰러뜨린 적이 70% 이상이면 켬)</summary>
+        public bool ForestResetPending { get; set; }
+
+        /// <summary>고블린 던전 세대 (새로 만들 때마다 오름. 던전 적 키에 들어감)</summary>
+        public int DungeonGeneration { get; set; }
+
+        /// <summary>이번 던전 보스 몬스터 id (던전을 만들 때 고름. 아직 없으면 null)</summary>
+        public string DungeonBossId { get; set; }
+
+        /// <summary>던전에서 쓰러뜨린 적: 키 → 쓰러진 곳 (던전을 새로 만들면 비움)</summary>
+        public Dictionary<string, Vector3> DungeonDead { get; } = new(StringComparer.Ordinal);
+
+        /// <summary>이번 던전 보스를 쓰러뜨렸는지 (클리어)</summary>
+        public bool DungeonCleared { get; set; }
+
+        /// <summary>던전을 새로 만들어야 하는지 (클리어하고 숲을 나가면 켬. 며칠 뒤 조건은 보류)</summary>
+        public bool DungeonNeedsReset { get; set; }
+
+        /// <summary>고블린이 던전에 보관한 금화</summary>
+        public int DungeonStashGold { get; set; }
+
         #region CreateDebug - 에디터에서 중간 씬부터 Play할 때 쓰는 판 데이터 (도착한 판). 룬을 다 익히고 다중 룬 마법을 다 등록함 (코덱스 탭·묶음을 바로 확인)
         /// <param name="runes">룬 목록 (DataManager 순서, 빈 칸은 건너뜀)</param>
         /// <param name="spells">다중 룬 마법 목록 (빈 칸은 건너뜀)</param>

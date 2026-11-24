@@ -74,6 +74,10 @@ MonoBehaviour:
     m_Localized: Scroll
     m_Metadata:
       m_Items: []
+  - m_Id: 1348810404691968
+    m_Localized: 'Quest: {0} ({1} days left)'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

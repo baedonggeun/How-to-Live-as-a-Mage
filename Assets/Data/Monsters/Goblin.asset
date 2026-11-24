@@ -31,6 +31,15 @@ MonoBehaviour:
   _mageFocusChance: 0.15
   _size: 0.82
   _color: {r: 0.33, g: 0.5, b: 0.24, a: 1}
+  _picksUpItems: 1
+  _bossPattern: 0
+  _patternIntervalMin: 6
+  _patternIntervalMax: 8
+  _patternDelay: 1.1
+  _patternRadius: 5
+  _patternDamage: 38
+  _summonCount: 0
+  _summon: {fileID: 0}
   references:
     version: 2
     RefIds: []

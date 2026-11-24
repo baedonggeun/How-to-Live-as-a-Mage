@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a9afef20b5851d4587cb318e3d7ee9a, type: 3}
+  m_Name: GoblinChampion
+  m_EditorClassIdentifier: Mage::Mage.MonsterSO
+  _id: goblin_champion
+  _name:
+    m_TableReference:
+      m_TableCollectionName: GUID:f15d1ace845f8bd4b9347ea78f92c28d
+    m_TableEntryReference:
+      m_KeyId: 245562419609600
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  _maxHp: 600
+  _speed: 4.8
+  _damage: 24
+  _attackInterval: 1.6
+  _attackRange: 2.4
+  _aggroRange: 30
+  _mageFocusChance: 0
+  _size: 1.8
+  _color: {r: 0.18, g: 0.36, b: 0.15, a: 1}
+  _picksUpItems: 0
+  _bossPattern: 1
+  _patternIntervalMin: 6
+  _patternIntervalMax: 8
+  _patternDelay: 1.1
+  _patternRadius: 5
+  _patternDamage: 38
+  _summonCount: 3
+  _summon: {fileID: 11400000, guid: 1a0c9b06b1fc4cc4092e9a972322f184, type: 2}
+  references:
+    version: 2
+    RefIds: []

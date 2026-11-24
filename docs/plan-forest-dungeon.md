@@ -1762,11 +1762,19 @@ namespace Mage
 
 ## 진행 추적
 
-- [ ] 묶음 Logic — 새로: BossPatternController, FieldClockController, ForestResetSequence / 고침: RunEntry, QuestSO, MonsterSO, FieldService, EnemyController, MercenaryController, FieldHudUIBinder, JournalUIBinder, FieldView, FieldState, HubState. 컴파일 에러·경고 0
-- [ ] 묶음 Editor-Localization — Field·Monster·Menu 줄, CSV, Import, 누락 검사
-- [ ] 묶음 Prefab·Data — 재질 2개, Boss·Telegraph·ManaStream 프리팹, 보스 2개·고블린 줍기
-- [ ] 묶음 Editor-Scene — Forest(동굴 입구·지하 던전·리셋 연출·시계·FieldView 칸, NavMesh 둘), 저장 뒤 다시 열어 확인
+- [x] 묶음 Logic — 새로: BossPatternController, FieldClockController, ForestResetSequence / 고침: RunEntry, QuestSO, MonsterSO, FieldService, EnemyController, MercenaryController, FieldHudUIBinder, JournalUIBinder, FieldView, FieldState, HubState (+ 아래 '다르게 한 것'의 FogMapService). 컴파일 에러·경고 0
+- [x] 묶음 Editor-Localization — Field·Monster·Menu 줄, 시트(읽어서 대조), CSV, Import(키 수 Unity=CSV), 빠진 글자 없음
+- [x] 묶음 Prefab·Data — 재질 2개, Boss(Enemy 변형)·Telegraph·ManaStream 프리팹, 보스 2개·고블린 줍기
+- [x] 묶음 Editor-Scene — Forest(동굴 입구·지하 던전·리셋 연출·시계·FieldView 칸 25개 다 연결, NavMesh 둘 굽기·길 확인), 저장 뒤 다시 열어 확인
 - [ ] 묶음 Verify — 사용자 확인
+
+구현 중 plan과 다르게 한 것 (2026-11-24):
+- **층 분리** (plan에 없던 보정): 던전이 숲 바로 아래(같은 x·z, y -60)라 적·용병·피해 찾기가 평면 거리만 보면 층을 넘어 알아채고 때림. `FieldService.LevelGap`(8m)·`SameLevel`을 만들고 `Nearest`·`FindInRadius`·`FindNearSegment`가 같은 층만 찾게 함. `EnemyController.UpdateChase`는 대상과 층이 다르면 포기 (던전 드나들 때 쫓던 적). `FogMapService.Reveal`은 숲 층(|y| ≤ 8)에서만 밝힘 (던전 안을 다녀도 숲 지도가 안 밝혀짐). 던전 안 미니맵·지도 표시는 숲 좌표 그대로라 의미 없음 (보류)
+- `EnemyController.OnDamaged`: 쉬는 중뿐 아니라 금화 줍는 중·가져가는 중에 맞아도 무리를 깨움 (새 상태 Fetch·Carry가 안 깨던 구멍)
+- `FieldState.Reveal` 리셋 분기에서 연출 전에 `SetControl(false)` (Forest 씬은 Player 스크립트가 켜진 채 저장돼 있어서 연출 중 조작이 살아 있었음)
+- `FieldCastController.Init`의 마지막 인자 `_view.Detector`는 시전 방식 변경 뒤 코드 그대로 둠 (위 `OnSceneReady` 스니펫은 6개)
+- 던전 점광은 plan '천장 아래 3m'를 높이 3m로 읽음. 동굴 입구 Mouth(높이 3)는 plan 값 그대로라 위쪽 1m가 비어 하늘이 보임 (임시 도형)
+- 던전 NavMesh는 `Assets/Scenes/Forest/NavMesh-Dungeon.asset`, 숲 NavMesh는 동굴 입구를 넣고 다시 구움 (Start → 방A → 방B → 보스 자리 길 확인, 숲과 던전은 안 이어짐)
 
 ---
 
@@ -1784,6 +1792,8 @@ namespace Mage
 8. 소탕을 못 끝내고 리셋되면 일어난 고블린도 다시 소탕 대상 (임무 일지 그대로)
 9. 영어로 바꾸면 던전·날짜 글자 영어
 10. 콘솔 에러·경고 없음 (AudioListener 둘·NavMesh 경고 포함)
+11. 던전 바로 위 숲(x ±12, z 0~108, 방A·방B·보스방 위)을 걸어도 던전 고블린이 안 깨어나고, 던전 안에서도 숲 위 적이 안 옴. 던전 안을 걸어도 숲 지도(M)가 안 밝혀짐
+12. 쫓기는 중에 던전 입구로 들어가면 쫓던 숲 적이 포기하고 서 있음 (따라 들어오지 않음)
 
 ---
 
@@ -1796,6 +1806,7 @@ Add — 6-2 숲: 고블린 던전·물건 줍기, 숲 70% 리셋 연출, 날짜�
 - 물건 줍기: 고블린이 떨어진 금화를 주워 동굴 입구로 가져가 보관, 들고 쓰러지면 그 자리에 떨굼. 보관함에서 되찾음, 클리어 뒤 안 챙기면 사라짐
 - 숲 리셋: 숲 적의 70% 이상을 쓰러뜨리고 나가면 다음 진입 때 연출(차원문 맥동 → 마력 분출 → 시체로 스며듦 → 일어남) 뒤 시체가 다 살아남
 - 날짜: 하루 10분 (숲에서만 흐름, 임시). 의뢰 기간은 처음 출발부터, 지나면 의뢰 실패 → 게시판에 다시. 임무 일지에 남은 기간
+- 층 분리: 던전(숲 지하)과 숲은 같은 x·z라도 다른 층이라 서로 못 알아채고 못 때림 (높이 8m 넘으면 다른 층), 던전 안에선 숲 지도를 안 밝힘. 줍는·가져가는 중에 맞아도 무리가 깸
 
 Why: 6단계 결정 중 6-1에서 미룬 것 (기획 12 결정 70·72·80·82·79). 숲이 고정이라 비면 다시 채울 길과, 죽음 뒤 물건을 되찾는 길이 필요함
 Alternatives: 던전을 별도 씬으로(드나들 때마다 로딩·숲 상태 저장이 늘어 뺌), 리셋을 숲 안에서 바로(소탕 중 고블린이 살아나 사용자가 '숲 밖에서'로 정함)

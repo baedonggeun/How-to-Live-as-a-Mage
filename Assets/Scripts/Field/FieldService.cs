@@ -7,6 +7,9 @@ namespace Mage
     /// <summary>숲 한 판의 현장 규칙 (MonoBehaviour 아님. FieldState가 만들어 Controller들에 넘김): 몸 목록, 가까운 상대·조준 보정 대상·범위 안 몸 찾기, 무리 깨우기, 전투 상황, 마법사가 마지막으로 때린 적</summary>
     public sealed class FieldService
     {
+        /// <summary>같은 층으로 치는 높이 차이 (m). 던전(숲 지하 60m)과 숲은 같은 x·z라도 다른 층이라 서로 못 알아채고 못 때림</summary>
+        public const float LevelGap = 8f;
+
         /// <summary>등록된 몸 (마법사·용병·적, 등록 순서. 죽어도 남음)</summary>
         readonly List<FieldUnitController> _units = new();
 
@@ -28,8 +31,26 @@ namespace Mage
         /// <summary>마법사가 마지막으로 때린 시각 (게임 시간, 초)</summary>
         public float LastHitTime { get; private set; }
 
+        /// <summary>떨어진 금화 지점 (없으면 null)</summary>
+        public Transform Loot { get; private set; }
+
+        /// <summary>떨어진 금화</summary>
+        public int LootGold { get; private set; }
+
+        /// <summary>줍는 몬스터가 주운 물건을 가져가는 곳 (던전 입구 밖. 없으면 null)</summary>
+        public Transform StashPoint { get; set; }
+
         /// <summary>전투 상황이 바뀜 (true = 시작)</summary>
         public event Action<bool> CombatChanged;
+
+        /// <summary>떨어진 금화를 누가 주움 (지점을 지울 때)</summary>
+        public event Action LootTaken;
+
+        /// <summary>금화를 떨굼 (자리, 금화. 들고 가던 몬스터가 쓰러짐)</summary>
+        public event Action<Vector3, int> LootDropped;
+
+        /// <summary>몬스터가 금화를 던전에 보관함 (금화)</summary>
+        public event Action<int> LootStored;
 
         #region FieldService - 마법사 몸을 받아 첫 몸으로 등록
         /// <param name="player">마법사 몸</param>
@@ -59,7 +80,7 @@ namespace Mage
         }
         #endregion
 
-        #region Nearest - 그 편의 살아 있는 몸 중 기준점에서 가장 가까운 것 (최대 거리 안, 평면 거리). 없으면 null
+        #region Nearest - 그 편의 살아 있는 몸 중 기준점과 같은 층에서 가장 가까운 것 (최대 거리 안, 평면 거리). 없으면 null
         /// <param name="team">찾을 편</param>
         /// <param name="from">기준점</param>
         /// <param name="maxDistance">최대 거리 (m)</param>
@@ -70,7 +91,7 @@ namespace Mage
             float bestSq = maxDistance * maxDistance;
             foreach (FieldUnitController unit in _units)
             {
-                if (unit == null || !unit.IsAlive || unit.Team != team) continue;
+                if (unit == null || !unit.IsAlive || unit.Team != team || !SameLevel(unit.transform.position, from)) continue;
                 // 평면 거리 제곱
                 float sq = Flat(unit.transform.position - from).sqrMagnitude;
                 if (sq > bestSq) continue;
@@ -108,7 +129,7 @@ namespace Mage
         }
         #endregion
 
-        #region FindInRadius - 그 편의 살아 있는 몸 중 중심에서 반지름(+몸 반지름) 안인 것을 result에 채움 (평면 거리)
+        #region FindInRadius - 그 편의 살아 있는 몸 중 중심과 같은 층에서 반지름(+몸 반지름) 안인 것을 result에 채움 (평면 거리)
         /// <param name="team">찾을 편</param>
         /// <param name="center">중심</param>
         /// <param name="radius">반지름 (m)</param>
@@ -119,13 +140,13 @@ namespace Mage
             result.Clear();
             foreach (FieldUnitController unit in _units)
             {
-                if (unit == null || !unit.IsAlive || unit.Team != team) continue;
+                if (unit == null || !unit.IsAlive || unit.Team != team || !SameLevel(unit.transform.position, center)) continue;
                 if (Flat(unit.transform.position - center).magnitude <= radius + unit.Radius) result.Add(unit);
             }
         }
         #endregion
 
-        #region FindNearSegment - 그 편의 살아 있는 몸 중 선분 a→b에서 거리 radius(+몸 반지름) 안인 것을 result에 채움 (평면, 화염 벽)
+        #region FindNearSegment - 그 편의 살아 있는 몸 중 선분 시작과 같은 층에서 선분 a→b에서 거리 radius(+몸 반지름) 안인 것을 result에 채움 (평면, 화염 벽)
         /// <param name="team">찾을 편</param>
         /// <param name="a">선분 시작</param>
         /// <param name="b">선분 끝</param>
@@ -137,7 +158,7 @@ namespace Mage
             result.Clear();
             foreach (FieldUnitController unit in _units)
             {
-                if (unit == null || !unit.IsAlive || unit.Team != team) continue;
+                if (unit == null || !unit.IsAlive || unit.Team != team || !SameLevel(unit.transform.position, a)) continue;
                 if (SegmentDistance(unit.transform.position, a, b) <= radius + unit.Radius) result.Add(unit);
             }
         }
@@ -182,6 +203,52 @@ namespace Mage
             LastHit = enemy;
             LastHitTime = Time.time;
         }
+        #endregion
+
+        #region SetLoot - 떨어진 금화 지점과 금화를 정함 (없으면 null·0)
+        /// <param name="pile">떨어진 금화 지점</param>
+        /// <param name="gold">금화</param>
+        public void SetLoot(Transform pile, int gold)
+        {
+            Loot = gold > 0 ? pile : null;
+            LootGold = Loot != null ? gold : 0;
+        }
+        #endregion
+
+        #region TakeLoot - 떨어진 금화를 다 주움 (지점이 없어짐 알림). 주운 금화
+        public int TakeLoot()
+        {
+            if (Loot == null) return 0;
+            // 주운 금화
+            int gold = LootGold;
+            Loot = null;
+            LootGold = 0;
+            LootTaken?.Invoke();
+            return gold;
+        }
+        #endregion
+
+        #region DropLoot - 금화를 그 자리에 떨굼 알림 (FieldState가 지점을 만들고 SetLoot)
+        /// <param name="position">떨군 곳</param>
+        /// <param name="gold">금화</param>
+        public void DropLoot(Vector3 position, int gold)
+        {
+            if (gold > 0) LootDropped?.Invoke(position, gold);
+        }
+        #endregion
+
+        #region StoreLoot - 금화를 던전에 보관함 알림
+        /// <param name="gold">금화</param>
+        public void StoreLoot(int gold)
+        {
+            if (gold > 0) LootStored?.Invoke(gold);
+        }
+        #endregion
+
+        #region SameLevel - 두 곳이 같은 층인지 (높이 차이가 LevelGap 이하)
+        /// <param name="a">한 곳</param>
+        /// <param name="b">다른 곳</param>
+        public static bool SameLevel(Vector3 a, Vector3 b) => Mathf.Abs(a.y - b.y) <= LevelGap;
         #endregion
 
         #region Flat - 높이를 뺀 벡터

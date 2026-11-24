@@ -1,0 +1,133 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3550291608942833154
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5921298497080801459}
+  m_Layer: 0
+  m_Name: Muzzle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5921298497080801459
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3550291608942833154}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.6, z: 0.6}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8435606247138765998}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &5694880073386378972
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1909734693351085766, guid: 935fda4dce002be48b4a89aba7f2b2a9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1909734693351085766, guid: 935fda4dce002be48b4a89aba7f2b2a9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1909734693351085766, guid: 935fda4dce002be48b4a89aba7f2b2a9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1909734693351085766, guid: 935fda4dce002be48b4a89aba7f2b2a9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1909734693351085766, guid: 935fda4dce002be48b4a89aba7f2b2a9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1909734693351085766, guid: 935fda4dce002be48b4a89aba7f2b2a9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1909734693351085766, guid: 935fda4dce002be48b4a89aba7f2b2a9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1909734693351085766, guid: 935fda4dce002be48b4a89aba7f2b2a9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1909734693351085766, guid: 935fda4dce002be48b4a89aba7f2b2a9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1909734693351085766, guid: 935fda4dce002be48b4a89aba7f2b2a9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6988504071054112116, guid: 935fda4dce002be48b4a89aba7f2b2a9, type: 3}
+      propertyPath: m_Name
+      value: Boss
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 4186391008715532914, guid: 935fda4dce002be48b4a89aba7f2b2a9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5921298497080801459}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6988504071054112116, guid: 935fda4dce002be48b4a89aba7f2b2a9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1187531245816504031}
+  m_SourcePrefab: {fileID: 100100000, guid: 935fda4dce002be48b4a89aba7f2b2a9, type: 3}
+--- !u!1 &3455492556432372648 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6988504071054112116, guid: 935fda4dce002be48b4a89aba7f2b2a9, type: 3}
+  m_PrefabInstance: {fileID: 5694880073386378972}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1187531245816504031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3455492556432372648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e732609d72c1e84db044d7bc21208e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Mage::Mage.BossPatternController
+  _enemy: {fileID: 6916962619672623387}
+  _telegraphPrefab: {fileID: 8296964654593115547, guid: c1beedcdfb22f8442a7d13814256f18d, type: 3}
+  _boltPrefab: {fileID: 4407049271305007920, guid: 55311e86dcf94dd42949ae4a0de2d75f, type: 3}
+  _muzzle: {fileID: 5921298497080801459}
+--- !u!114 &6916962619672623387 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1222089151962726343, guid: 935fda4dce002be48b4a89aba7f2b2a9, type: 3}
+  m_PrefabInstance: {fileID: 5694880073386378972}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3455492556432372648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76a04b73b8534f74a9d0e09c29f6f7a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Mage::Mage.EnemyController
+--- !u!4 &8435606247138765998 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4186391008715532914, guid: 935fda4dce002be48b4a89aba7f2b2a9, type: 3}
+  m_PrefabInstance: {fileID: 5694880073386378972}
+  m_PrefabAsset: {fileID: 0}

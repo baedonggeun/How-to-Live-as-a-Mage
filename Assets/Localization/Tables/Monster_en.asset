@@ -42,6 +42,14 @@ MonoBehaviour:
     m_Localized: Mutated Beast
     m_Metadata:
       m_Items: []
+  - m_Id: 245562419609600
+    m_Localized: Goblin Champion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 245562432192512
+    m_Localized: Goblin Grand Shaman
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

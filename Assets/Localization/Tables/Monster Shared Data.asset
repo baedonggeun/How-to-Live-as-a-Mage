@@ -45,6 +45,16 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2778220126650499190
+  - m_Id: 245562419609600
+    m_Key: monster.goblin_champion.name
+    m_Metadata:
+      m_Items:
+      - rid: 2778220139109941358
+  - m_Id: 245562432192512
+    m_Key: monster.goblin_shaman.name
+    m_Metadata:
+      m_Items:
+      - rid: 2778220139109941359
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
@@ -81,3 +91,11 @@ MonoBehaviour:
       data:
         m_CommentText: "\uBAAC\uC2A4\uD130 \uC774\uB984 (\uCC28\uC6D0\uBB38 \uB9C8\uB825\uC5D0
           \uBCC0\uC774)"
+    - rid: 2778220139109941358
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uBAAC\uC2A4\uD130 \uC774\uB984 (\uB358\uC804 \uBCF4\uC2A4)"
+    - rid: 2778220139109941359
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uBAAC\uC2A4\uD130 \uC774\uB984 (\uB358\uC804 \uBCF4\uC2A4)"

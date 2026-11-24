@@ -39,7 +39,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 60830679040
-    m_Localized: "{0} \xB7 Map {1}%"
+    m_Localized: "{0} \xB7 Day {1} \xB7 Map {2}%"
     m_Metadata:
       m_Items: []
   - m_Id: 60830679041
@@ -98,6 +98,34 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 60830679054
     m_Localized: 'You lost a companion: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 245560720916480
+    m_Localized: 'The quest has expired: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 245560758665216
+    m_Localized: Goblin Cave
+    m_Metadata:
+      m_Items: []
+  - m_Id: 245560758665217
+    m_Localized: Leave the Cave
+    m_Metadata:
+      m_Items: []
+  - m_Id: 245560758665218
+    m_Localized: Goblin Hoard
+    m_Metadata:
+      m_Items: []
+  - m_Id: 245560762859520
+    m_Localized: 'Recovered gold: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 245560762859521
+    m_Localized: It's empty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 245560762859522
+    m_Localized: The goblin cave is cleared
     m_Metadata:
       m_Items: []
   references:

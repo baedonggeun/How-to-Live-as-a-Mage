@@ -33,7 +33,7 @@ namespace Mage
         /// <summary>마나 글 키 ({0} 지금, {1} 최대)</summary>
         const string ManaKey = "field.hud.mana";
 
-        /// <summary>구역 줄 키 ({0} 구역 이름, {1} 지도 %)</summary>
+        /// <summary>구역 줄 키 ({0} 구역 이름, {1} 날짜, {2} 지도 %)</summary>
         const string ZoneLineKey = "field.zone_line";
 
         /// <summary>구역 이름 키 형식 ({0} 구역 번호 1~3)</summary>
@@ -63,6 +63,9 @@ namespace Mage
         /// <summary>지금 구역 번호 (1~3)</summary>
         Func<int> _zoneAt;
 
+        /// <summary>지금 날짜 (1일부터)</summary>
+        Func<int> _dayNow;
+
         /// <summary>맞음 붉은 화면 남은 시간 (초)</summary>
         float _hurtLeft;
 
@@ -78,6 +81,9 @@ namespace Mage
         /// <summary>마지막으로 보인 지도 %</summary>
         int _shownPercent = -1;
 
+        /// <summary>마지막으로 보인 날짜</summary>
+        int _shownDay = -1;
+
         /// <summary>마지막으로 이름을 넣은 때린 적</summary>
         FieldUnitController _shownTarget;
 
@@ -89,8 +95,9 @@ namespace Mage
         /// <param name="service">현장 규칙</param>
         /// <param name="fog">안개 지도</param>
         /// <param name="zoneAt">지금 구역 번호</param>
+        /// <param name="dayNow">지금 날짜</param>
         public void Bind(FieldUnitController player, PlayerController controller, FieldCastController cast, IReadOnlyList<MercenaryController> mercs,
-            FieldService service, FogMapService fog, Func<int> zoneAt)
+            FieldService service, FogMapService fog, Func<int> zoneAt, Func<int> dayNow)
         {
             Unbind();
             _player = player != null ? player : throw new ArgumentNullException(nameof(player));
@@ -99,8 +106,9 @@ namespace Mage
             _service = service ?? throw new ArgumentNullException(nameof(service));
             _fog = fog ?? throw new ArgumentNullException(nameof(fog));
             _zoneAt = zoneAt ?? throw new ArgumentNullException(nameof(zoneAt));
+            _dayNow = dayNow ?? throw new ArgumentNullException(nameof(dayNow));
             _player.Damaged += OnPlayerDamaged;
-            _shownHp = _shownMana = _shownZone = _shownPercent = -1;
+            _shownHp = _shownMana = _shownZone = _shownPercent = _shownDay = -1;
             _shownTarget = null;
             _hurtLeft = 0f;
             if (_view == null) return;
@@ -130,6 +138,7 @@ namespace Mage
             _service = null;
             _fog = null;
             _zoneAt = null;
+            _dayNow = null;
             if (_view != null) _view.Stamina.Bind(null);
         }
         #endregion
@@ -194,21 +203,23 @@ namespace Mage
         }
         #endregion
 
-        #region RefreshZone - 구역이나 지도 %가 바뀌었을 때만 "구역 이름 · 지도 N%"를 다시 씀
+        #region RefreshZone - 구역·날짜·지도 %가 바뀌었을 때만 "구역 이름 · N일째 · 지도 N%"를 다시 씀
         void RefreshZone()
         {
-            // 지금 구역·지도 %
+            // 지금 구역·날짜·지도 %
             int zone = _zoneAt();
+            int day = _dayNow();
             int percent = Mathf.RoundToInt(_fog.Progress * 100f);
-            if (zone == _shownZone && percent == _shownPercent) return;
+            if (zone == _shownZone && day == _shownDay && percent == _shownPercent) return;
             _shownZone = zone;
+            _shownDay = day;
             _shownPercent = percent;
             // 구역 이름 (지금 언어)
             string zoneName = new LocalizedString(Table, string.Format(CultureInfo.InvariantCulture, ZoneKeyFormat, zone)).GetLocalizedString();
             // 구역 줄의 String Reference
             var text = _view.ZoneText.StringReference;
             text.SetReference(Table, ZoneLineKey);
-            text.Arguments = new object[] { zoneName, percent };
+            text.Arguments = new object[] { zoneName, day, percent };
             _view.ZoneText.RefreshString();
         }
         #endregion

@@ -274,6 +274,17 @@ namespace Mage
         }
         #endregion
 
+        #region WarpTo - 살아 있으면 그 곳으로 순간이동 (던전 드나들 때 마법사를 따라옴)
+        /// <param name="position">갈 곳 (NavMesh 위)</param>
+        public void WarpTo(Vector3 position)
+        {
+            if (_dead || !_agent.enabled) return;
+            _agent.Warp(position);
+            _foe = null;
+            _repath = 0f;
+        }
+        #endregion
+
         #region MoveTo - 길 구하는 간격이 됐으면 그 속도로 그 곳까지 길을 구함
         /// <param name="point">갈 곳</param>
         /// <param name="speed">속도 (m/s)</param>

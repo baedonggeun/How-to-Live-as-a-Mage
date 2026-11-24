@@ -228,6 +228,7 @@ namespace Mage
             run.CompletedQuestIds.Add(quest.Id);
             run.Quest = null;
             run.QuestCleared = false;
+            run.QuestDeadline = 0f;
             if (notify) UIManager.Instance.ShowToast(Table, QuestDoneKey, quest.Title.GetLocalizedString());
         }
         #endregion
@@ -539,6 +540,7 @@ namespace Mage
         {
             Game.Run.Quest = quest;
             Game.Run.QuestCleared = false;
+            Game.Run.QuestDeadline = 0f;
             if (!UpdateObjective(true)) UIManager.Instance.ShowToast(Table, QuestTakenKey, quest.Title.GetLocalizedString());
         }
         #endregion
@@ -594,6 +596,7 @@ namespace Mage
             RunEntry run = Game.Run;
             run.Rations -= Mathf.Min(run.Rations, NeededRations());
             run.HasDeparted = true;
+            if (run.Quest != null && run.QuestDeadline <= 0f) run.QuestDeadline = run.PlaySeconds + run.Quest.PeriodDays * RunEntry.DaySeconds;
             UpdateObjective(false);
             UIManager.Instance.HideDialogue();
             Game.ChangeState(new FieldState());
