@@ -1,4 +1,4 @@
-# Plan: 6-2 숲 — 고블린 던전·물건 줍기, 숲 70% 리셋 연출, 날짜·의뢰 기간, 전투 설명창
+# Plan: 6-2 숲 — 고블린 던전·물건 줍기, 숲 70% 리셋 연출, 날짜·의뢰 기간
 
 6-1 plan(`docs/plan-forest-field.md`)을 구현한 코드 위에 더함. 아래 diff·위치는 6-1 plan 코드 기준
 
@@ -8,7 +8,7 @@
 2. 고블린 동굴 = 숲 지역 안의 인스턴트 던전. 숲에 들어갈 때 던전을 만듦 (무작위 형태는 보류). 고블린 챔피언, 고블린 대주술사 같은 보스를 쓰러뜨리면 클리어. 클리어하고 전초기지로 돌아갔다가 며칠 뒤(보류) 숲에 들어오면 새 던전 (숲 리셋과 따로). 6단계는 고정 던전 하나 + 보스(챔피언·대주술사 중 하나)
 3. 숲은 고정. 몬스터·동물·자원을 합쳐 70% 이상 없어지면 리셋. 리셋은 숲 밖에 있을 때만, 다음에 들어올 때 연출: 차원문 맥동 → 마력 분출 → 마력이 죽은 몬스터 시체에 스며들어 부활 → 몬스터가 일어남. 시체는 다 없애고 동물·자원도 원래대로 (6단계엔 몬스터뿐)
 4. 의뢰는 전부 기간 한정, 기간이 안 지났으면 남음. 튜토리얼 의뢰만 의뢰 기간 = 원정 기간. 날짜는 하루 실제 10분
-5. 첫 튜토리얼 의뢰에서 벌어진 전투에서만 게임을 멈추고 설명창으로 자세히 설명
+5. 전투 설명창: 6-1 시전 방식 변경 때 6-1에 먼저 구현함 (2026-11-24 사용자 요청: 어떤 적이든 플레이어를 알아챈 첫 전투에서 게임을 멈추고 설명창, 6장, 이 PC에서 한 번). 이 plan에선 안 함
 6. 소탕 의뢰는 여러 방식 (숲 고블린 소탕, 동굴 소탕 등). 동굴 소탕 의뢰는 이번에 안 만듦 (게시판엔 첫 의뢰 하나)
 
 구현 임시 (사용자 확인 전, 기획에 '구현 임시'로 적음):
@@ -19,7 +19,6 @@
 - 70%는 숲 적 자리 수 대비 쓰러뜨린 수 (던전·부른 적은 안 셈). 숲을 나갈 때(입구 귀환·죽음) 판정
 - 리셋 연출은 약 6초, 넘기기 없음. 일어난 적은 원래 적 자리를 집으로 돌아다님. 소탕 중 리셋되면 일어난 고블린도 다시 대상
 - 클리어한 던전의 보관 금화는 숲을 나갈 때 사라짐
-- 전투 설명창: 5장 (그리기·판정·조준·룬 하나 공격·동료와 죽음), 이 PC에서 한 번. 구현 전에 화면 모형을 보이고 고침
 
 ---
 
@@ -30,8 +29,8 @@
 - `EnemyController`: Idle(돌아다님·알아채기) → Chase → Dead. 시체는 다시 못 일어남
 - `MercenaryController`: 따라오기·싸우기·도망. 순간이동 없음
 - 시간·날짜 없음. 의뢰 기간은 식량 계산(`QuestSO.Days`)에만 씀
-- `TutorialManager`: 12시 안내(`Notify`), 배움(`MarkLearned`·`IsLearned`), 전투 중 숨김(`SetSuppressed`). 창으로 보이는 튜토리얼 없음
-- `UIManager`: 대화·영입·게시판 창이 열리면 게임 멈춤(`RefreshMenuPause`), Esc 순서 확인창 → 설정 → 대화 → 영입 → 게시판 → 메뉴 → 일시정지
+- `TutorialManager`: 12시 안내(`Notify`), 배움(`MarkLearned`·`IsLearned`), 전투 중 숨김(`SetSuppressed`). 창으로 보이는 튜토리얼은 전투 설명창 하나 (`UIManager.ShowTutorialWindow`)
+- `UIManager`: 대화·영입·게시판·설명창이 열리면 게임 멈춤(`RefreshMenuPause`), Esc 순서 확인창 → 설정 → 설명창 → 대화 → 영입 → 게시판 → 메뉴 → 일시정지
 - `HubState`: 출발 때 식량만 뺌. 의뢰 기간 없음
 
 ---
@@ -81,20 +80,14 @@
 
 ### `Assets/Scripts/Quest/QuestSO.cs`
 
-**추가 내용:** 튜토리얼 의뢰 표시, 의뢰 기간. 6-1의 `_target` 아래, `Target` 아래
+**추가 내용:** 의뢰 기간. 6-1의 `_target` 아래, `Target` 아래
 
 ```csharp
-        /// <summary>튜토리얼 의뢰인지 (이 의뢰의 전투에서만 전투 설명창)</summary>
-        [SerializeField] bool _isTutorial;
-
         /// <summary>의뢰 기간 (일). 0이면 원정 기간(_days)과 같음 (튜토리얼 의뢰)</summary>
         [SerializeField, Min(0)] int _periodDays;
 ```
 
 ```csharp
-        /// <summary>튜토리얼 의뢰인지</summary>
-        public bool IsTutorial => _isTutorial;
-
         /// <summary>의뢰 기간 (일, 0이면 원정 기간)</summary>
         public int PeriodDays => _periodDays > 0 ? _periodDays : _days;
 ```
@@ -174,32 +167,6 @@
 
         /// <summary>부르는 몬스터 (없으면 null)</summary>
         public MonsterSO Summon => _summon;
-```
-
----
-
-### `Assets/Scripts/Tutorial/TutorialSO.cs`
-
-**추가 내용:** 설명창 행동, 설명창 장. `using System.Collections.Generic;` 추가
-
-```csharp
-        /// <summary>지도 (M). 12시 안내를 띄우고, M을 누르면 게임 코드가 배움으로 알림</summary>
-        Map,
-
-        /// <summary>설명창 (전투). 12시 안내 없이 게임 코드가 창을 띄우고, 창을 닫으면 배움으로 알림</summary>
-        Window,
-```
-
-`_walkSecondsBeforeShow` 아래, `WalkSecondsBeforeShow` 아래:
-
-```csharp
-        /// <summary>설명창 장마다 본문 (Tutorial 테이블 tutorial.{id}.page{n}. 비면 설명창 없음)</summary>
-        [SerializeField] List<LocalizedString> _pages = new();
-```
-
-```csharp
-        /// <summary>설명창 장마다 본문</summary>
-        public IReadOnlyList<LocalizedString> Pages => _pages;
 ```
 
 ---
@@ -976,238 +943,6 @@ namespace Mage
 
 ---
 
-### `Assets/Scripts/UI/Views/TutorialWindowView.cs` (새 파일)
-
-```csharp
-using UnityEngine;
-using UnityEngine.Localization.Components;
-using UnityEngine.UI;
-
-namespace Mage
-{
-    /// <summary>설명창 참조 (Boot 씬 UICanvas/TutorialWindow 루트. 켜고 끄는 단위는 이 오브젝트)</summary>
-    public sealed class TutorialWindowView : MonoBehaviour
-    {
-        /// <summary>제목 (튜토리얼 제목 키를 코드가 넣음. 인스펙터에서만 연결)</summary>
-        [SerializeField] LocalizeStringEvent _title;
-
-        /// <summary>본문 (장 키를 코드가 넣음. 인스펙터에서만 연결)</summary>
-        [SerializeField] LocalizeStringEvent _body;
-
-        /// <summary>장 번호 (UI/common.page_of, {0} 지금 장·{1} 장 수. 인스펙터에서만 연결)</summary>
-        [SerializeField] LocalizeStringEvent _page;
-
-        /// <summary>다음 장 버튼 (마지막 장엔 숨김. 인스펙터에서만 연결)</summary>
-        [SerializeField] Button _nextButton;
-
-        /// <summary>닫기 버튼 (인스펙터에서만 연결)</summary>
-        [SerializeField] Button _closeButton;
-
-        /// <summary>제목</summary>
-        public LocalizeStringEvent Title => _title;
-
-        /// <summary>본문</summary>
-        public LocalizeStringEvent Body => _body;
-
-        /// <summary>장 번호</summary>
-        public LocalizeStringEvent Page => _page;
-
-        /// <summary>다음 장 버튼</summary>
-        public Button NextButton => _nextButton;
-
-        /// <summary>닫기 버튼</summary>
-        public Button CloseButton => _closeButton;
-    }
-}
-```
-
----
-
-### `Assets/Scripts/UI/Controllers/TutorialWindowController.cs` (새 파일)
-
-```csharp
-using System;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Localization;
-
-namespace Mage
-{
-    /// <summary>설명창: 튜토리얼의 장을 하나씩 보임 (다음·닫기, 장이 없으면 튜토리얼 설명 한 장). 닫히면 받은 할 일을 부름. 여닫기에 따른 일시정지는 UIManager</summary>
-    public sealed class TutorialWindowController : MonoBehaviour
-    {
-        /// <summary>같은 창의 참조 (인스펙터에서만 연결)</summary>
-        [SerializeField] TutorialWindowView _view;
-
-        /// <summary>장마다 본문 (Show에서 받음)</summary>
-        IReadOnlyList<LocalizedString> _pages;
-
-        /// <summary>장이 없을 때 본문 (튜토리얼 설명)</summary>
-        LocalizedString _fallback;
-
-        /// <summary>지금 장 (0부터)</summary>
-        int _index;
-
-        /// <summary>닫히면 할 일 (창이 닫혀 있으면 null)</summary>
-        Action _onClosed;
-
-        /// <summary>같은 창의 참조</summary>
-        public TutorialWindowView View => _view;
-
-        /// <summary>창이 떠 있는지</summary>
-        public bool IsOpen => gameObject.activeSelf;
-
-        #region Awake - 연결 확인, 다음 버튼 연결 (처음 켜질 때 한 번)
-        void Awake()
-        {
-            if (_view == null)
-            {
-                Debug.LogError("[TutorialWindow] TutorialWindowView 연결 안 됨", this);
-                return;
-            }
-            _view.NextButton.onClick.AddListener(Next);
-        }
-        #endregion
-
-        #region Show - 튜토리얼 제목·첫 장을 넣고 켬
-        /// <param name="tutorial">보일 튜토리얼</param>
-        /// <param name="onClosed">닫히면 할 일 (없으면 null)</param>
-        public void Show(TutorialSO tutorial, Action onClosed)
-        {
-            if (tutorial == null) throw new ArgumentNullException(nameof(tutorial));
-            if (_view == null)
-            {
-                Debug.LogError("[TutorialWindow] TutorialWindowView 연결 안 됨", this);
-                onClosed?.Invoke();
-                return;
-            }
-            _pages = tutorial.Pages;
-            _fallback = tutorial.Body;
-            _index = 0;
-            _onClosed = onClosed;
-            _view.Title.StringReference.SetReference(tutorial.Title.TableReference, tutorial.Title.TableEntryReference);
-            gameObject.SetActive(true);
-            ShowPage();
-        }
-        #endregion
-
-        #region Hide - 창을 끄고 할 일을 꺼내 비운 뒤 부름 (닫혀 있으면 안 함)
-        public void Hide()
-        {
-            if (!IsOpen) return;
-            gameObject.SetActive(false);
-            // 닫히면 할 일 (꺼내고 비운 뒤 실행)
-            Action done = _onClosed;
-            _onClosed = null;
-            done?.Invoke();
-        }
-        #endregion
-
-        #region Next - 마지막 장이 아니면 다음 장
-        void Next()
-        {
-            if (_pages == null || _index >= _pages.Count - 1) return;
-            _index++;
-            ShowPage();
-        }
-        #endregion
-
-        #region ShowPage - 지금 장 본문·"지금 / 장 수"를 넣고, 마지막 장이면 다음 버튼을 숨김
-        void ShowPage()
-        {
-            // 장 수 (장이 없으면 설명 한 장)
-            int count = Mathf.Max(1, _pages.Count);
-            // 보일 본문
-            LocalizedString body = _pages.Count > 0 ? _pages[_index] : _fallback;
-            _view.Body.StringReference.SetReference(body.TableReference, body.TableEntryReference);
-            _view.Page.StringReference.Arguments = new object[] { _index + 1, count };
-            _view.Page.RefreshString();
-            _view.NextButton.gameObject.SetActive(_index < count - 1);
-        }
-        #endregion
-    }
-}
-```
-
----
-
-### `Assets/Scripts/Managers/UIManager.cs`
-
-**변경 내용:** 설명창 (대화류 창처럼 게임 멈춤·Esc 닫기)
-
-6-1의 `_menuMap` 필드 아래:
-
-```csharp
-        /// <summary>설명창 (Boot 씬 UICanvas 자식. 게시판 창 위)</summary>
-        [SerializeField] TutorialWindowController _tutorialWindow;
-```
-
-`InitWindows`의 `_questBoard` 검사 아래:
-
-```csharp
-            if (_tutorialWindow == null)
-                Debug.LogError("[UI] TutorialWindowController 연결 안 됨");
-            else
-            {
-                _tutorialWindow.gameObject.SetActive(false);
-                if (_tutorialWindow.View != null) _tutorialWindow.View.CloseButton.onClick.AddListener(HideTutorialWindow);
-            }
-```
-
-`OnCancel`: 설정 창 다음, 대화 앞에 한 줄
-
-```diff
-             else if (_settings != null && _settings.gameObject.activeSelf)
-                 HideSettings();
-+            else if (_tutorialWindow != null && _tutorialWindow.IsOpen)
-+                HideTutorialWindow();
-             else if (_dialogue != null && _dialogue.IsOpen)
-                 HideDialogue();
-```
-
-`IsHubWindowOpen`:
-
-```diff
--        #region IsHubWindowOpen - 대화·영입 창·게시판 창 중 하나라도 떠 있는지
-+        #region IsHubWindowOpen - 대화·영입 창·게시판 창·설명창 중 하나라도 떠 있는지
-         bool IsHubWindowOpen() =>
-             (_dialogue != null && _dialogue.IsOpen)
-             || (_recruit != null && _recruit.IsOpen)
--            || (_questBoard != null && _questBoard.IsOpen);
-+            || (_questBoard != null && _questBoard.IsOpen)
-+            || (_tutorialWindow != null && _tutorialWindow.IsOpen);
-```
-
-`HideQuestBoard` region 아래 새 메서드 2개:
-
-```csharp
-        #region ShowTutorialWindow - 설명창을 띄우고 게임 멈춤. 닫히면 onClosed (닫기 버튼·Esc). 창이 없으면 바로 onClosed
-        /// <param name="tutorial">보일 튜토리얼 (장이 있는 것)</param>
-        /// <param name="onClosed">닫히면 할 일</param>
-        public void ShowTutorialWindow(TutorialSO tutorial, Action onClosed)
-        {
-            if (_tutorialWindow == null)
-            {
-                Debug.LogError("[UI] TutorialWindowController 연결 안 됨");
-                onClosed?.Invoke();
-                return;
-            }
-            _tutorialWindow.Show(tutorial, onClosed);
-            RefreshMenuPause();
-        }
-        #endregion
-
-        #region HideTutorialWindow - 설명창을 닫음 (할 일을 부름). 다른 창이 없으면 게임을 다시 돌림
-        public void HideTutorialWindow()
-        {
-            if (_tutorialWindow != null) _tutorialWindow.Hide();
-            RefreshMenuPause();
-        }
-        #endregion
-```
-
----
-
 ### `Assets/Scripts/UI/Binders/FieldHudUIBinder.cs`
 
 **변경 내용:** 구역 줄에 날짜
@@ -1383,12 +1118,12 @@ namespace Mage
 
 ### `Assets/Scripts/Flow/FieldState.cs`
 
-**변경 내용:** 던전(드나들기·보관함·보스·새 던전), 떨어진 금화를 현장 규칙으로(고블린 줍기·떨굼·보관), 숲 70% 리셋(나갈 때 판정·들어올 때 연출), 날짜·의뢰 기간, 튜토리얼 의뢰 첫 전투 설명창
+**변경 내용:** 던전(드나들기·보관함·보스·새 던전), 떨어진 금화를 현장 규칙으로(고블린 줍기·떨굼·보관), 숲 70% 리셋(나갈 때 판정·들어올 때 연출), 날짜·의뢰 기간
 
 클래스 요약 교체:
 
 ```csharp
-    /// <summary>숲. 3구역 회색 숲에 마법사·용병·적(쓰러뜨린 적은 쓰러진 자리에 시체)과 1구역 고블린 던전(지하, 보스)을 두고 현장 시전·안개 지도·시계·12시 안내(전투 중엔 숨김)를 켬. 숲이 70% 넘게 빈 채 나갔으면 들어올 때 리셋 연출 뒤 시체가 일어남. 튜토리얼 의뢰 첫 전투엔 설명창. 숲 입구에서 F로 귀환, 소탕 대상을 다 쓰러뜨리면 의뢰 목표 달성, 기간이 지나면 의뢰 실패. 죽으면 금화를 떨구고 덮개 밑에서 용병 도망을 빠르게 돌린 뒤 여관 방 침대(방이 없으면 정문)에서 부활</summary>
+    /// <summary>숲. 3구역 회색 숲에 마법사·용병·적(쓰러뜨린 적은 쓰러진 자리에 시체)과 1구역 고블린 던전(지하, 보스)을 두고 현장 시전·안개 지도·시계·12시 안내(전투 중엔 숨김)를 켬. 숲이 70% 넘게 빈 채 나갔으면 들어올 때 리셋 연출 뒤 시체가 일어남. 숲 입구에서 F로 귀환, 소탕 대상을 다 쓰러뜨리면 의뢰 목표 달성, 기간이 지나면 의뢰 실패. 죽으면 금화를 떨구고 덮개 밑에서 용병 도망을 빠르게 돌린 뒤 여관 방 침대(방이 없으면 정문)에서 부활</summary>
 ```
 
 `GoldId` 아래 상수:
@@ -1402,9 +1137,6 @@ namespace Mage
 
         /// <summary>던전 보관함 지점 id</summary>
         const string StashId = "stash";
-
-        /// <summary>전투 설명창 튜토리얼 id</summary>
-        const string CombatTutorialId = "combat";
 
         /// <summary>숲 적 자리 대비 쓰러뜨린 적이 이 비율 이상이면 리셋 (기획 70%)</summary>
         const float ForestResetRatio = 0.7f;
@@ -1522,7 +1254,6 @@ namespace Mage
         void StartControl()
         {
             SetControl(true);
-            TutorialManager.Instance.Notify(FieldCastTutorialId);
             TutorialManager.Instance.Notify(MapTutorialId);
             if (_objectiveChanged) NotifyObjective();
         }
@@ -1623,19 +1354,6 @@ namespace Mage
              _death = null;
 +            MarkLeaving(Game.Run);
              Game.Run.RespawningFromDeath = true;
-```
-
-`OnCombatChanged` 교체:
-
-```csharp
-        #region OnCombatChanged - 전투 상황이면 12시 안내를 숨기고 (튜토리얼 의뢰 첫 전투면) 설명창. 끝나면 안내를 다시 보임
-        /// <param name="inCombat">전투 상황인지</param>
-        void OnCombatChanged(bool inCombat)
-        {
-            TutorialManager.Instance.SetSuppressed(inCombat);
-            if (inCombat) TryShowCombatTutorial();
-        }
-        #endregion
 ```
 
 `DeathRoutine` region 아래 새 메서드:
@@ -1901,28 +1619,11 @@ namespace Mage
             UIManager.Instance.ShowToast(Table, QuestExpiredKey, quest.Title.GetLocalizedString());
         }
         #endregion
-
-        #region TryShowCombatTutorial - 튜토리얼 의뢰를 받은 판이고 이 PC가 아직 안 본 전투 설명창이면 게임을 멈추고 띄움 (닫으면 배움)
-        void TryShowCombatTutorial()
-        {
-            // 이번 판 데이터
-            RunEntry run = Game.Run;
-            if (_dying || run.Quest == null || !run.Quest.IsTutorial || TutorialManager.Instance.IsLearned(CombatTutorialId)) return;
-            // 전투 설명창 튜토리얼
-            TutorialSO tutorial = DataManager.Instance.FindTutorial(CombatTutorialId);
-            if (tutorial == null)
-            {
-                Debug.LogWarning($"[Field] 모르는 튜토리얼 id: {CombatTutorialId}");
-                return;
-            }
-            UIManager.Instance.ShowTutorialWindow(tutorial, () => TutorialManager.Instance.MarkLearned(CombatTutorialId));
-        }
-        #endregion
 ```
 
 **호출/구독 관계 (더해진 것):**
 - 구독: `FieldService.LootTaken`·`LootDropped`·`LootStored`, `FieldClockController.Expired`, 던전 적·보스 `EnemyController.Died`
-- 부름: `ForestResetSequence.Play`, `EnemyController.Revive`, `BossPatternController.Init`, `MercenaryController.WarpTo`, `UIManager.FadeThrough`·`ShowTutorialWindow`
+- 부름: `ForestResetSequence.Play`, `EnemyController.Revive`, `BossPatternController.Init`, `MercenaryController.WarpTo`, `UIManager.FadeThrough`
 
 ---
 
@@ -1981,11 +1682,6 @@ namespace Mage
 - 이름: Monster/`monster.goblin_champion.name`·`monster.goblin_shaman.name`. 마법사 노림 0, 줍기 끔
 - `Goblin.asset`: `_picksUpItems` 켬
 
-### 그 밖
-
-- `Assets/Data/Quests/Forest01.asset`: `_isTutorial` 켬, `_periodDays` 0 (원정 기간 3일과 같음)
-- `Assets/Data/Tutorials/Combat.asset` (새로, TutorialSO): `_id` combat, `_prompt` 비움, `_title`·`_body` = Tutorial/`tutorial.combat.title`·`.body`, `_action` Window, `_walkSecondsBeforeShow` 0, `_pages` = `tutorial.combat.page1` ~ `page5`
-
 ---
 
 ## Prefab 변경
@@ -2026,15 +1722,6 @@ namespace Mage
 5. NavMeshSurface 둘 다 Bake (Forest는 동굴 입구를 넣고 다시, Dungeon은 새로 `Assets/Scenes/Forest/NavMesh-Dungeon.asset`)
 6. 저장 → 다시 열어 FieldView 새 칸 9개, 지점 id·이름 키, NavMesh 데이터 2개 확인
 
-### `Assets/Scenes/Boot.unity`
-
-1. `UICanvas/TutorialWindow` 새로: `WindowFrame.prefab` 인스턴스 (꺼 둠), 자식 순서는 `QuestBoard` 뒤·`Pause` 앞. 루트에 `TutorialWindowView` + `TutorialWindowController` (`_view` → 같은 오브젝트)
-   - `Panel` 아래 순서: `Title` LocalizedText (글자 40, 가운데), `Body` LocalizedText (글자 28, 줄바꿈, LayoutElement Preferred Width 1000·Min Height 260), `Page` LocalizedText (UI/`common.page_of`, 글자 24, 가운데), `Buttons` (HorizontalLayoutGroup Spacing 16, 가운데): `NextButton` (`Button.prefab`, UI/`common.next`, Preferred Width 240), `CloseButton` (`Button.prefab`, UI/`common.close`, Preferred Width 240)
-   - TutorialWindowView 칸: `_title`·`_body`·`_page`, `_nextButton`, `_closeButton`
-2. `Managers` UIManager: `_tutorialWindow` → TutorialWindow의 TutorialWindowController
-3. `Managers` DataManager: `_tutorials` 끝에 `Combat.asset`
-4. 저장 → 다시 열어 확인
-
 ---
 
 ## 다국어 변경
@@ -2053,21 +1740,8 @@ namespace Mage
 | `field.dungeon_cleared` | 토스트: 던전 보스를 쓰러뜨림 | 고블린 동굴을 정리했다 | The goblin cave is cleared |
 
 2. `Monster` 탭: `monster.goblin_champion.name` 고블린 챔피언 / Goblin Champion, `monster.goblin_shaman.name` 고블린 대주술사 / Goblin Grand Shaman
-3. `Tutorial` 탭 7줄 추가
-
-| Key | Comment | ko | en |
-|---|---|---|---|
-| `tutorial.combat.title` | 전투 설명창·튜토리얼 탭 제목 | 전투 | Combat |
-| `tutorial.combat.body` | 튜토리얼 탭 설명 | 그리기 → 판정 → 3초 조준 → 발사. 불·물 룬은 혼자서도 던질 수 있다. 동료는 알아서 싸우고, 쓰러지면 죽는다. 마법사가 쓰러지면 금화를 떨어뜨리고 여관에서 깨어난다. | Draw → judge → aim for 3 seconds → fire. Fire and Water runes can be thrown on their own. Companions fight on their own and die if they fall. If you fall, you drop your gold and wake up at the inn. |
-| `tutorial.combat.page1` | 설명창 1장: 그리기 | 적이 다가온다. 좌클릭하면 시전 상태가 되고, 마우스로 화면 가운데에 주문을 그린다. 버튼을 떼도 3초 안에 이어 그릴 수 있다. | Enemies are coming. Left-click to start casting and draw a spell in the middle of the screen with your mouse. You can keep drawing for 3 seconds after letting go. |
-| `tutorial.combat.page2` | 설명창 2장: 판정 | 손을 멈추고 3초가 지나거나 Space를 누르면 판정한다. 코덱스에 있는 그림과 맞아야 나간다. 우클릭은 취소. | Stop for 3 seconds or press Space to judge your drawing. It must match a drawing in your Codex. Right-click cancels. |
-| `tutorial.combat.page3` | 설명창 3장: 조준 | 맞으면 3초 동안 마우스로 겨눈다. 좌클릭하면 쏘고, 3초가 지나면 저절로 나간다. 겨누는 동안에는 움직일 수 없다. | If it matches, aim with your mouse for 3 seconds. Left-click to fire, or it fires on its own when time runs out. You can't move while aiming. |
-| `tutorial.combat.page4` | 설명창 4장: 룬 하나 | 불·물처럼 무언가를 만드는 룬은 혼자 그려도 던질 수 있다. 응축·직선·차단은 혼자서는 효과가 없다. 룬을 합친 다중 룬 마법이 더 강하다. | Runes that create something, like Fire and Water, can be thrown on their own. Condense, Line and Block do nothing alone. Multi-rune magic is stronger. |
-| `tutorial.combat.page5` | 설명창 5장: 동료와 죽음 | 동료는 알아서 따라오며 싸운다. 쓰러진 동료는 죽는다. 마법사가 쓰러지면 가진 금화를 그 자리에 떨어뜨리고 여관에서 깨어난다. | Your companions follow and fight on their own. A fallen companion dies. If you fall, you drop your gold where you fell and wake up at the inn. |
-
-4. `UI` 탭: `common.next` 다음 / Next, `common.page_of` (설명창 장 번호. {0} 지금 장, {1} 장 수) {0} / {1} / {0} / {1}
-5. `Menu` 탭: `menu.journal.quest_left` (임무 일지 의뢰 줄, 기간을 세는 중. {0} 의뢰 이름, {1} 남은 날) 의뢰: {0} (남은 기간 {1}일) / Quest: {0} ({1} days left)
-6. CSV: Field·Monster·Tutorial·UI·Menu → `Assets/Localization/CSV/` → `Import Tables from CSV` → `Check Missing Translations`·`Check Missing Glyphs`
+3. `Menu` 탭: `menu.journal.quest_left` (임무 일지 의뢰 줄, 기간을 세는 중. {0} 의뢰 이름, {1} 남은 날) 의뢰: {0} (남은 기간 {1}일) / Quest: {0} ({1} days left)
+4. CSV: Field·Monster·Menu → `Assets/Localization/CSV/` → `Import Tables from CSV` → `Check Missing Translations`·`Check Missing Glyphs`
 
 ---
 
@@ -2081,7 +1755,6 @@ namespace Mage
 - 떨어진 금화는 하나뿐. 플레이어가 줍든 고블린이 줍든 `FieldService.TakeLoot` → `LootTaken`이 지점을 지우고 `DroppedGold`를 0으로
 - 시간은 숲 `FieldClockController`만 흐르게 함. 게임 시간이라 메뉴·로딩창·대화·설명창에서 멈추고, 죽은 뒤 도망 시뮬에선 6배
 - 의뢰 기간은 처음 출발할 때 정하고(`QuestDeadline`), 받을 때·끝낼 때 0. 목표를 이미 끝냈으면 기간이 지나도 실패 안 함
-- 설명창은 `UIManager.ShowTutorialWindow` (대화류 창처럼 게임 멈춤, Esc 닫기). 닫히면 `MarkLearned("combat")`라 이 PC에서 한 번
 - 보스 수치는 기획 미정이라 임시. 6-1 `EnemyController.Setup`이 콜라이더·NavMeshAgent 크기를 몬스터 크기에 맞추므로 Boss.prefab은 크기를 따로 안 잡음
 - 던전 자리 id나 숲 적 자리 id를 바꾸면 앞 판 기록과 안 맞음
 
@@ -2089,11 +1762,10 @@ namespace Mage
 
 ## 진행 추적
 
-- [ ] 묶음 UI-Mockup — 전투 설명창 화면 모형(show_widget)을 보이고 고친 뒤 구현
-- [ ] 묶음 Logic — 새로: BossPatternController, FieldClockController, ForestResetSequence, TutorialWindowView, TutorialWindowController / 고침: RunEntry, QuestSO, MonsterSO, TutorialSO, FieldService, EnemyController, MercenaryController, UIManager, FieldHudUIBinder, JournalUIBinder, FieldView, FieldState, HubState. 컴파일 에러·경고 0
-- [ ] 묶음 Editor-Localization — Field·Monster·Tutorial·UI·Menu 줄, CSV, Import, 누락 검사
-- [ ] 묶음 Prefab·Data — 재질 2개, Boss·Telegraph·ManaStream 프리팹, 보스 2개·고블린 줍기, Forest01 튜토리얼 표시, Combat 튜토리얼
-- [ ] 묶음 Editor-Scene — Forest(동굴 입구·지하 던전·리셋 연출·시계·FieldView 칸, NavMesh 둘), Boot(설명창·UIManager·DataManager), 저장 뒤 다시 열어 확인
+- [ ] 묶음 Logic — 새로: BossPatternController, FieldClockController, ForestResetSequence / 고침: RunEntry, QuestSO, MonsterSO, FieldService, EnemyController, MercenaryController, FieldHudUIBinder, JournalUIBinder, FieldView, FieldState, HubState. 컴파일 에러·경고 0
+- [ ] 묶음 Editor-Localization — Field·Monster·Menu 줄, CSV, Import, 누락 검사
+- [ ] 묶음 Prefab·Data — 재질 2개, Boss·Telegraph·ManaStream 프리팹, 보스 2개·고블린 줍기
+- [ ] 묶음 Editor-Scene — Forest(동굴 입구·지하 던전·리셋 연출·시계·FieldView 칸, NavMesh 둘), 저장 뒤 다시 열어 확인
 - [ ] 묶음 Verify — 사용자 확인
 
 ---
@@ -2104,28 +1776,26 @@ namespace Mage
 
 1. 숲 왼쪽 위 "숲 외곽 · 1일째 · 지도 N%". 하루(10분)마다 날짜가 오름. 메뉴·일시정지 중엔 안 흐름
 2. 새 게임에서 의뢰를 받으면 임무 일지 "의뢰: 숲 외곽 정리 (임시) (3일)", 출발하면 "(남은 기간 3일)". 숲에서 3일(30분)을 못 끝내고 넘기면 "의뢰 기간이 지났다: …" → 임무 일지 의뢰 줄·목표 없음 → 전초기지 게시판에서 다시 받을 수 있음
-3. 튜토리얼 의뢰로 나간 판의 첫 전투: 적이 쫓아오는 순간 게임이 멈추고 설명창 "전투" 5장 (다음, 1/5…5/5, 마지막 장엔 다음 없음) → 닫기·Esc로 닫으면 이어짐. 다음 전투·새 게임엔 다시 안 나옴. 메뉴 튜토리얼 탭에 '전투'
-4. 금화를 가진 채 죽기 → 다시 숲 → 떨어진 금화 18m 안 고블린이 주우러 감 → 주우면 금화 지점이 사라지고 동굴 입구로 가져감 (도중에 쓰러뜨리면 그 자리에 "[F] 떨어진 금화")
-5. 1구역 동굴 "[F] 고블린 동굴" → 화면이 잠깐 어두워졌다 던전 안 (용병도 따라옴), 나가는 문 "[F] 동굴 밖으로" → 동굴 입구 밖
-6. 던전: 방 둘에 고블린 무리, 보스방에 보스 하나 (챔피언이면 내 자리에 붉은 원 → 1.1초 뒤 강타, 대주술사면 불탄). 체력 절반에서 고블린 3마리. 보스를 쓰러뜨리면 "고블린 동굴을 정리했다". 보관함 "[F] 고블린이 모은 물건" → 고블린이 가져간 금화가 있으면 "되찾은 금화: N", 없으면 "비어 있다"
-7. 클리어하고 보관 금화를 안 챙긴 채 숲을 나갔다 오면: 던전이 새로 (적이 다시, 보스를 다시 고름), 보관함은 빔. 클리어 전엔 나갔다 와도 던전·보관 금화 그대로, 또 죽어도 보관 금화는 남음
-8. 숲 적 41마리 중 29마리 이상 쓰러뜨리고 나갔다 오면: 들어오자마자 HUD가 사라지고 연출 (차원문 맥동 → 보라 구가 퍼짐 → 차원문에서 시체마다 줄기 → 가까운 시체 쪽에서 시체들이 일어남, 약 6초) → 시체가 다 일어나 원래 자리 둘레를 돌아다님, HUD·조작 돌아옴. 28마리 이하면 리셋 없음 (시체 그대로)
-9. 소탕을 못 끝내고 리셋되면 일어난 고블린도 다시 소탕 대상 (임무 일지 그대로)
-10. 영어로 바꾸면 던전·설명창·날짜 글자 영어
-11. 콘솔 에러·경고 없음 (AudioListener 둘·NavMesh 경고 포함)
+3. 금화를 가진 채 죽기 → 다시 숲 → 떨어진 금화 18m 안 고블린이 주우러 감 → 주우면 금화 지점이 사라지고 동굴 입구로 가져감 (도중에 쓰러뜨리면 그 자리에 "[F] 떨어진 금화")
+4. 1구역 동굴 "[F] 고블린 동굴" → 화면이 잠깐 어두워졌다 던전 안 (용병도 따라옴), 나가는 문 "[F] 동굴 밖으로" → 동굴 입구 밖
+5. 던전: 방 둘에 고블린 무리, 보스방에 보스 하나 (챔피언이면 내 자리에 붉은 원 → 1.1초 뒤 강타, 대주술사면 불탄). 체력 절반에서 고블린 3마리. 보스를 쓰러뜨리면 "고블린 동굴을 정리했다". 보관함 "[F] 고블린이 모은 물건" → 고블린이 가져간 금화가 있으면 "되찾은 금화: N", 없으면 "비어 있다"
+6. 클리어하고 보관 금화를 안 챙긴 채 숲을 나갔다 오면: 던전이 새로 (적이 다시, 보스를 다시 고름), 보관함은 빔. 클리어 전엔 나갔다 와도 던전·보관 금화 그대로, 또 죽어도 보관 금화는 남음
+7. 숲 적 41마리 중 29마리 이상 쓰러뜨리고 나갔다 오면: 들어오자마자 HUD가 사라지고 연출 (차원문 맥동 → 보라 구가 퍼짐 → 차원문에서 시체마다 줄기 → 가까운 시체 쪽에서 시체들이 일어남, 약 6초) → 시체가 다 일어나 원래 자리 둘레를 돌아다님, HUD·조작 돌아옴. 28마리 이하면 리셋 없음 (시체 그대로)
+8. 소탕을 못 끝내고 리셋되면 일어난 고블린도 다시 소탕 대상 (임무 일지 그대로)
+9. 영어로 바꾸면 던전·날짜 글자 영어
+10. 콘솔 에러·경고 없음 (AudioListener 둘·NavMesh 경고 포함)
 
 ---
 
 ## 커밋 메시지
 
 ```
-Add — 6-2 숲: 고블린 던전·물건 줍기, 숲 70% 리셋 연출, 날짜·의뢰 기간, 전투 설명창
+Add — 6-2 숲: 고블린 던전·물건 줍기, 숲 70% 리셋 연출, 날짜·의뢰 기간
 
 - 고블린 던전: 1구역 동굴 입구 → 숲 지하 고정 던전(방 둘 + 보스방), 보스는 챔피언(예고 원 강타)·대주술사(불탄) 중 하나, 체력 절반에서 부하. 보스를 쓰러뜨리면 클리어, 클리어하고 나갔다 오면 새 던전 (며칠 조건 보류)
 - 물건 줍기: 고블린이 떨어진 금화를 주워 동굴 입구로 가져가 보관, 들고 쓰러지면 그 자리에 떨굼. 보관함에서 되찾음, 클리어 뒤 안 챙기면 사라짐
 - 숲 리셋: 숲 적의 70% 이상을 쓰러뜨리고 나가면 다음 진입 때 연출(차원문 맥동 → 마력 분출 → 시체로 스며듦 → 일어남) 뒤 시체가 다 살아남
 - 날짜: 하루 10분 (숲에서만 흐름, 임시). 의뢰 기간은 처음 출발부터, 지나면 의뢰 실패 → 게시판에 다시. 임무 일지에 남은 기간
-- 튜토리얼 의뢰 첫 전투에서 게임을 멈추고 설명창 5장 (이 PC에서 한 번)
 
 Why: 6단계 결정 중 6-1에서 미룬 것 (기획 12 결정 70·72·80·82·79). 숲이 고정이라 비면 다시 채울 길과, 죽음 뒤 물건을 되찾는 길이 필요함
 Alternatives: 던전을 별도 씬으로(드나들 때마다 로딩·숲 상태 저장이 늘어 뺌), 리셋을 숲 안에서 바로(소탕 중 고블린이 살아나 사용자가 '숲 밖에서'로 정함)

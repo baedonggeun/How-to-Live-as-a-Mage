@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Localization;
 
@@ -21,8 +22,8 @@ namespace Mage
         /// <summary>주문 그리기 (책상 연습). 12시 안내 없이 처음 판정까지 그리면 배움으로 알림</summary>
         Draw,
 
-        /// <summary>현장 시전 (숲). 12시 안내를 띄우고, 숲에서 처음 판정까지 그리면 게임 코드가 배움으로 알림</summary>
-        FieldCast,
+        /// <summary>설명창 (전투). 12시 안내 없이 게임 코드가 창을 띄우고, 창을 닫으면 배움으로 알림</summary>
+        Window,
 
         /// <summary>지도 (M). 12시 안내를 띄우고, M을 누르면 게임 코드가 배움으로 알림</summary>
         Map,
@@ -50,6 +51,9 @@ namespace Mage
         /// <summary>안내를 띄우기 전에 달리지 않고 걸어야 하는 시간 (초). 0이면 바로 띄움</summary>
         [SerializeField, Min(0f)] float _walkSecondsBeforeShow;
 
+        /// <summary>설명창 장마다 본문 (Tutorial 테이블 tutorial.{id}.page{n}. 비면 튜토리얼 설명 한 장)</summary>
+        [SerializeField] List<LocalizedString> _pages = new();
+
         /// <summary>바뀌지 않는 id</summary>
         public string Id => _id;
 
@@ -67,5 +71,8 @@ namespace Mage
 
         /// <summary>안내를 띄우기 전에 걸어야 하는 시간 (초)</summary>
         public float WalkSecondsBeforeShow => _walkSecondsBeforeShow;
+
+        /// <summary>설명창 장마다 본문</summary>
+        public IReadOnlyList<LocalizedString> Pages => _pages;
     }
 }

@@ -14,4 +14,6 @@
 "cast.extra","남는 선. {0} %","남는 선 {0}%","Stray lines {0}%","","","","","","","","","","",""
 "cast.parts","판정 자세히: 부분 일치율. {0} 부분 목록","부분 일치율: {0}","Part match: {0}","","","","","","","","","","",""
 "cast.nearest","판정 자세히: 맞는 주문이 없을 때. {0} 주문 이름, {1} 일치율 %","가장 가까운 주문: {0} {1}%","Closest spell: {0} {1}%","","","","","","","","","","",""
-"cast.hint","그리기 칸 안내. {0} 대기 초","좌클릭으로 그리기. 버튼을 떼도 {0}초 안에 이어 그릴 수 있다. Space 바로 판정, 우클릭·Esc 취소","Left-click to draw. You can keep drawing within {0}s after letting go. Space judges now, right-click or Esc cancels.","","","","","","","","","","",""
+"cast.hint","그리기 칸 안내","F를 꾹 눌러 그리기. 누른 채 좌클릭으로 선을 긋고, F를 떼면 판정한다. Space는 바로 판정, 우클릭·Esc는 취소 (우클릭은 갈무리 시간이 걸린다)","Hold F to draw. While holding, left-click to draw lines; release F to judge. Space judges now; right-click or Esc cancels (right-click costs recovery time).","","","","","","","","","","",""
+"cast.recover","갈무리 중 (우클릭 취소 뒤). {0} 남은 초","갈무리 중 · {0}초","Recovering · {0}s","","","","","","","","","","",""
+"cast.result.fail","판정: 실패 (그림이 마법이 아님). {0} 이유","실패: {0}","Failed: {0}","","","","","","","","","","",""

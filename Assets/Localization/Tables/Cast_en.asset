@@ -79,8 +79,17 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 56963530761
-    m_Localized: Left-click to draw. You can keep drawing within {0}s after letting
-      go. Space judges now, right-click or Esc cancels.
+    m_Localized: Hold F to draw. While holding, left-click to draw lines; release
+      F to judge. Space judges now; right-click or Esc cancels (right-click costs
+      recovery time).
+    m_Metadata:
+      m_Items: []
+  - m_Id: 665802081206272
+    m_Localized: "Recovering \xB7 {0}s"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 665802106372096
+    m_Localized: 'Failed: {0}'
     m_Metadata:
       m_Items: []
   references:

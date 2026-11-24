@@ -37,8 +37,8 @@ namespace Mage
         /// <summary>알림 글 (키는 FieldCastController가 넣음. 인스펙터에서만 연결)</summary>
         [SerializeField] LocalizeStringEvent _noteText;
 
-        /// <summary>펜 점 (그리기 칸 자식, 그리는 중에만. 인스펙터에서만 연결)</summary>
-        [SerializeField] RectTransform _pen;
+        /// <summary>방호막 임시 화면 (푸른 막. 방호막이 켜진 동안만. 효과 프리팹이 있으면 안 씀. 인스펙터에서만 연결)</summary>
+        [SerializeField] GameObject _shield;
 
         /// <summary>구역·지도 진행도 글 (Field/field.zone_line. 인스펙터에서만 연결)</summary>
         [SerializeField] LocalizeStringEvent _zoneText;
@@ -91,8 +91,8 @@ namespace Mage
         /// <summary>알림 글</summary>
         public LocalizeStringEvent NoteText => _noteText;
 
-        /// <summary>펜 점</summary>
-        public RectTransform Pen => _pen;
+        /// <summary>방호막 임시 화면</summary>
+        public GameObject Shield => _shield;
 
         /// <summary>구역·지도 진행도 글</summary>
         public LocalizeStringEvent ZoneText => _zoneText;

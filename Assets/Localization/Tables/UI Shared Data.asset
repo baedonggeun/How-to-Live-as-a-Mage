@@ -145,6 +145,16 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2778220093525459034
+  - m_Id: 3969889614856192
+    m_Key: common.next
+    m_Metadata:
+      m_Items:
+      - rid: 2778220139109941343
+  - m_Id: 3969889623244800
+    m_Key: common.page_of
+    m_Metadata:
+      m_Items:
+      - rid: 2778220139109941344
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
@@ -280,3 +290,12 @@ MonoBehaviour:
         m_CommentText: "\uBAA9\uB85D \uC774\uB984 \uC0AC\uC774 \uAD6C\uBD84\uC790
           (\uB05D \uACF5\uBC31 \uD3EC\uD568, \uC5B8\uC5B4\uB9C8\uB2E4 \uB2E4\uB97C
           \uC218 \uC788\uC74C)"
+    - rid: 2778220139109941343
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uACF5\uC6A9 \uBC84\uD2BC: \uB2E4\uC74C"
+    - rid: 2778220139109941344
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uC124\uBA85\uCC3D \uC7A5 \uBC88\uD638. {0} \uC9C0\uAE08
+          \uC7A5, {1} \uC7A5 \uC218"

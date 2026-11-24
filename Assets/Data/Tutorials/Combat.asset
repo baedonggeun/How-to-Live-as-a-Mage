@@ -1,0 +1,96 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a4e60be629304d4d9a311a42338d791, type: 3}
+  m_Name: Combat
+  m_EditorClassIdentifier: Mage::Mage.TutorialSO
+  _id: combat
+  _prompt:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  _title:
+    m_TableReference:
+      m_TableCollectionName: GUID:14105dfdb9e91e84babb044f794a95e1
+    m_TableEntryReference:
+      m_KeyId: 1321611895144448
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  _body:
+    m_TableReference:
+      m_TableCollectionName: GUID:14105dfdb9e91e84babb044f794a95e1
+    m_TableEntryReference:
+      m_KeyId: 1321611907727360
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  _action: 5
+  _walkSecondsBeforeShow: 0
+  _pages:
+  - m_TableReference:
+      m_TableCollectionName: GUID:14105dfdb9e91e84babb044f794a95e1
+    m_TableEntryReference:
+      m_KeyId: 1321611907727361
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  - m_TableReference:
+      m_TableCollectionName: GUID:14105dfdb9e91e84babb044f794a95e1
+    m_TableEntryReference:
+      m_KeyId: 1321611907727362
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  - m_TableReference:
+      m_TableCollectionName: GUID:14105dfdb9e91e84babb044f794a95e1
+    m_TableEntryReference:
+      m_KeyId: 1321611907727363
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  - m_TableReference:
+      m_TableCollectionName: GUID:14105dfdb9e91e84babb044f794a95e1
+    m_TableEntryReference:
+      m_KeyId: 1321611907727364
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  - m_TableReference:
+      m_TableCollectionName: GUID:14105dfdb9e91e84babb044f794a95e1
+    m_TableEntryReference:
+      m_KeyId: 1321611907727365
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  - m_TableReference:
+      m_TableCollectionName: GUID:14105dfdb9e91e84babb044f794a95e1
+    m_TableEntryReference:
+      m_KeyId: 1321611907727366
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  references:
+    version: 2
+    RefIds: []

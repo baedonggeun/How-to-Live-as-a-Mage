@@ -5311,9 +5311,42 @@ using System.Collections.Generic;
 
 ---
 
+## 시전 방식 변경 (구현 뒤, 사용자 요청 2026-11-24)
+
+위 C# 절은 처음 구현(좌클릭 시전·3초 대기 판정) 기준. 겹치는 부분은 아래가 이김.
+
+### 동작
+
+- **F 꾹(0.35초 이상) = 시전 상태**. 누른 채 좌클릭으로 그리고 **F를 떼면 판정**. Space는 바로 판정, 우클릭·Esc는 취소. 3초 대기 자동 판정은 숲·책상 모두 없앰 (`Timer` 오브젝트 지움)
+- **F 0.35초 미만 = 상호작용**. 숲은 키를 **뗄 때** 적용 (`InteractDetector._tapOnRelease` 켬), 전초기지는 누를 때 바로 (그대로). 기준값은 `InteractDetector.HoldSeconds` 하나를 그리기 칸도 같이 씀
+- 시전 상태가 되면 화면 가운데에 **반투명 양피지**(`SpellDrawView.Board`, 알파 0.85)가 나오고 펜은 양피지 안에서만 움직임. F를 떼면 양피지·선이 같이 사라짐. 양피지 그림은 임시 (`Assets/Art/Placeholder/UI/Parchment.png`, 코드로 만든 512×512). 잉크는 먹색, 펜 점은 붉은 갈색
+- **책상 연습 = 숲과 같은 그리기 칸**: 같은 `SpellDrawController`가 F 꾹·양피지·판정·취소를 다 처리. 연습은 성공해도 결과 글만 남기고 쏘지 않음
+- **성공**: `SpellSO`·`RuneSO`에 `_successSound`·`_effectPrefab` 칸을 만듦. 비어 있으면 소리 없음·임시 모양 그대로, 넣으면 소리가 나고 투사체·불벽에 효과가 붙음 (방호막은 효과 프리팹이 없으면 `FieldHudView._shield` 푸른 막). 책상 연습도 성공 소리는 남
+- **실패**(그림이 마법이 아님. 빈 그림·직접 취소는 해당 없음): 실패 소리(`DataManager._castFailSound`) + 붉은 번쩍 + 체력 −10·마나 −15·스태미나 −30 (`FieldCastController` `FailHp`·`FailMana`·`FailStamina`, 임시)
+- **우클릭 취소**: 그린 그림을 그 자리에서 판정 → 마법이면 **룬 수 × 1초 갈무리** (`SpellDrawController.RecoverSecondsPerRune`. 룬 주문 1초·2룬 마법 2초…) 동안 이동·시점·그리기·F가 잠기고 남은 시간 글이 뜸. 마법이 아닌 그림은 바로 풀림. 3초 조준 중 우클릭도 조준 중인 주문의 룬 수만큼 갈무리
+- **첫 전투 설명창**: 마법사를 알아챈 적이 처음 생기면 게임을 멈추고 가운데에 설명창 (`TutorialWindowView`·`TutorialWindowController`, `Combat.asset` id `combat`, 6장, 다음·닫기·Esc, 이 PC에서 한 번). 12시 '좌클릭으로 주문 그리기' 안내와 `field_cast` 튜토리얼(에셋·키 3개)은 없앰
+
+### 바꾼 파일
+
+- 코드: `InteractDetector`(뗄 때 상호작용), `PlayerController`(`DrainStamina`), `SpellJudgeSpec`(`IsFailure`), `SpellSO`·`RuneSO`(소리·효과 칸), `DataManager`(`_castFailSound`), `TutorialSO`(`Window` 값·`_pages`), `SpellProjectileController`·`FlameWallController`(효과 프리팹 붙임), `SpellDrawView`·`SpellDrawController`(시전 패드로 새로), `FieldCastSpec`, `FieldHudView`(`_pen` → `_shield`), `FieldCastController`, `CodexController`(책상 성공 소리), `UIManager`(`ShowTutorialWindow`), `FieldState`(첫 전투 설명창). 새로: `TutorialWindowView`·`TutorialWindowController`
+- 에셋·씬: `Parchment.png` 새로, `Data/Tutorials/Combat.asset` 새로·`FieldCast.asset` 지움, Boot `UICanvas/TutorialWindow`·UIManager·DataManager 연결, Forest `Hud/Draw/Board`·`Hud/Shield`·잉크·펜 색·`_resultSeconds` 1.4·Player `_tapOnRelease`, Outpost 책상 `DrawArea/Board`·`Pen`
+- 다국어: Tutorial(`tutorial.combat.*` 8개 새로, `field_cast` 3개 지움, `draw.body` 고침), Cast(`cast.hint` 고침, `cast.recover`·`cast.result.fail` 새로), UI(`common.next`·`common.page_of` 새로). 시트·CSV·Unity 테이블 키 수 같음 (Tutorial 24·Cast 18·UI 28)
+
+### 사용자가 채울 것 (지금은 비어 있어 조용히 무시)
+
+- 주문별 성공 소리·효과: `Assets/Data/Spells/*.asset`의 `Success Sound`·`Effect Prefab`. 룬 혼자 던질 때는 `Assets/Data/Runes/*.asset`
+- 실패 소리: Boot `Managers` DataManager의 `Cast Fail Sound`
+- 양피지 그림: `Parchment.png`를 바꾸거나 Board 이미지 스프라이트 교체
+
+### 6-2와 겹침
+
+`plan-forest-dungeon.md`(6-2)의 설명창 내용은 이번에 6-1에 먼저 들어가서 2026-11-24에 6-2 plan에서 지움: `TutorialWindowView`·`TutorialWindowController`·`UIManager`·`TutorialSO` 변경, `Combat.asset`·Boot 연결, `tutorial.combat.*`·`common.next`·`common.page_of` 키, `FieldState`의 설명창·`field_cast` 알림, 확인 목록·커밋 메시지 줄. 6-2에서 튜토리얼 의뢰만 설명창을 띄우려던 `QuestSO._isTutorial`도 같이 뺌 (이제 어떤 적이든 첫 전투). 6-2 plan의 `FieldState` diff는 지금 코드(설명창 있는 `OnCombatChanged`·`CombatTutorialId`) 기준으로 이어짐.
+
+---
+
 ## 주의사항
 
-- 숲 그리기 칸 Image는 Raycast Target을 끔. 커서가 잠겨 있어 포인터 이벤트를 안 쓰고, `FieldCastController`가 마우스 이동량으로 펜을 옮겨 `PenDown`·`PenMove`·`PenUp`으로 넘김. 펜 좌표 기준은 그리기 칸 가운데 (`Draw` 피벗 가운데). 책상 연습은 지금처럼 포인터 이벤트
+- 그리기 칸(`SpellDrawController`)은 숲·책상 연습이 같이 씀. 시전 상태에선 커서를 잠그고 `Look` 이동량으로 펜을 옮겨 양피지 안에서 그림 (`_penSpeed`: 마우스 1픽셀 = 펜 1픽셀. 책상 월드 캔버스도 화면 픽셀로 환산). 칸 Image는 Raycast Target을 끔. 시전 중엔 캔버스 GraphicRaycaster를 꺼서 잠긴 커서 자리의 버튼이 안 눌리게 함. 펜 좌표 기준은 칸 가운데
 - Space는 `Player/Jump`·`Player/Cast` 둘 다. 시전 상태면 PlayerController가 잠겨 점프 안 하고 그리기 칸이 바로 판정, 아니면 그리기 칸이 무시하고 점프. 책상에서는 조작이 꺼져 있어 점프 안 함
 - 그리는 동안 시점·이동 잠금, 조준 중엔 이동만 잠금. 게임 시간은 그대로 흐름 (적이 다가옴)
 - 메뉴·일시정지가 열리면 Player 묶음이 꺼지며 좌클릭이 canceled로 와서 펜을 뗌. 대기·조준 시간은 게임 시간이라 멈춤
@@ -5329,7 +5362,7 @@ using System.Collections.Generic;
 - 숲에서 처음 생략 없이 그린 다중 룬 마법은 코덱스와 같은 토스트로 등록하고 비교 그림을 다시 만듦
 - 구역 이름은 구역·지도 %가 바뀔 때 다시 읽음 (숲에서 언어를 바꾸면 그때 바뀜)
 - 마우스 감도(PlayerController `_lookSensitivity`)와 펜 감도(`_penSpeed`)는 따로
-- 날짜·의뢰 기간·고블린 줍기·던전·리셋·전투 설명창은 6-2
+- 날짜·의뢰 기간·고블린 줍기·던전·리셋은 6-2 (전투 설명창은 시전 방식 변경 때 6-1에 먼저 들어감)
 
 ---
 
@@ -5340,6 +5373,7 @@ using System.Collections.Generic;
 - [x] 묶음 Editor-Localization — 시트 Field·Monster 탭, Tutorial·Objective·Hub·Tip 줄, UI `field.debug_info` 지움, CSV, 테이블 2개 만들기, Import, 누락 검사
 - [x] 묶음 Prefab·Data — 재질 6개, 프리팹 7개, MonsterSO 6개, 주문·룬·직업·의뢰 값, TutorialSO 2개, ObjectiveSO 2개
 - [x] 묶음 Editor-Scene — Forest 다시 구성 + NavMesh 굽기, Outpost(BedPoint·Stamina·HubView), Boot(메뉴 지도·UIManager·DataManager), 저장 뒤 다시 열어 확인
+- [x] 묶음 Cast-F — 시전 방식 변경 (F 꾹·양피지·실패 벌칙·우클릭 갈무리·책상 연습 같게·첫 전투 설명창). 컴파일 에러·경고 0, 씬 저장 뒤 다시 열어 연결 확인, 누락 번역은 ko·en 없음·빠진 글자 없음
 - [ ] 묶음 Verify — 사용자 확인
 
 구현 중 plan과 다르게 한 것 (2026-11-23):
@@ -5351,11 +5385,11 @@ using System.Collections.Generic;
 
 ## 확인 목록 (사용자, 에디터 Play)
 
-1. Forest 씬에서 Play (디버그 판: 용병 2명·첫 의뢰·방): 로딩창 → 숲 입구. 왼쪽 위 "숲 외곽 · 지도 N%", 오른쪽 위 미니맵(밝힌 곳·화살표·입구·목표), 왼쪽 동료 2줄, 아래 "체력 124 / 124"·"마나 100 / 100", 12시 "좌클릭으로 주문 그리기", 토스트 "임무 일지 갱신: 숲 외곽의 고블린 소탕"
+1. Forest 씬에서 Play (디버그 판: 용병 2명·첫 의뢰·방): 로딩창 → 숲 입구. 왼쪽 위 "숲 외곽 · 지도 N%", 오른쪽 위 미니맵(밝힌 곳·화살표·입구·목표), 왼쪽 동료 2줄, 아래 "체력 124 / 124"·"마나 100 / 100", 토스트 "임무 일지 갱신: 숲 외곽의 고블린 소탕" (12시 주문 안내는 없음)
 2. 이동: Shift 달리기 → 스태미나 막대가 나타나 줄다 다 쓰면 못 달림 → 쉬면 1초 뒤 차고 가득 차면 사라짐. 뒤로(S)는 Shift를 눌러도 걷기. Space 점프, Ctrl을 누르는 동안 낮아지고 느림 (앉은 채 점프·달리기 안 됨)
-3. 좌클릭 → 시점이 멈추고 가운데 펜 점, 마우스로 그림 (떼고 이어 그리기), 3초 뒤 또는 Space로 판정 → 결과 글. 불 룬 하나 → "불 룬 주문 N%" → 조준 원·"… 3.0초 · 좌클릭 시전 · 우클릭 취소" → 좌클릭이나 3초 뒤 작은 불탄. 응축 룬 하나 → "혼자서는 효과가 없다: 응축 룬 주문"
+3. F를 0.35초 넘게 꾹 → 가운데에 반투명 양피지·펜 점, 시점·이동 멈춤. 누른 채 좌클릭으로 그림 (떼고 이어 그리기), F를 떼면 판정 (양피지·선이 같이 사라지고 결과 글만 1.4초 남음. Space는 바로 판정). 불 룬 하나 → "불 룬 주문 N%" → 조준 원·"… 3.0초 · 좌클릭 시전 · 우클릭 취소" → 좌클릭이나 3초 뒤 작은 불탄. 응축 룬 하나 → "혼자서는 효과가 없다: 응축 룬 주문". 그림 없이 F를 떼면 아무 일 없음
 4. 디버그 판은 마법이 다 등록됨: 화염 투사·화염구(폭발)·물 투사(밀쳐냄)·화염 확산(세 발)·화염 벽(조준점 불벽 4초)·방호막(바로, 다시 쓰면 "방호막은 N초 뒤에…"). 마나가 모자라면 "마나가 부족하다". 그리는 동안 WASD 안 됨, 조준 중엔 시점만
-5. 고블린 무리 가까이 → 무리째 달려옴, 12시 안내가 사라짐. 다 쓰러지거나 포기하면 다시 나옴. 맞힌 적은 위 가운데 이름·체력 2.5초. 맞으면 화면이 붉게 번쩍, 체력 30% 밑이면 계속 붉음
+5. 고블린 무리 가까이 → 무리째 달려오면서 게임이 멈추고 가운데에 전투 설명창 (6장, 다음·닫기, Esc로도 닫음). 닫으면 다시 흐르고, 이 PC에선 다음 전투에 안 나옴. 맞힌 적은 위 가운데 이름·체력 2.5초. 맞으면 화면이 붉게 번쩍, 체력 30% 밑이면 계속 붉음
 6. 용병: 따라오다 가까운 적과 싸움, 레인저는 멀리서 화살. 용병이 쓰러지면 "동료를 잃었다: 이름", 줄이 흐려짐
 7. 고블린 9마리를 다 쓰러뜨리면 "목표 달성: 숲 외곽 정리 (임시). 숲 입구로 돌아가자" → 임무 일지 "숲 입구로 돌아가기", 지도 목표 표시가 입구로
 8. 입구 표지판을 보면 "[F] 돌아가기" → 전초기지 정문 밖, 경비병 자막, "의뢰를 끝냈어" 토스트. 게시판 버튼 '끝냄', 임무 일지 목표 없음
@@ -5366,6 +5400,12 @@ using System.Collections.Generic;
 13. 새 게임 → 정상 흐름으로 숲 → 같은 확인. 불·물을 안 고른 판은 혼자 공격할 수단 없음 (용병이 싸움)
 14. 영어로 바꾸면 숲 글자·몬스터 이름·튜토리얼·목표 영어
 15. 콘솔 에러·경고 없음 (NavMesh 경고 포함)
+16. F를 짧게(0.35초 미만) 눌렀다 뗌 → 숲에선 **뗄 때** 상호작용 (입구 표지판·떨어진 금화 줍기), 길게 누르면 상호작용 없이 시전 상태. 전초기지는 누르는 즉시 상호작용 (그대로)
+17. 마법이 아닌 그림 판정 (아무 선이나) → 붉은 번쩍·체력 −10·마나 −15·스태미나 −30, 결과 글 "실패: …". 실패 소리는 비어 있어 조용함
+18. 시전 상태에서 우클릭: 그린 그림이 불 룬 하나면 "갈무리 중 · 1.0초" 동안 이동·시점·F가 안 됨, 2룬 마법이면 2초. 마법이 아닌 그림이면 바로 풀림. 3초 조준 중 우클릭도 같은 갈무리
+19. 성공 소리·효과: 슬롯이 비어 있어 지금은 임시 모양만. 주문 하나에 소리·효과 프리팹을 넣고 시전해 소리가 나고 투사체·불벽에 효과가 붙는지 확인
+20. 책상 코덱스 연습 탭: F를 꾹 → 연습 칸에 양피지·펜 점, F를 떼면 판정·결과 글이 칸에 남음 (숲과 같은 방식, 쏘지 않음). 우클릭 갈무리·Space도 같음. 시전 중엔 마우스가 칸 안에서만 움직이고 다른 버튼이 안 눌림
+21. 그리는 중 Esc → 시전 취소·메뉴, 닫으면 커서·이동·시점 정상. 조준 중 Esc → 조준 시간 멈췄다 닫으면 이어짐
 
 ---
 

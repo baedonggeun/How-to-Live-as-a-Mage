@@ -40,6 +40,9 @@ namespace Mage
         /// <summary>시전했는지</summary>
         public bool IsCast { get; }
 
+        /// <summary>시전 실패인지: 그린 그림이 마법이 아니었음 (그린 것이 없음·직접 취소는 실패가 아님)</summary>
+        public bool IsFailure => !IsCast && Reason != SpellJudgeReason.Empty && Reason != SpellJudgeReason.Canceled;
+
         /// <summary>취소 이유 (시전이면 None)</summary>
         public SpellJudgeReason Reason { get; }
 

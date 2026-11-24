@@ -17,8 +17,8 @@ namespace Mage
         /// <summary>지도 탭 입력 액션 경로 (전역 액션, M. 누르면 지도 튜토리얼 배움)</summary>
         const string MapActionPath = "UI/Map";
 
-        /// <summary>현장 시전 튜토리얼 id</summary>
-        const string FieldCastTutorialId = "field_cast";
+        /// <summary>전투 설명창 튜토리얼 id (첫 전투에 한 번)</summary>
+        const string CombatTutorialId = "combat";
 
         /// <summary>지도 튜토리얼 id</summary>
         const string MapTutorialId = "map";
@@ -126,7 +126,7 @@ namespace Mage
             SpawnParty(run);
             SpawnEnemies(run);
             SpawnGold(run);
-            _view.Cast.Init(run, DataManager.Instance.Spells, DataManager.Instance.Runes, _service, _view.Player, _view.PlayerUnit);
+            _view.Cast.Init(run, DataManager.Instance.Spells, DataManager.Instance.Runes, _service, _view.Player, _view.PlayerUnit, _view.Detector);
             _view.FogReveal.Init(_fog);
             _view.HudBinder.Bind(_view.PlayerUnit, _view.Player, _view.Cast, _mercs, _service, _fog, ZoneAt);
             _view.Hud.Minimap.Bind(_fog, _view.Player.transform, ObjectivePosition, _view.Entry.position);
@@ -137,7 +137,7 @@ namespace Mage
         }
         #endregion
 
-        #region Reveal - 커서 잠금, 지점·죽음·전투 상황·M 구독, 조작 켬, 안 배운 12시 안내 알림, 들어올 때 목표가 바뀌었으면 알림 (로딩창을 넘길 때 누른 키는 구독 전이라 안 들어감)
+        #region Reveal - 커서 잠금, 지점·죽음·전투 상황·M 구독, 조작 켬, 안 배운 12시 안내(지도) 알림, 들어올 때 목표가 바뀌었으면 알림 (로딩창을 넘길 때 누른 키는 구독 전이라 안 들어감)
         public override void Reveal()
         {
             if (_view == null) return;
@@ -150,7 +150,6 @@ namespace Mage
             if (_map != null) _map.performed += OnMapPressed;
             else Debug.LogError($"[Field] {MapActionPath} 액션 없음. 지도 튜토리얼을 못 배움");
             SetControl(true);
-            TutorialManager.Instance.Notify(FieldCastTutorialId);
             TutorialManager.Instance.Notify(MapTutorialId);
             if (_objectiveChanged) NotifyObjective();
         }
@@ -433,9 +432,28 @@ namespace Mage
         int ZoneAt() => Mathf.Clamp(Mathf.FloorToInt((_view.Player.transform.position.z - _view.MapArea.yMin) / _view.ZoneDepth) + 1, 1, _view.ZoneCount);
         #endregion
 
-        #region OnCombatChanged - 전투 상황이면 12시 안내를 숨기고, 끝나면 다시 보임
+        #region OnCombatChanged - 전투 상황이면 12시 안내를 숨기고 (이 PC가 처음이면) 게임을 멈추고 설명창. 끝나면 안내를 다시 보임
         /// <param name="inCombat">전투 상황인지</param>
-        void OnCombatChanged(bool inCombat) => TutorialManager.Instance.SetSuppressed(inCombat);
+        void OnCombatChanged(bool inCombat)
+        {
+            TutorialManager.Instance.SetSuppressed(inCombat);
+            if (inCombat) TryShowCombatTutorial();
+        }
+        #endregion
+
+        #region TryShowCombatTutorial - 이 PC가 아직 안 본 전투 설명창이면 게임을 멈추고 띄움 (닫으면 배움). 죽어서 가는 중엔 안 띄움
+        void TryShowCombatTutorial()
+        {
+            if (_dying || TutorialManager.Instance.IsLearned(CombatTutorialId)) return;
+            // 전투 설명창 튜토리얼
+            TutorialSO tutorial = DataManager.Instance.FindTutorial(CombatTutorialId);
+            if (tutorial == null)
+            {
+                Debug.LogWarning($"[Field] 모르는 튜토리얼 id: {CombatTutorialId}");
+                return;
+            }
+            UIManager.Instance.ShowTutorialWindow(tutorial, () => TutorialManager.Instance.MarkLearned(CombatTutorialId));
+        }
         #endregion
 
         #region OnMapPressed - M을 누르면 지도 배움

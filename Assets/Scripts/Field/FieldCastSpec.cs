@@ -1,6 +1,8 @@
+using UnityEngine;
+
 namespace Mage
 {
-    /// <summary>현장에서 시전할 주문 하나 (판정 뒤 만듦): 효과·마나·위력·범위·시간·재사용, 이름(지금 언어)·일치율. 정확(90% 이상)이면 위력·방호막 지속 ×1.4 (v1)</summary>
+    /// <summary>현장에서 시전할 주문 하나 (판정 뒤 만듦): 효과·마나·위력·범위·시간·재사용, 이름(지금 언어)·일치율, 룬 수(갈무리 초), 성공 사운드·효과 프리팹. 정확(90% 이상)이면 위력·방호막 지속 ×1.4 (v1)</summary>
     public readonly struct FieldCastSpec
     {
         /// <summary>정확할 때 배율 (v1)</summary>
@@ -30,6 +32,15 @@ namespace Mage
         /// <summary>전체 일치율 (0~1)</summary>
         public float Accuracy { get; }
 
+        /// <summary>마법의 룬 수 (룬 주문 1, 2룬 마법 2 …. 조준 중 취소하면 이 수 × 1초 갈무리)</summary>
+        public int Tier { get; }
+
+        /// <summary>성공 사운드 (없으면 null)</summary>
+        public SoundDataSO Sound { get; }
+
+        /// <summary>효과 프리팹 (없으면 null. 투사체·불벽·방호막에 입힘)</summary>
+        public GameObject EffectPrefab { get; }
+
         /// <summary>정확하게 그렸는지 (일치율 90% 이상)</summary>
         public bool IsExact => Accuracy >= SpellRecognitionCalculator.ExactAccuracy;
 
@@ -45,7 +56,11 @@ namespace Mage
         /// <param name="cooldown">재사용 (초)</param>
         /// <param name="name">이름</param>
         /// <param name="accuracy">전체 일치율</param>
-        public FieldCastSpec(SpellFieldEffect effect, int manaCost, float power, float area, float duration, float cooldown, string name, float accuracy)
+        /// <param name="tier">마법의 룬 수</param>
+        /// <param name="sound">성공 사운드</param>
+        /// <param name="effectPrefab">효과 프리팹</param>
+        public FieldCastSpec(SpellFieldEffect effect, int manaCost, float power, float area, float duration, float cooldown, string name, float accuracy,
+            int tier, SoundDataSO sound, GameObject effectPrefab)
         {
             Effect = effect;
             ManaCost = manaCost;
@@ -55,6 +70,9 @@ namespace Mage
             Cooldown = cooldown;
             Name = name ?? string.Empty;
             Accuracy = accuracy;
+            Tier = tier;
+            Sound = sound;
+            EffectPrefab = effectPrefab;
         }
         #endregion
 
@@ -62,16 +80,18 @@ namespace Mage
         /// <param name="spell">마법</param>
         /// <param name="name">이름 (지금 언어)</param>
         /// <param name="accuracy">전체 일치율</param>
-        public static FieldCastSpec FromSpell(SpellSO spell, string name, float accuracy) =>
-            new(spell.FieldEffect, spell.ManaCost, spell.Power, spell.Area, spell.Duration, spell.Cooldown, name, accuracy);
+        /// <param name="tier">마법의 룬 수</param>
+        public static FieldCastSpec FromSpell(SpellSO spell, string name, float accuracy, int tier) =>
+            new(spell.FieldEffect, spell.ManaCost, spell.Power, spell.Area, spell.Duration, spell.Cooldown, name, accuracy, tier, spell.SuccessSound, spell.EffectPrefab);
         #endregion
 
         #region FromRune - 룬 하나를 혼자 던질 때 값으로 만듦 (지속·재사용 없음)
         /// <param name="rune">룬</param>
         /// <param name="name">이름 (지금 언어)</param>
         /// <param name="accuracy">전체 일치율</param>
-        public static FieldCastSpec FromRune(RuneSO rune, string name, float accuracy) =>
-            new(rune.SoloEffect, rune.SoloManaCost, rune.SoloPower, rune.SoloArea, 0f, 0f, name, accuracy);
+        /// <param name="tier">마법의 룬 수 (룬 주문은 1)</param>
+        public static FieldCastSpec FromRune(RuneSO rune, string name, float accuracy, int tier) =>
+            new(rune.SoloEffect, rune.SoloManaCost, rune.SoloPower, rune.SoloArea, 0f, 0f, name, accuracy, tier, rune.SuccessSound, rune.EffectPrefab);
         #endregion
     }
 }

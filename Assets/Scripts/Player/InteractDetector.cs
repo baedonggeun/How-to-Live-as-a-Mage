@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 namespace Mage
 {
-    /// <summary>눈 앞 일정 거리 안에서 바라보는 상호작용 지점을 찾고, 상호작용 키(Player/Interact, 기본 F)를 누르면 알림. 처음엔 꺼져 있고 켜고 끄는 건 상태가 함</summary>
+    /// <summary>눈 앞 일정 거리 안에서 바라보는 상호작용 지점을 찾고, 상호작용 키(Player/Interact, 기본 F)를 누르면 알림. 뗄 때 상호작용을 켜면(숲) 0.35초보다 짧게 눌렀다 뗄 때만 알리고, 그 이상 꾹 누르면 주문 시전이라 알리지 않음. 처음엔 꺼져 있고 켜고 끄는 건 상태가 함</summary>
     public sealed class InteractDetector : MonoBehaviour
     {
         /// <summary>상호작용 입력 액션 경로 (전역 액션, 기본 F)</summary>
@@ -12,6 +12,9 @@ namespace Mage
 
         /// <summary>키 이름을 읽을 바인딩 그룹 (키보드·마우스)</summary>
         const string KeyboardMouseGroup = "Keyboard&Mouse";
+
+        /// <summary>꾹 누르기로 보는 시간 (초). 이보다 짧게 눌렀다 떼면 단발 (뗄 때 상호작용), 이 이상 누르면 꾹 누르기 (주문 시전 시작). 주문 그리기 패드도 이 값을 읽음</summary>
+        public const float HoldSeconds = 0.35f;
 
         /// <summary>레이를 쏠 눈 (플레이어 머리. 인스펙터에서만 연결)</summary>
         [SerializeField] Transform _eye;
@@ -22,11 +25,20 @@ namespace Mage
         /// <summary>레이가 맞을 레이어</summary>
         [SerializeField] LayerMask _mask = ~0;
 
+        /// <summary>단발을 키를 뗄 때 상호작용으로 칠지 (숲: 켬. 꾹 누르기와 구분하려고. 전초기지: 끔. 누르는 즉시 상호작용)</summary>
+        [SerializeField] bool _tapOnRelease;
+
         /// <summary>상호작용 입력. 없으면 null (Awake에서 에러 로그)</summary>
         InputAction _interact;
 
         /// <summary>레이에 맞은 것 (순서 없음. 매 프레임 다시 씀)</summary>
         readonly RaycastHit[] _hits = new RaycastHit[8];
+
+        /// <summary>상호작용 키를 누른 시각 (실제 시간, 초)</summary>
+        float _pressedAt;
+
+        /// <summary>상호작용 키를 누르고 있는지 (뗄 때 상호작용이 켜졌을 때만 씀)</summary>
+        bool _pressed;
 
         /// <summary>지금 바라보는 지점. 없으면 null</summary>
         public InteractPointView Target { get; private set; }
@@ -52,17 +64,24 @@ namespace Mage
         }
         #endregion
 
-        #region OnEnable - 상호작용 구독
+        #region OnEnable - 상호작용 키 누름·뗌 구독
         void OnEnable()
         {
-            if (_interact != null) _interact.performed += OnInteract;
+            if (_interact == null) return;
+            _interact.performed += OnInteract;
+            _interact.canceled += OnReleased;
         }
         #endregion
 
-        #region OnDisable - 상호작용 구독 해제, 바라보던 지점 비움 (알림)
+        #region OnDisable - 구독 해제, 누르던 것·바라보던 지점 비움 (알림)
         void OnDisable()
         {
-            if (_interact != null) _interact.performed -= OnInteract;
+            if (_interact != null)
+            {
+                _interact.performed -= OnInteract;
+                _interact.canceled -= OnReleased;
+            }
+            _pressed = false;
             SetTarget(null);
         }
         #endregion
@@ -98,10 +117,27 @@ namespace Mage
         }
         #endregion
 
-        #region OnInteract - 바라보는 지점이 있으면 상호작용 알림
+        #region OnInteract - 상호작용 키를 누름: 뗄 때 상호작용이 꺼져 있으면 바라보는 지점에 바로 알림, 켜져 있으면 누른 시각만 적음
         /// <param name="context">입력 정보 (안 씀)</param>
         void OnInteract(InputAction.CallbackContext context)
         {
+            if (_tapOnRelease)
+            {
+                _pressed = true;
+                _pressedAt = Time.unscaledTime;
+                return;
+            }
+            if (Target != null) Interacted?.Invoke(Target);
+        }
+        #endregion
+
+        #region OnReleased - 상호작용 키를 뗌 (뗄 때 상호작용이 켜졌을 때만): HoldSeconds보다 짧게 눌렀다 뗐으면 단발이라 바라보는 지점에 알림. 꾹 눌렀으면 주문 시전이라 상호작용 아님. 창·메뉴가 떠서 입력이 꺼지며 온 떼기도 아님
+        /// <param name="context">입력 정보 (안 씀)</param>
+        void OnReleased(InputAction.CallbackContext context)
+        {
+            if (!_tapOnRelease || !_pressed) return;
+            _pressed = false;
+            if (Time.timeScale <= 0f || Time.unscaledTime - _pressedAt >= HoldSeconds) return;
             if (Target != null) Interacted?.Invoke(Target);
         }
         #endregion

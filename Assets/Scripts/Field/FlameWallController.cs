@@ -53,7 +53,9 @@ namespace Mage
         /// <param name="damagePerSecond">초당 피해</param>
         /// <param name="source">만든 몸</param>
         /// <param name="service">현장 규칙</param>
-        public void Launch(Vector3 center, Vector3 along, float length, float seconds, float damagePerSecond, FieldUnitController source, FieldService service)
+        /// <param name="visualPrefab">벽 모습으로 입힐 효과 프리팹 (없으면 임시 도형)</param>
+        public void Launch(Vector3 center, Vector3 along, float length, float seconds, float damagePerSecond, FieldUnitController source, FieldService service,
+            GameObject visualPrefab = null)
         {
             _service = service ?? throw new System.ArgumentNullException(nameof(service));
             _source = source;
@@ -68,6 +70,15 @@ namespace Mage
             {
                 _visual.localScale = new Vector3(VisualWidth, VisualHeight, length);
                 _visual.localPosition = Vector3.up * (VisualHeight * 0.5f);
+            }
+            if (visualPrefab != null)
+            {
+                // 입힌 효과 (벽 가운데에 벽 방향으로. 콜라이더는 꺼서 탄이 벽에 안 맞게)
+                GameObject custom = Instantiate(visualPrefab, transform);
+                custom.transform.localPosition = Vector3.zero;
+                custom.transform.localRotation = Quaternion.identity;
+                foreach (Collider collider in custom.GetComponentsInChildren<Collider>()) collider.enabled = false;
+                if (_visual != null) _visual.gameObject.SetActive(false);
             }
             _damagePerTick = damagePerSecond * TickSeconds;
             _left = seconds;

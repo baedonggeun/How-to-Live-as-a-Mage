@@ -651,6 +651,7 @@ namespace Mage
         void OnJudged(SpellJudgeSpec spec)
         {
             if (_run == null) return;
+            PlayResultSound(spec);
             if (spec.Reason != SpellJudgeReason.Canceled) TutorialManager.Instance.MarkLearned(DrawTutorialId);
             if (!spec.IsCast || spec.Candidate.Omit.Count > 0) return;
             // 시전한 그림 번호
@@ -659,6 +660,28 @@ namespace Mage
             RebuildCandidates();
             BuildPages();
             if (_tab == Tab.Practice) RebuildList();
+        }
+        #endregion
+
+        #region PlayResultSound - 성공이면 그 마법의 성공 사운드, 실패면 실패 사운드 (실전과 같게. 소리를 안 넣었으면 조용히 넘어감. 체력·마나·효과는 책상에 없어서 소리까지만)
+        /// <param name="spec">판정 결과</param>
+        void PlayResultSound(SpellJudgeSpec spec)
+        {
+            // 소리를 낼 곳
+            AudioManager audio = AudioManager.Instance;
+            if (audio == null) return;
+            if (spec.IsFailure)
+            {
+                audio.Play(DataManager.Instance.CastFailSound);
+                return;
+            }
+            if (!spec.IsCast) return;
+            // 시전한 그림 번호
+            int index = spec.Candidate.ShapeIndex;
+            // 룬 주문이면 룬 번호
+            int rune = index - _spells.Count;
+            if (index >= 0 && index < _spells.Count) audio.Play(_spells[index] != null ? _spells[index].SuccessSound : null);
+            else if (rune >= 0 && rune < _runes.Count) audio.Play(_runes[rune] != null ? _runes[rune].SuccessSound : null);
         }
         #endregion
 

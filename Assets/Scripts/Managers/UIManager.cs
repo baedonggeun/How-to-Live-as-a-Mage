@@ -71,6 +71,9 @@ namespace Mage
         /// <summary>메뉴 창 지도 탭 지도 (Boot 씬 UICanvas/GameMenu/…/MapPage/Map. 출처는 상태가 SetMapSource로 넘김)</summary>
         [SerializeField] MapUIBinder _menuMap;
 
+        /// <summary>설명창 (Boot 씬 UICanvas 자식. 게시판 창 위)</summary>
+        [SerializeField] TutorialWindowController _tutorialWindow;
+
         /// <summary>자막을 숨기는 코루틴. 새 자막이 오면 끊고 다시 시작</summary>
         Coroutine _hideSubtitle;
 
@@ -230,6 +233,14 @@ namespace Mage
 
             if (_menuMap == null) Debug.LogError("[UI] 메뉴 지도 MapUIBinder 연결 안 됨");
 
+            if (_tutorialWindow == null)
+                Debug.LogError("[UI] TutorialWindowController 연결 안 됨");
+            else
+            {
+                _tutorialWindow.gameObject.SetActive(false);
+                if (_tutorialWindow.View != null) _tutorialWindow.View.CloseButton.onClick.AddListener(HideTutorialWindow);
+            }
+
             _map = FindAction(MapActionPath);
             if (_map != null) _map.performed += OnMap;
             _journal = FindAction(JournalActionPath);
@@ -359,6 +370,8 @@ namespace Mage
                 HideConfirm();
             else if (_settings != null && _settings.gameObject.activeSelf)
                 HideSettings();
+            else if (_tutorialWindow != null && _tutorialWindow.IsOpen)
+                HideTutorialWindow();
             else if (_dialogue != null && _dialogue.IsOpen)
                 HideDialogue();
             else if (_recruit != null && _recruit.IsOpen)
@@ -433,11 +446,12 @@ namespace Mage
             || IsHubWindowOpen();
         #endregion
 
-        #region IsHubWindowOpen - 대화·영입 창·게시판 창 중 하나라도 떠 있는지
+        #region IsHubWindowOpen - 대화·영입 창·게시판 창·설명창 중 하나라도 떠 있는지
         bool IsHubWindowOpen() =>
             (_dialogue != null && _dialogue.IsOpen)
             || (_recruit != null && _recruit.IsOpen)
-            || (_questBoard != null && _questBoard.IsOpen);
+            || (_questBoard != null && _questBoard.IsOpen)
+            || (_tutorialWindow != null && _tutorialWindow.IsOpen);
         #endregion
 
         #region RefreshMenuPause - 대화·영입·게시판 창이 하나라도 떠 있으면 게임 멈춤, 다 닫히면 되돌림 (창을 바꿔 열 때 안 풀리게 열기 → 닫기 순서로 부름)
@@ -524,6 +538,30 @@ namespace Mage
         public void HideQuestBoard()
         {
             if (_questBoard != null) _questBoard.Hide();
+            RefreshMenuPause();
+        }
+        #endregion
+
+        #region ShowTutorialWindow - 설명창을 띄우고 게임 멈춤. 닫히면 onClosed (닫기 버튼·Esc). 창이 없으면 바로 onClosed
+        /// <param name="tutorial">보일 튜토리얼 (장이 있는 것)</param>
+        /// <param name="onClosed">닫히면 할 일</param>
+        public void ShowTutorialWindow(TutorialSO tutorial, Action onClosed)
+        {
+            if (_tutorialWindow == null)
+            {
+                Debug.LogError("[UI] TutorialWindowController 연결 안 됨");
+                onClosed?.Invoke();
+                return;
+            }
+            _tutorialWindow.Show(tutorial, onClosed);
+            RefreshMenuPause();
+        }
+        #endregion
+
+        #region HideTutorialWindow - 설명창을 닫음 (할 일을 부름). 다른 창이 없으면 게임을 다시 돌림
+        public void HideTutorialWindow()
+        {
+            if (_tutorialWindow != null) _tutorialWindow.Hide();
             RefreshMenuPause();
         }
         #endregion

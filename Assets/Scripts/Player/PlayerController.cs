@@ -176,6 +176,17 @@ namespace Mage
         }
         #endregion
 
+        #region DrainStamina - 스태미나를 깎음 (시전 실패 벌칙). 0이 되면 지치고, 회복은 잠깐 뒤부터
+        /// <param name="amount">깎을 양 (0 이하면 무시)</param>
+        public void DrainStamina(float amount)
+        {
+            if (amount <= 0f) return;
+            Stamina = Mathf.Max(0f, Stamina - amount);
+            _regenWait = _regenDelay;
+            if (Stamina <= 0f) _exhausted = true;
+        }
+        #endregion
+
         #region OnDisable - 꺼지면 달리는 중 표시를 끔
         void OnDisable() => IsSprinting = false;
         #endregion

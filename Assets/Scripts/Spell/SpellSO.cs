@@ -78,6 +78,12 @@ namespace Mage
         /// <summary>다시 쓸 수 있을 때까지 (초. 방호막)</summary>
         [SerializeField, Min(0f)] float _cooldown;
 
+        /// <summary>성공 사운드 (시전이 받아들여진 순간 2D로 남. 비면 무음)</summary>
+        [SerializeField] SoundDataSO _successSound;
+
+        /// <summary>효과 프리팹 (투사체·불벽·방호막에 입힘. 비면 임시 도형)</summary>
+        [SerializeField] GameObject _effectPrefab;
+
         /// <summary>인식기에 넘길 그림 (처음 쓸 때 만듦. 인스펙터에서 고치면 비움)</summary>
         [NonSerialized] SpellShapeEntry _shape;
 
@@ -113,6 +119,12 @@ namespace Mage
 
         /// <summary>다시 쓸 수 있을 때까지 (초)</summary>
         public float Cooldown => _cooldown;
+
+        /// <summary>성공 사운드 (없으면 null)</summary>
+        public SoundDataSO SuccessSound => _successSound;
+
+        /// <summary>효과 프리팹 (없으면 null)</summary>
+        public GameObject EffectPrefab => _effectPrefab;
 
         /// <summary>인식기에 넘길 그림 (룬 id와 획 점)</summary>
         public SpellShapeEntry Shape => _shape ??= BuildShape();

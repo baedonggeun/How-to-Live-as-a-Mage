@@ -68,25 +68,9 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 655830354132992
-    m_Localized: Draw with left-click on the Spell Practice tab of your codex. You
-      can keep drawing within 3 seconds after letting go; after 3 seconds without
-      drawing it is judged. Space judges right away, right-click or Esc cancels.
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1103303975534592
-    m_Localized: Left-click to draw a spell
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1103304004894720
-    m_Localized: Casting in the Field
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1103304004894721
-    m_Localized: Left-click to draw in the middle of the screen. The pen follows
-      your mouse, and you can keep drawing for 3 seconds after letting go. Press
-      Space to judge right away. If it matches, aim for 3 seconds and left-click
-      to fire (it fires on its own when time runs out). Right-click cancels. Fire
-      and Water runes can be thrown on their own.
+    m_Localized: On the Spell Practice tab of your codex, hold F to start. While
+      holding, left-click to draw lines; release F to judge. Space judges right away;
+      right-click or Esc cancels (right-click costs recovery time).
     m_Metadata:
       m_Items: []
   - m_Id: 1103304004894722
@@ -101,6 +85,54 @@ MonoBehaviour:
     m_Localized: Walk to reveal the forest map. Revealed areas stay revealed. The
       minimap at the top right shows your surroundings; press M to see the whole
       forest.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1321611895144448
+    m_Localized: Combat
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1321611907727360
+    m_Localized: "Hold F to draw \u2192 release F to judge \u2192 aim for 3 seconds
+      \u2192 fire. A wrong drawing fails and costs health, mana, and stamina. Canceling
+      with right-click makes you recover for one second per rune. Fire and Water
+      runes can be thrown on their own. Companions fight on their own and die if
+      they fall. If you fall, you drop your gold and wake up at the inn."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1321611907727361
+    m_Localized: Enemies are coming. Hold F to start casting; a parchment appears
+      in the middle of the screen. While you hold F, hold the left mouse button and
+      move the mouse to draw a spell on the parchment. You can draw in several strokes.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1321611907727362
+    m_Localized: Release F to judge your drawing. It must match a drawing in your
+      Codex. A wrong drawing makes the magic fail, and you lose health, mana, and
+      stamina. Tapping F for less than 0.35 seconds interacts instead of casting.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1321611907727363
+    m_Localized: 'Right-click while drawing to cancel. If your drawing is a magic,
+      you can do nothing while you recover for one second per rune: 1 second for
+      a rune spell, 2 seconds for a 2-rune magic. A drawing that isn''t a magic is
+      canceled right away.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1321611907727364
+    m_Localized: If it matches, aim with your mouse for 3 seconds. Left-click to
+      fire, or it fires on its own when time runs out. You can't move while aiming.
+      Right-clicking while aiming makes you recover too.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1321611907727365
+    m_Localized: Runes that create something, like Fire and Water, can be thrown
+      on their own. Condense, Line and Block do nothing alone. Multi-rune magic is
+      stronger.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1321611907727366
+    m_Localized: Your companions follow and fight on their own. A fallen companion
+      dies. If you fall, you drop your gold where you fell and wake up at the inn.
     m_Metadata:
       m_Items: []
   references:

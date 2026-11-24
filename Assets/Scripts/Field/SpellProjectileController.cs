@@ -69,6 +69,9 @@ namespace Mage
         /// <summary>터짐이 보일 남은 시간 (초)</summary>
         float _burstLeft;
 
+        /// <summary>날아가는 모습으로 입힌 효과 프리팹 (없으면 null)</summary>
+        GameObject _custom;
+
         #region Launch - 쏨: 방향·속도·비행 시간·피해·폭발·밀쳐내기·노리는 편·쏜 몸·현장 규칙·색을 받음
         /// <param name="direction">방향 (0이면 지금 앞)</param>
         /// <param name="speed">속도 (m/s)</param>
@@ -80,8 +83,9 @@ namespace Mage
         /// <param name="source">쏜 몸</param>
         /// <param name="service">현장 규칙</param>
         /// <param name="color">색</param>
+        /// <param name="visualPrefab">날아가는 모습으로 입힐 효과 프리팹 (없으면 임시 도형)</param>
         public void Launch(Vector3 direction, float speed, float lifeSeconds, float damage, float splashRadius, float push,
-            FieldTeam targetTeam, FieldUnitController source, FieldService service, Color color)
+            FieldTeam targetTeam, FieldUnitController source, FieldService service, Color color, GameObject visualPrefab = null)
         {
             _service = service ?? throw new System.ArgumentNullException(nameof(service));
             _direction = direction.sqrMagnitude > 0.0001f ? direction.normalized : transform.forward;
@@ -97,12 +101,25 @@ namespace Mage
             // 색 칠하기
             var block = new MaterialPropertyBlock();
             block.SetColor(BaseColorId, color);
-            if (_visual != null) _visual.SetPropertyBlock(block);
             if (_burst != null)
             {
                 _burst.SetPropertyBlock(block);
                 _burst.gameObject.SetActive(false);
             }
+            if (visualPrefab != null) AttachVisual(visualPrefab);
+            else if (_visual != null) _visual.SetPropertyBlock(block);
+        }
+        #endregion
+
+        #region AttachVisual - 날아가는 모습을 받은 효과 프리팹으로 바꿈 (임시 도형은 끔, 콜라이더는 꺼서 스스로 안 맞게)
+        /// <param name="prefab">효과 프리팹</param>
+        void AttachVisual(GameObject prefab)
+        {
+            _custom = Instantiate(prefab, transform);
+            _custom.transform.localPosition = Vector3.zero;
+            _custom.transform.localRotation = Quaternion.identity;
+            foreach (Collider collider in _custom.GetComponentsInChildren<Collider>()) collider.enabled = false;
+            if (_visual != null) _visual.enabled = false;
         }
         #endregion
 
@@ -183,12 +200,17 @@ namespace Mage
         }
         #endregion
 
-        #region Finish - 날아가는 모습을 끄고, 터졌으면 터짐 구를 폭발 크기로 잠깐 켬
+        #region Finish - 날아가는 모습(입힌 효과 포함)을 끄고, 터졌으면 터짐 구를 폭발 크기로 잠깐 켬
         /// <param name="burst">터짐을 보일지</param>
         void Finish(bool burst)
         {
             _done = true;
             if (_visual != null) _visual.enabled = false;
+            if (_custom != null)
+            {
+                Destroy(_custom);
+                _custom = null;
+            }
             _burstLeft = 0f;
             if (!burst || _burst == null) return;
             _burst.transform.localScale = Vector3.one * (Mathf.Max(MinBurstRadius, _splashRadius) * 2f);

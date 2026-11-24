@@ -95,6 +95,16 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2778220093525459068
+  - m_Id: 665802081206272
+    m_Key: cast.recover
+    m_Metadata:
+      m_Items:
+      - rid: 2778220139109941333
+  - m_Id: 665802106372096
+    m_Key: cast.result.fail
+    m_Metadata:
+      m_Items:
+      - rid: 2778220139109941334
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
@@ -179,5 +189,14 @@ MonoBehaviour:
     - rid: 2778220093525459068
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_CommentText: "\uADF8\uB9AC\uAE30 \uCE78 \uC548\uB0B4. {0} \uB300\uAE30
-          \uCD08"
+        m_CommentText: "\uADF8\uB9AC\uAE30 \uCE78 \uC548\uB0B4"
+    - rid: 2778220139109941333
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uAC08\uBB34\uB9AC \uC911 (\uC6B0\uD074\uB9AD \uCDE8\uC18C
+          \uB4A4). {0} \uB0A8\uC740 \uCD08"
+    - rid: 2778220139109941334
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD310\uC815: \uC2E4\uD328 (\uADF8\uB9BC\uC774 \uB9C8\uBC95\uC774
+          \uC544\uB2D8). {0} \uC774\uC720"

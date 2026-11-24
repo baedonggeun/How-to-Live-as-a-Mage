@@ -44,6 +44,12 @@ namespace Mage
         /// <summary>도감 주문 전부 (연결 순서, 읽기 전용)</summary>
         public IReadOnlyList<SpellSO> Spells => _spells;
 
+        /// <summary>시전 실패 사운드 (숲·책상 연습 공용. Boot에서 연결. 비면 무음)</summary>
+        [SerializeField] SoundDataSO _castFailSound;
+
+        /// <summary>시전 실패 사운드 (없으면 null)</summary>
+        public SoundDataSO CastFailSound => _castFailSound;
+
         #region InitSingleton - 팁·튜토리얼·직업·의뢰·주문 목록 검사, 룬 목록 검사: 비었는지, 빈 칸, 빈 id, id 겹침, 그림 획 없음·점 2개 미만 획
         protected override void InitSingleton()
         {
