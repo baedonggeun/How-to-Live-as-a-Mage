@@ -42,25 +42,26 @@ namespace Mage
         /// <summary>세로 칸 수</summary>
         public int Height { get; }
 
-        /// <summary>밝힌 칸 배열 (판 데이터에 넣음)</summary>
-        public bool[] Revealed => _revealed;
-
         /// <summary>진행도 (센 구획 / 전체 구획, 0~1)</summary>
         public float Progress => _blockCounted.Length > 0 ? (float)_counted / _blockCounted.Length : 0f;
 
         /// <summary>밝힐 때마다 오름 (지도 그림을 다시 그릴지)</summary>
         public int Version { get; private set; }
 
-        #region FogMapService - 지역과 앞서 밝힌 칸(없거나 크기가 다르면 새로)을 받아 구획 수를 셈
+        #region FogMapService - 지역과 안개 판 데이터를 받아 앞서 밝힌 칸(없거나 크기가 다르면 새로 만들어 판 데이터에 넣음)으로 구획 수를 셈
         /// <param name="area">지역 (x·y = 월드 x·z 최소)</param>
-        /// <param name="revealed">앞서 밝힌 칸 (판 데이터, 없으면 null)</param>
-        public FogMapService(Rect area, bool[] revealed)
+        /// <param name="data">안개 판 데이터</param>
+        public FogMapService(Rect area, ForestFogEntry data)
         {
             if (area.width <= 0f || area.height <= 0f) throw new ArgumentException("지역 크기가 0", nameof(area));
+            if (data == null) throw new ArgumentNullException(nameof(data));
             Area = area;
             Width = Mathf.CeilToInt(area.width / CellSize);
             Height = Mathf.CeilToInt(area.height / CellSize);
+            // 앞서 밝힌 칸 (판 데이터)
+            bool[] revealed = data.Revealed;
             _revealed = revealed != null && revealed.Length == Width * Height ? revealed : new bool[Width * Height];
+            data.Revealed = _revealed;
             // 구획 가로·세로 수
             int blocksX = Mathf.CeilToInt(area.width / BlockSize);
             int blocksZ = Mathf.CeilToInt(area.height / BlockSize);

@@ -29,14 +29,14 @@ namespace Mage
             // 이번 판 데이터 (없으면 null)
             RunEntry run = GameManager.Instance.Run;
             // 받은 의뢰 (판이나 의뢰가 없으면 null)
-            QuestSO quest = run?.Quest;
+            QuestSO quest = run?.Quest.Current;
             _view.QuestText.gameObject.SetActive(quest != null);
             if (quest != null)
             {
                 // 기간을 세는 중인지 (처음 출발 뒤)
-                bool counting = run.QuestDeadline > 0f;
+                bool counting = run.Quest.Deadline > 0f;
                 // 보일 날 수 (세는 중이면 남은 날 올림, 아니면 의뢰 기간)
-                int days = counting ? Mathf.Max(0, Mathf.CeilToInt((run.QuestDeadline - run.PlaySeconds) / RunEntry.DaySeconds)) : quest.PeriodDays;
+                int days = counting ? Mathf.Max(0, Mathf.CeilToInt((run.Quest.Deadline - run.Clock.PlaySeconds) / ClockEntry.DaySeconds)) : quest.PeriodDays;
                 _view.QuestText.StringReference.SetReference(MenuTable, counting ? QuestLeftKey : QuestKey);
                 _view.QuestText.StringReference.Arguments = new object[] { quest.Title.GetLocalizedString(), days };
                 _view.QuestText.RefreshString();

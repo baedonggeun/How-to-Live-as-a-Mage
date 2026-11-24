@@ -1,13 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>숲. 3구역 회색 숲에 마법사·용병·적(쓰러뜨린 적은 쓰러진 자리에 시체)과 1구역 고블린 던전(지하, 보스)을 두고 현장 시전·안개 지도·시계·12시 안내(전투 중엔 숨김)를 켬. 숲이 70% 넘게 빈 채 나갔으면 들어올 때 리셋 연출 뒤 시체가 일어남. 숲 입구에서 F로 귀환, 소탕 대상을 다 쓰러뜨리면 의뢰 목표 달성, 기간이 지나면 의뢰 실패. 죽으면 금화를 떨구고 덮개 밑에서 용병 도망을 빠르게 돌린 뒤 여관 방 침대(방이 없으면 정문)에서 부활. 던전·숲 리셋·떨어진 금화는 캡슐(DungeonService·ForestResetService·FieldLootHandler)이 맡고 여기선 만들어 이음</summary>
+    /// <summary>숲. 3구역 회색 숲에 마법사·용병·적(쓰러뜨린 적은 쓰러진 자리에 시체)과 1구역 고블린 던전(지하, 보스)을 두고 현장 시전·안개 지도·시계·12시 안내(전투 중엔 숨김)를 켬. 숲이 70% 넘게 빈 채 나갔으면 들어올 때 리셋 연출 뒤 시체가 일어남. 숲 입구에서 F로 귀환, 소탕 대상을 다 쓰러뜨리면 의뢰 목표 달성, 기간이 지나면 의뢰 실패. 죽으면 금화를 떨구고 덮개 밑에서 용병 도망을 빠르게 돌린 뒤 여관 방 침대(방이 없으면 정문)에서 부활. 숲 적·의뢰·용병·던전·숲 리셋·떨어진 금화는 캡슐이 맡고, 여기선 캡슐을 만들어 이음 (토스트·금화·목표·튜토리얼·화면 전환)</summary>
     public sealed class FieldState : FlowStateBase
     {
         /// <summary>이 상태의 씬 이름 (지역이 늘면 의뢰 데이터에서 받음)</summary>
@@ -43,20 +42,11 @@ namespace Mage
         /// <summary>마법사 최대 체력 (v1: 100 + 생존 4 × 6, 임시)</summary>
         const float PlayerMaxHp = 124f;
 
-        /// <summary>용병을 입구 둘레에 놓는 간격 (m)</summary>
-        const float PartySpread = 2f;
-
         /// <summary>죽은 뒤 도망 시뮬 게임 속도 (임시)</summary>
         const float DeathGameSpeed = 6f;
 
         /// <summary>죽은 뒤 도망 시뮬 최대 게임 시간 (초, 임시)</summary>
         const float DeathMaxSeconds = 40f;
-
-        /// <summary>쫓는 적 없이 이만큼 지나면 무사 (게임 초, 임시)</summary>
-        const float SafeCalmSeconds = 3f;
-
-        /// <summary>적 키 형식 ({0} 자리 id, {1} 번호)</summary>
-        const string SpawnKeyFormat = "{0}.{1}";
 
         /// <summary>소탕 목표 달성 토스트 키 ({0} 의뢰 이름)</summary>
         const string QuestClearedKey = "field.quest_cleared";
@@ -106,16 +96,19 @@ namespace Mage
         /// <summary>안개 지도</summary>
         FogMapService _fog;
 
-        /// <summary>데려온 용병 (파티 순서. 죽어도 남음)</summary>
-        readonly List<MercenaryController> _mercs = new();
+        /// <summary>숲 적 캡슐</summary>
+        ForestEnemyService _forest;
 
-        /// <summary>살아 있는 소탕 대상</summary>
-        readonly List<EnemyController> _targets = new();
+        /// <summary>의뢰 캡슐 (숲 쪽)</summary>
+        FieldQuestService _quest;
+
+        /// <summary>용병 파티 캡슐 (숲 쪽)</summary>
+        FieldPartyService _party;
 
         /// <summary>고블린 던전 캡슐</summary>
         DungeonService _dungeon;
 
-        /// <summary>숲 리셋 캡슐</summary>
+        /// <summary>숲 리셋·차원문 캡슐</summary>
         ForestResetService _reset;
 
         /// <summary>떨어진 금화 캡슐</summary>
@@ -133,10 +126,7 @@ namespace Mage
         /// <summary>들어올 때 목표가 바뀌었는지 (Reveal에서 알림)</summary>
         bool _objectiveChanged;
 
-        /// <summary>숲 적 자리 수 합 (리셋 캡슐의 70% 판정에 넘김)</summary>
-        int _forestTotal;
-
-        #region OnSceneReady - 현장 규칙(보관 장소 = 던전 입구 밖)·안개 지도, 캡슐(숲 리셋·던전·떨어진 금화)을 만들어 잇고(몬스터가 보관한 금화 → 던전), 차원문 자리, 마법사를 입구에, 용병·숲 적(시체는 리셋 캡슐에)·던전·떨어진 금화를 놓고, 시전·안개·시계·HUD·지도를 연결, 목표를 정함 (덮개 밑)
+        #region OnSceneReady - 현장 규칙(보관 장소 = 던전 입구 밖)·안개 지도와 캡슐(의뢰·숲 리셋·숲 적·용병·던전·떨어진 금화)을 만들어 잇고(숲 적 → 의뢰 소탕 대상·리셋 시체, 몬스터가 보관한 금화 → 던전), 차원문을 놓고, 마법사를 입구에, 용병·숲 적·던전·떨어진 금화를 놓고, 시전·안개·시계·HUD·지도를 연결, 목표를 정함 (덮개 밑)
         protected override void OnSceneReady()
         {
             _view = FindView<FieldView>();
@@ -144,34 +134,42 @@ namespace Mage
             // 이번 판 데이터
             RunEntry run = Game.Run;
             _service = new FieldService(_view.PlayerUnit) { StashPoint = _view.Dungeon.Outside };
-            _fog = new FogMapService(_view.MapArea, run.ForestFog);
-            run.ForestFog = _fog.Revealed;
-            _reset = new ForestResetService(run.ForestReset, _view.ResetSequence, _service);
+            _fog = new FogMapService(_view.MapArea, run.Fog);
+            _quest = new FieldQuestService(run.Quest);
+            _quest.Cleared += OnQuestCleared;
+            _quest.Expired += OnQuestExpired;
+            _reset = new ForestResetService(run.ForestReset, _view.ResetSequence, _view.Portal, _view.PortalArea, _service);
             _reset.Finished += OnResetFinished;
+            _forest = new ForestEnemyService(run.Forest, _view.SpawnPoints, _view.EnemyPrefab, _service);
+            _forest.EnemySpawned += _quest.Track;
+            _forest.EnemyDied += _quest.Untrack;
+            _forest.CorpseSpawned += _reset.AddCorpse;
+            _party = new FieldPartyService(run.Party, _view.MercenaryPrefab, _service, _view.Player.transform);
+            _party.Lost += OnMercenaryLost;
             _dungeon = new DungeonService(run.Dungeon, _view.Dungeon, _service);
             _dungeon.Cleared += OnDungeonCleared;
             _loot = new FieldLootHandler(run.Loot, _service, _view.GoldPilePrefab);
             _service.LootStored += _dungeon.AddStash;
-            PlacePortal(run);
+            _reset.PlacePortal();
             _view.Player.PlaceAt(_view.Entry);
             _view.PlayerUnit.Init(PlayerMaxHp);
-            SpawnParty(run);
-            SpawnEnemies(run);
+            _party.Spawn(_view.Entry);
+            _forest.Spawn();
             _dungeon.Spawn();
             _loot.Spawn();
             _view.Cast.Init(run, DataManager.Instance.Spells, DataManager.Instance.Runes, _service, _view.Player, _view.PlayerUnit, _view.Detector);
             _view.FogReveal.Init(_fog);
-            _view.Clock.Init(run);
-            _view.HudBinder.Bind(_view.PlayerUnit, _view.Player, _view.Cast, _mercs, _service, _fog, ZoneAt, () => Game.Run.Day);
+            _view.Clock.Init(run.Clock);
+            _view.HudBinder.Bind(_view.PlayerUnit, _view.Player, _view.Cast, _party.Mercenaries, _service, _fog, ZoneAt, () => _view.Clock.Day);
             _view.Hud.Minimap.Bind(_fog, _view.Player.transform, ObjectivePosition, _view.Entry.position);
             UIManager.Instance.SetMapSource(_fog, _view.Player.transform, ObjectivePosition, _view.Entry.position);
             _view.Hud.InteractPrompt.gameObject.SetActive(false);
-            if (!_reset.IsResetting && QuestActive(run) && _targets.Count == 0) run.QuestCleared = true;
+            if (!_reset.IsResetting) _quest.SettleIfEmpty();
             _objectiveChanged = UpdateObjective(false);
         }
         #endregion
 
-        #region Reveal - 커서 잠금, 지점·죽음·전투 상황·시계·M 구독. 리셋이면 조작·HUD를 끄고 연출 → 끝나면 OnResetFinished, 아니면 바로 조작 시작 (로딩창을 넘길 때 누른 키는 구독 전이라 안 들어감)
+        #region Reveal - 커서 잠금, 지점·죽음·전투 상황 구독, 시계 → 의뢰 기한, M 구독. 리셋이면 조작·HUD를 끄고 연출 → 끝나면 OnResetFinished, 아니면 바로 조작 시작 (로딩창을 넘길 때 누른 키는 구독 전이라 안 들어감)
         public override void Reveal()
         {
             if (_view == null) return;
@@ -180,7 +178,7 @@ namespace Mage
             _view.Detector.Interacted += OnInteracted;
             _view.PlayerUnit.Died += OnPlayerDied;
             _service.CombatChanged += OnCombatChanged;
-            _view.Clock.Expired += OnQuestExpired;
+            _view.Clock.Ticked += _quest.Tick;
             _map = InputSystem.actions.FindAction(MapActionPath);
             if (_map != null) _map.performed += OnMapPressed;
             else Debug.LogError($"[Field] {MapActionPath} 액션 없음. 지도 튜토리얼을 못 배움");
@@ -188,7 +186,7 @@ namespace Mage
             {
                 SetControl(false);
                 _view.HudCanvas.enabled = false;
-                _reset.Play(_view.Portal, _view.Player.transform);
+                _reset.Play(_view.Player.transform);
                 return;
             }
             StartControl();
@@ -204,7 +202,7 @@ namespace Mage
         }
         #endregion
 
-        #region Exit - 도망 시뮬을 멈추고 게임 속도를 되돌림, 구독 해제, 조작 끔, HUD·지도 출처를 놓음, 안내 숨김 풀고 정리, 자막 숨김, 커서 풂
+        #region Exit - 도망 시뮬을 멈추고 게임 속도를 되돌림, 구독·캡슐 연결 해제, 조작 끔, HUD·지도 출처를 놓음, 안내 숨김 풀고 정리, 자막 숨김, 커서 풂
         public override void Exit()
         {
             if (_death != null)
@@ -218,25 +216,47 @@ namespace Mage
                 _view.Detector.TargetChanged -= OnTargetChanged;
                 _view.Detector.Interacted -= OnInteracted;
                 _view.PlayerUnit.Died -= OnPlayerDied;
-                _view.Clock.Expired -= OnQuestExpired;
+                if (_quest != null) _view.Clock.Ticked -= _quest.Tick;
                 _view.HudCanvas.enabled = true;
                 SetControl(false);
                 _view.HudBinder.Unbind();
                 _view.Hud.Minimap.Unbind();
             }
             if (_service != null) _service.CombatChanged -= OnCombatChanged;
-            if (_reset != null) _reset.Finished -= OnResetFinished;
-            if (_dungeon != null)
-            {
-                _dungeon.Cleared -= OnDungeonCleared;
-                if (_service != null) _service.LootStored -= _dungeon.AddStash;
-            }
+            Unwire();
             if (_map != null) _map.performed -= OnMapPressed;
             UIManager.Instance.ClearMapSource();
             TutorialManager.Instance.SetSuppressed(false);
             TutorialManager.Instance.Clear();
             UIManager.Instance.HideSubtitle();
             Cursor.lockState = CursorLockMode.None;
+        }
+        #endregion
+
+        #region Unwire - OnSceneReady에서 이은 캡슐 연결을 끊음 (안 만든 캡슐은 건너뜀)
+        void Unwire()
+        {
+            if (_quest != null)
+            {
+                _quest.Cleared -= OnQuestCleared;
+                _quest.Expired -= OnQuestExpired;
+            }
+            if (_reset != null) _reset.Finished -= OnResetFinished;
+            if (_forest != null)
+            {
+                if (_quest != null)
+                {
+                    _forest.EnemySpawned -= _quest.Track;
+                    _forest.EnemyDied -= _quest.Untrack;
+                }
+                if (_reset != null) _forest.CorpseSpawned -= _reset.AddCorpse;
+            }
+            if (_party != null) _party.Lost -= OnMercenaryLost;
+            if (_dungeon != null)
+            {
+                _dungeon.Cleared -= OnDungeonCleared;
+                if (_service != null) _service.LootStored -= _dungeon.AddStash;
+            }
         }
         #endregion
 
@@ -255,12 +275,13 @@ namespace Mage
         }
         #endregion
 
-        #region OnTargetChanged - 바라보는 지점이 있으면 "[키] 이름", 없으면 숨김
+        #region OnTargetChanged - 바라보는 지점이 있으면 "[키] 이름", 없으면 숨김 (Play를 끌 때처럼 안내 글이 먼저 지워졌으면 무시)
         /// <param name="target">바라보는 지점 (없으면 null)</param>
         void OnTargetChanged(InteractPointView target)
         {
-            // 안내 글
-            var prompt = _view.Hud.InteractPrompt;
+            // 안내 글 (씬이 내려가는 중이면 없음)
+            var prompt = _view != null && _view.Hud != null ? _view.Hud.InteractPrompt : null;
+            if (prompt == null) return;
             if (target == null)
             {
                 prompt.gameObject.SetActive(false);
@@ -293,7 +314,7 @@ namespace Mage
         void Return()
         {
             if (_dying) return;
-            MarkLeaving(Game.Run);
+            MarkLeaving();
             Game.Run.ReturningFromField = true;
             Game.ChangeState(new HubState());
         }
@@ -310,119 +331,12 @@ namespace Mage
         }
         #endregion
 
-        #region SpawnParty - 파티 용병을 입구 둘레(마법사 뒤 양옆)에 놓고 마법사를 따라오게 함
-        /// <param name="run">이번 판 데이터</param>
-        void SpawnParty(RunEntry run)
+        #region OnQuestCleared - 소탕 대상을 다 쓰러뜨림 (의뢰 캡슐이 끝냄 표시): 목표를 '숲 입구로 돌아가기'로, 토스트
+        /// <param name="quest">끝낸 의뢰</param>
+        void OnQuestCleared(QuestSO quest)
         {
-            for (int i = 0; i < run.Party.Count; i++)
-            {
-                // 입구 기준 자리 (뒤 양옆)
-                Vector3 offset = new((i % 2 == 0 ? -1f : 1f) * PartySpread, 0f, -PartySpread);
-                // 놓을 곳
-                Vector3 position = FieldService.Sample(_view.Entry.position + _view.Entry.rotation * offset);
-                // 놓은 용병
-                MercenaryController merc = Object.Instantiate(_view.MercenaryPrefab, position, _view.Entry.rotation);
-                merc.Init(run.Party[i], _service, _view.Player.transform, i);
-                merc.Died += OnMercenaryDied;
-                _mercs.Add(merc);
-            }
-        }
-        #endregion
-
-        #region SpawnEnemies - 적 자리마다 수만큼 놓음: 쓰러진 키는 쓰러진 곳에 시체(리셋 캡슐에 넘김), 아니면 자리 둘레에 살아 있는 적. 무리 번호는 자리 순서. 의뢰 소탕 대상이면 따로 셈
-        /// <param name="run">이번 판 데이터</param>
-        void SpawnEnemies(RunEntry run)
-        {
-            // 무리 번호 (자리마다 하나)
-            int pack = 0;
-            foreach (SpawnPointView point in _view.SpawnPoints)
-            {
-                if (point == null || point.Monster == null)
-                {
-                    Debug.LogWarning("[Field] 비었거나 몬스터가 없는 적 자리", point);
-                    continue;
-                }
-                pack++;
-                _forestTotal += point.Count;
-                for (int i = 0; i < point.Count; i++)
-                {
-                    // 이 적 키
-                    string key = string.Format(CultureInfo.InvariantCulture, SpawnKeyFormat, point.Id, i);
-                    // 쓰러졌는지, 쓰러진 곳
-                    bool dead = run.ForestDead.TryGetValue(key, out Vector3 corpseAt);
-                    // 놓을 곳
-                    Vector3 position = FieldService.Sample(dead ? corpseAt : SpawnPosition(point));
-                    // 놓은 적
-                    EnemyController enemy = Object.Instantiate(_view.EnemyPrefab, position, Quaternion.Euler(0f, Random.Range(0f, 360f), 0f));
-                    if (dead)
-                    {
-                        enemy.InitCorpse(point.Monster, key, pack);
-                        _reset.AddCorpse(enemy, point.transform.position);
-                        continue;
-                    }
-                    enemy.Init(point.Monster, _service, key, pack);
-                    enemy.Died += OnEnemyDied;
-                    if (IsQuestTarget(run, point.Monster)) _targets.Add(enemy);
-                }
-            }
-        }
-        #endregion
-
-        #region SpawnPosition - 적 자리 둘레 흩어 놓는 반지름 안 아무 곳
-        /// <param name="point">적 자리</param>
-        static Vector3 SpawnPosition(SpawnPointView point)
-        {
-            // 흩어 놓는 거리
-            Vector2 offset = Random.insideUnitCircle * point.Spread;
-            return point.transform.position + new Vector3(offset.x, 0f, offset.y);
-        }
-        #endregion
-
-        #region PlacePortal - 이 판에서 처음이면 3구역 먼 쪽 절반에서 차원문 자리를 정해 판 데이터에 남기고, 차원문을 그 자리에
-        /// <param name="run">이번 판 데이터</param>
-        void PlacePortal(RunEntry run)
-        {
-            if (run.PortalPosition == null)
-            {
-                // 놓을 수 있는 곳
-                Bounds area = _view.PortalArea;
-                // 고른 곳
-                var picked = new Vector3(Random.Range(area.min.x, area.max.x), area.center.y, Random.Range(area.min.z, area.max.z));
-                run.PortalPosition = FieldService.Sample(picked);
-            }
-            _view.Portal.position = run.PortalPosition.Value;
-        }
-        #endregion
-
-        #region OnEnemyDied - 쓰러진 곳을 판 데이터에 남김. 소탕 대상이 다 쓰러졌으면 목표 달성
-        /// <param name="enemy">쓰러진 적</param>
-        void OnEnemyDied(EnemyController enemy)
-        {
-            enemy.Died -= OnEnemyDied;
-            Game.Run.ForestDead[enemy.SpawnKey] = enemy.transform.position;
-            if (_targets.Remove(enemy) && _targets.Count == 0 && QuestActive(Game.Run)) ClearQuest();
-        }
-        #endregion
-
-        #region QuestActive - 받은 의뢰가 있고 아직 목표를 안 끝냈는지
-        /// <param name="run">이번 판 데이터</param>
-        static bool QuestActive(RunEntry run) => run.Quest != null && !run.QuestCleared;
-        #endregion
-
-        #region IsQuestTarget - 이 몬스터가 받은 의뢰의 소탕 대상인지
-        /// <param name="run">이번 판 데이터</param>
-        /// <param name="monster">몬스터</param>
-        static bool IsQuestTarget(RunEntry run, MonsterSO monster) => QuestActive(run) && run.Quest.Target != null && run.Quest.Target == monster;
-        #endregion
-
-        #region ClearQuest - 목표 달성 표시, 목표를 '숲 입구로 돌아가기'로, 토스트
-        void ClearQuest()
-        {
-            // 이번 판 데이터
-            RunEntry run = Game.Run;
-            run.QuestCleared = true;
             UpdateObjective(false);
-            UIManager.Instance.ShowToast(Table, QuestClearedKey, run.Quest.Title.GetLocalizedString());
+            UIManager.Instance.ShowToast(Table, QuestClearedKey, quest.Title.GetLocalizedString());
         }
         #endregion
 
@@ -433,7 +347,7 @@ namespace Mage
             // 이번 판 데이터
             RunEntry run = Game.Run;
             // 정한 목표
-            ObjectiveSO next = run.Quest == null ? null : run.QuestCleared ? _view.ReturnObjective : _view.ClearObjective;
+            ObjectiveSO next = !_quest.HasQuest ? null : _quest.IsCleared ? _view.ReturnObjective : _view.ClearObjective;
             if (next == run.CurrentObjective) return false;
             run.CurrentObjective = next;
             if (notify) NotifyObjective();
@@ -451,23 +365,11 @@ namespace Mage
         }
         #endregion
 
-        #region ObjectivePosition - 지도 목표 표시: 소탕 중이면 남은 대상 집의 가운데, 끝냈으면 숲 입구, 아니면 없음
+        #region ObjectivePosition - 지도 목표 표시: 소탕 중이면 남은 대상 집의 가운데(의뢰 캡슐), 끝냈으면 숲 입구, 아니면 없음
         Vector3? ObjectivePosition()
         {
-            // 이번 판 데이터
-            RunEntry run = Game.Run;
-            if (run.Quest == null) return null;
-            if (run.QuestCleared) return _view.Entry.position;
-            // 남은 대상 집의 합과 수
-            Vector3 sum = Vector3.zero;
-            int count = 0;
-            foreach (EnemyController enemy in _targets)
-            {
-                if (enemy == null) continue;
-                sum += enemy.Home;
-                count++;
-            }
-            return count > 0 ? sum / count : null;
+            if (!_quest.HasQuest) return null;
+            return _quest.IsCleared ? _view.Entry.position : _quest.TargetCenter();
         }
         #endregion
 
@@ -504,14 +406,9 @@ namespace Mage
         void OnMapPressed(InputAction.CallbackContext context) => TutorialManager.Instance.MarkLearned(MapTutorialId);
         #endregion
 
-        #region OnMercenaryDied - 판 데이터 파티에서 빼고 토스트
-        /// <param name="merc">죽은 용병</param>
-        void OnMercenaryDied(MercenaryController merc)
-        {
-            merc.Died -= OnMercenaryDied;
-            Game.Run.Party.Remove(merc.Entry);
-            UIManager.Instance.ShowToast(Table, MercenaryLostKey, merc.Entry.Name.GetLocalizedString());
-        }
+        #region OnMercenaryLost - 용병을 잃음 (파티에서는 용병 캡슐이 뺌): 토스트
+        /// <param name="entry">잃은 용병</param>
+        void OnMercenaryLost(MercenaryEntry entry) => UIManager.Instance.ShowToast(Table, MercenaryLostKey, entry.Name.GetLocalizedString());
         #endregion
 
         #region OnPlayerDied - 한 번만: 조작 끔, 금화를 떨굼, 안내 정리, 덮개를 덮고 도망 시뮬 시작
@@ -537,13 +434,10 @@ namespace Mage
         }
         #endregion
 
-        #region DeathRoutine - 살아 있는 용병을 숲 입구로 도망치게 하고 게임 속도를 올려 돌림: 입구에 닿거나 쫓는 적 없이 3초면 무사, 도중에 죽으면 죽음 (OnMercenaryDied). 다 정해지거나 40초가 지나면 속도를 되돌리고 부활 표시 후 전초기지로
+        #region DeathRoutine - 게임 속도를 올리고 살아 있는 용병을 숲 입구로 도망치게 해 돌림 (용병 캡슐이 무사·죽음을 정함). 다 정해지거나 40초가 지나면 속도를 되돌리고 부활 표시 후 전초기지로
         IEnumerator DeathRoutine()
         {
-            foreach (MercenaryController merc in _mercs)
-                if (merc != null && merc.Unit.IsAlive) merc.Flee(_view.ExitPoint);
-            // 용병마다 쫓는 적 없이 지난 시간 (게임 초)
-            var calm = new Dictionary<MercenaryController, float>();
+            _party.StartFlee(_view.ExitPoint);
             // 지난 게임 시간 (초)
             float elapsed = 0f;
             Game.SetGameSpeed(DeathGameSpeed);
@@ -553,42 +447,23 @@ namespace Mage
                 // 이번 프레임 게임 시간 (초)
                 float dt = Time.deltaTime;
                 elapsed += dt;
-                // 아직 정해지지 않은 용병이 있는지
-                bool pending = false;
-                foreach (MercenaryController merc in _mercs)
-                {
-                    if (merc == null || !merc.Unit.IsAlive || merc.IsSafe) continue;
-                    calm.TryGetValue(merc, out float quiet);
-                    quiet = _service.IsTargeted(merc.Unit) ? 0f : quiet + dt;
-                    calm[merc] = quiet;
-                    if (quiet >= SafeCalmSeconds) merc.MarkSafe();
-                    else pending = true;
-                }
-                if (!pending) break;
+                if (!_party.UpdateFlee(dt)) break;
             }
             Game.SetGameSpeed(1f);
             _death = null;
-            MarkLeaving(Game.Run);
+            MarkLeaving();
             Game.Run.RespawningFromDeath = true;
             Game.ChangeState(new HubState());
         }
         #endregion
 
-        #region OnResetFinished - 리셋 연출이 끝나 시체가 일어남: 살아난 적의 쓰러짐을 구독하고 소탕 대상이면 다시 셈, 숲 쓰러진 기록을 지움, HUD를 켜고 조작 시작
+        #region OnResetFinished - 리셋 연출이 끝나 시체가 일어남: 살아난 적을 숲 적 캡슐에 다시 넘기고(의뢰 캡슐이 소탕 대상이면 다시 셈), 남은 대상이 없으면 목표를 끝냄, HUD를 켜고 조작 시작
         /// <param name="revived">살아난 적</param>
         void OnResetFinished(IReadOnlyList<EnemyController> revived)
         {
             if (_view == null) return;
-            // 이번 판 데이터
-            RunEntry run = Game.Run;
-            foreach (EnemyController enemy in revived)
-            {
-                if (enemy == null) continue;
-                enemy.Died += OnEnemyDied;
-                if (IsQuestTarget(run, enemy.Monster)) _targets.Add(enemy);
-            }
-            run.ForestDead.Clear();
-            if (QuestActive(run) && _targets.Count == 0) run.QuestCleared = true;
+            _forest.Adopt(revived);
+            _quest.SettleIfEmpty();
             if (UpdateObjective(false)) _objectiveChanged = true;
             _view.HudCanvas.enabled = true;
             StartControl();
@@ -609,21 +484,13 @@ namespace Mage
         }
         #endregion
 
-        #region PlaceParty - 마법사를 그 자리에, 살아 있는 용병을 그 뒤 양옆에 순간이동
+        #region PlaceParty - 마법사를 그 자리에, 살아 있는 용병을 그 뒤 양옆에 순간이동 (용병 캡슐)
         /// <param name="point">옮길 자리</param>
         void PlaceParty(Transform point)
         {
             if (_view == null) return;
             _view.Player.PlaceAt(point);
-            for (int i = 0; i < _mercs.Count; i++)
-            {
-                // 이 용병
-                MercenaryController merc = _mercs[i];
-                if (merc == null || !merc.Unit.IsAlive) continue;
-                // 자리 기준 뒤 양옆
-                Vector3 offset = new((i % 2 == 0 ? -1f : 1f) * PartySpread, 0f, -PartySpread);
-                merc.WarpTo(FieldService.Sample(point.position + point.rotation * offset));
-            }
+            _party.WarpTo(point);
         }
         #endregion
 
@@ -643,25 +510,17 @@ namespace Mage
         #endregion
 
         #region MarkLeaving - 숲을 나갈 때(입구 귀환·죽음): 리셋 캡슐에 숲 적 자리 대비 쓰러뜨린 수를 넘기고(70% 이상이면 다음에 리셋), 던전 캡슐에 알림(클리어했으면 새 던전·보관 금화는 사라짐)
-        /// <param name="run">이번 판 데이터</param>
-        void MarkLeaving(RunEntry run)
+        void MarkLeaving()
         {
-            _reset.MarkLeaving(run.ForestDead.Count, _forestTotal);
+            _reset.MarkLeaving(_forest.DeadCount, _forest.Total);
             _dungeon.MarkLeaving();
         }
         #endregion
 
-        #region OnQuestExpired - 받은 의뢰의 기간이 지남: 의뢰 실패로 비움 (게시판에 다시 붙음), 소탕 대상·목표 정리, 토스트
-        void OnQuestExpired()
+        #region OnQuestExpired - 받은 의뢰의 기간이 지남 (의뢰 캡슐이 의뢰를 비움, 게시판에 다시 붙음): 목표 정리, 토스트
+        /// <param name="quest">실패한 의뢰</param>
+        void OnQuestExpired(QuestSO quest)
         {
-            // 이번 판 데이터
-            RunEntry run = Game.Run;
-            if (run.Quest == null || run.QuestCleared) return;
-            // 실패한 의뢰
-            QuestSO quest = run.Quest;
-            run.Quest = null;
-            run.QuestDeadline = 0f;
-            _targets.Clear();
             UpdateObjective(false);
             UIManager.Instance.ShowToast(Table, QuestExpiredKey, quest.Title.GetLocalizedString());
         }

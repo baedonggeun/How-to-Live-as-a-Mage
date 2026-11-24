@@ -118,13 +118,13 @@ namespace Mage
             List<MercenaryEntry> drawn = RecruitPool.Draw(DataManager.Instance.Jobs);
             foreach (MercenaryEntry entry in drawn)
             {
-                if (run.Party.Count < HubState.RequiredMercenaries) run.Party.Add(entry);
-                else run.RecruitCandidates.Add(entry);
+                if (run.Party.Members.Count < HubState.RequiredMercenaries) run.Party.Members.Add(entry);
+                else run.Party.Candidates.Add(entry);
             }
-            run.CandidatesDrawn = true;
+            run.Party.CandidatesDrawn = true;
             // 의뢰 목록
             IReadOnlyList<QuestSO> quests = DataManager.Instance.Quests;
-            run.Quest = quests.Count > 0 ? quests[0] : null;
+            run.Quest.Current = quests.Count > 0 ? quests[0] : null;
             run.HasRoom = true;
             run.HasDeparted = true;
         }

@@ -222,13 +222,13 @@ namespace Mage
         {
             // 이번 판 데이터
             RunEntry run = Game.Run;
-            if (run.Quest == null || !run.QuestCleared) return;
+            if (run.Quest.Current == null || !run.Quest.Cleared) return;
             // 끝낸 의뢰
-            QuestSO quest = run.Quest;
-            run.CompletedQuestIds.Add(quest.Id);
-            run.Quest = null;
-            run.QuestCleared = false;
-            run.QuestDeadline = 0f;
+            QuestSO quest = run.Quest.Current;
+            run.Quest.CompletedIds.Add(quest.Id);
+            run.Quest.Current = null;
+            run.Quest.Cleared = false;
+            run.Quest.Deadline = 0f;
             if (notify) UIManager.Instance.ShowToast(Table, QuestDoneKey, quest.Title.GetLocalizedString());
         }
         #endregion
@@ -484,12 +484,12 @@ namespace Mage
         {
             // 이번 판 데이터
             RunEntry run = Game.Run;
-            if (!run.CandidatesDrawn)
+            if (!run.Party.CandidatesDrawn)
             {
-                run.RecruitCandidates.AddRange(RecruitPool.Draw(DataManager.Instance.Jobs));
-                run.CandidatesDrawn = true;
+                run.Party.Candidates.AddRange(RecruitPool.Draw(DataManager.Instance.Jobs));
+                run.Party.CandidatesDrawn = true;
             }
-            UIManager.Instance.ShowRecruit(run.RecruitCandidates, run.Party, RequiredMercenaries, Hire, Dismiss);
+            UIManager.Instance.ShowRecruit(run.Party.Candidates, run.Party.Members, RequiredMercenaries, Hire, Dismiss);
             UIManager.Instance.HideDialogue();
         }
         #endregion
@@ -500,8 +500,8 @@ namespace Mage
         {
             // 이번 판 데이터
             RunEntry run = Game.Run;
-            if (run.Party.Count >= RequiredMercenaries || !run.RecruitCandidates.Remove(entry)) return;
-            run.Party.Add(entry);
+            if (run.Party.Members.Count >= RequiredMercenaries || !run.Party.Candidates.Remove(entry)) return;
+            run.Party.Members.Add(entry);
             RefreshParty();
             UpdateObjective(true);
         }
@@ -511,8 +511,8 @@ namespace Mage
         /// <param name="entry">내보낼 파티원</param>
         void Dismiss(MercenaryEntry entry)
         {
-            if (!Game.Run.Party.Remove(entry)) return;
-            Game.Run.RecruitCandidates.Add(entry);
+            if (!Game.Run.Party.Members.Remove(entry)) return;
+            Game.Run.Party.Candidates.Add(entry);
             RefreshParty();
             UpdateObjective(true);
         }
@@ -530,7 +530,7 @@ namespace Mage
             }
             // 붙어 있는 의뢰
             QuestSO quest = quests[0];
-            UIManager.Instance.ShowQuestBoard(quest, Game.Run.Quest == quest, Game.Run.CompletedQuestIds.Contains(quest.Id), () => TakeQuest(quest));
+            UIManager.Instance.ShowQuestBoard(quest, Game.Run.Quest.Current == quest, Game.Run.Quest.CompletedIds.Contains(quest.Id), () => TakeQuest(quest));
         }
         #endregion
 
@@ -538,9 +538,9 @@ namespace Mage
         /// <param name="quest">받을 의뢰</param>
         void TakeQuest(QuestSO quest)
         {
-            Game.Run.Quest = quest;
-            Game.Run.QuestCleared = false;
-            Game.Run.QuestDeadline = 0f;
+            Game.Run.Quest.Current = quest;
+            Game.Run.Quest.Cleared = false;
+            Game.Run.Quest.Deadline = 0f;
             if (!UpdateObjective(true)) UIManager.Instance.ShowToast(Table, QuestTakenKey, quest.Title.GetLocalizedString());
         }
         #endregion
@@ -552,12 +552,12 @@ namespace Mage
             RunEntry run = Game.Run;
             if (!run.HasDeparted)
             {
-                if (run.Party.Count < RequiredMercenaries)
+                if (run.Party.Members.Count < RequiredMercenaries)
                 {
                     GuardLine(PartyRequiredKey, RequiredMercenaries);
                     return;
                 }
-                if (run.Quest == null)
+                if (run.Quest.Current == null)
                 {
                     GuardLine(QuestRequiredKey);
                     return;
@@ -596,7 +596,7 @@ namespace Mage
             RunEntry run = Game.Run;
             run.Rations -= Mathf.Min(run.Rations, NeededRations());
             run.HasDeparted = true;
-            if (run.Quest != null && run.QuestDeadline <= 0f) run.QuestDeadline = run.PlaySeconds + run.Quest.PeriodDays * RunEntry.DaySeconds;
+            if (run.Quest.Current != null && run.Quest.Deadline <= 0f) run.Quest.Deadline = run.Clock.PlaySeconds + run.Quest.Current.PeriodDays * ClockEntry.DaySeconds;
             UpdateObjective(false);
             UIManager.Instance.HideDialogue();
             Game.ChangeState(new FieldState());
@@ -604,7 +604,7 @@ namespace Mage
         #endregion
 
         #region PartySize - 원정 인원 (플레이어 + 파티 용병)
-        int PartySize() => 1 + Game.Run.Party.Count;
+        int PartySize() => 1 + Game.Run.Party.Members.Count;
         #endregion
 
         #region DayFoodPrice - 지금 인원의 하루치 식량 값 (금화)
@@ -612,7 +612,7 @@ namespace Mage
         #endregion
 
         #region NeededRations - 받은 의뢰에 필요한 식량 (인원 × 기간 인분. 의뢰가 없으면 0)
-        int NeededRations() => Game.Run.Quest != null ? Game.Run.Quest.Days * PartySize() : 0;
+        int NeededRations() => Game.Run.Quest.Current != null ? Game.Run.Quest.Current.Days * PartySize() : 0;
         #endregion
 
         #region NextObjective - 판 데이터로 지금 목표를 정함: 방 → 길드(파티·의뢰) → 정문 → (의뢰를 받고 나간 뒤) 숲 소탕 → (끝낸 뒤) 없음
@@ -621,8 +621,8 @@ namespace Mage
             // 이번 판 데이터
             RunEntry run = Game.Run;
             if (!run.HasRoom) return _view.FirstObjective;
-            if (run.Quest != null && run.HasDeparted) return _view.ForestObjective;
-            if (run.Party.Count < RequiredMercenaries || run.Quest == null) return run.CompletedQuestIds.Count > 0 ? null : _view.GuildObjective;
+            if (run.Quest.Current != null && run.HasDeparted) return _view.ForestObjective;
+            if (run.Party.Members.Count < RequiredMercenaries || run.Quest.Current == null) return run.Quest.CompletedIds.Count > 0 ? null : _view.GuildObjective;
             return run.HasDeparted ? null : _view.DepartObjective;
         }
         #endregion
@@ -643,7 +643,7 @@ namespace Mage
         #region RefreshParty - 파티 수 표시 갱신 ({0}/{1})
         void RefreshParty()
         {
-            _view.PartyText.StringReference.Arguments = new object[] { Game.Run.Party.Count, RequiredMercenaries };
+            _view.PartyText.StringReference.Arguments = new object[] { Game.Run.Party.Members.Count, RequiredMercenaries };
             _view.PartyText.RefreshString();
         }
         #endregion
