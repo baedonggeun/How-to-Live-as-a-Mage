@@ -146,6 +146,12 @@ namespace Mage
         /// <summary>시전을 시작하기 전 커서 잠금 상태</summary>
         CursorLockMode _prevCursor;
 
+        /// <summary>시전을 시작할 때 보이던 포인터의 화면 위치 (책상). 포인터가 없던 때(숲)는 null</summary>
+        Vector2? _pointerBefore;
+
+        /// <summary>커서를 푼 뒤 포인터를 되돌릴 차례인지 (푼 프레임엔 유니티가 포인터를 가운데에 두어서 다음 프레임에 되돌림)</summary>
+        bool _restorePending;
+
         /// <summary>시전 중 이 캔버스 포인터 입력(UI 클릭)을 꺼 뒀는지</summary>
         bool _raycasterOff;
 
@@ -248,13 +254,14 @@ namespace Mage
         }
         #endregion
 
-        #region End - 그리기 끝: 입력 구독 해제, 시전·갈무리를 조용히 끝내고 할 일·획·결과·따라 그릴 그림을 비움 (여러 번 불려도 됨, Awake 전에도 됨)
+        #region End - 그리기 끝: 입력 구독 해제, 시전·갈무리를 조용히 끝내고 포인터 되돌리기 대기·할 일·획·결과·따라 그릴 그림을 비움 (여러 번 불려도 됨, Awake 전에도 됨)
         public void End()
         {
             Subscribe(false);
             _holdPressed = false;
             _holdFired = false;
             if (_casting) EndCasting();
+            _restorePending = false;
             _lockLeft = 0f;
             _judge = null;
             _onJudged = null;
@@ -363,9 +370,10 @@ namespace Mage
         }
         #endregion
 
-        #region Update - 그리기를 받는 중일 때만: 꾹 누르기 확인, 시전 중이면 펜 이동, 갈무리·결과 글 시간 (게임 시간)
+        #region Update - 포인터 되돌리기 확인. 그리기를 받는 중일 때만: 꾹 누르기 확인, 시전 중이면 펜 이동, 갈무리·결과 글 시간 (게임 시간)
         void Update()
         {
+            UpdateRestore();
             if (!IsActive) return;
             UpdateHold();
             if (_casting) UpdatePen();
@@ -373,6 +381,16 @@ namespace Mage
             float dt = Time.deltaTime;
             UpdateLock(dt);
             UpdateResult(dt);
+        }
+        #endregion
+
+        #region UpdateRestore - 커서를 푼 다음 프레임에 보이던 포인터를 시전 전 자리로 되돌림 (그 사이 다시 잠겼으면 안 함)
+        void UpdateRestore()
+        {
+            if (!_restorePending) return;
+            _restorePending = false;
+            if (_pointerBefore.HasValue && Mouse.current != null && Cursor.lockState != CursorLockMode.Locked)
+                Mouse.current.WarpCursorPosition(_pointerBefore.Value);
         }
         #endregion
 
@@ -497,7 +515,7 @@ namespace Mage
         }
         #endregion
 
-        #region StartCast - 시전 상태 시작: 앞 결과·그림을 지우고 양피지·펜 점을 켬, 커서를 잠그고 이동·시점 막을 쪽에 알림
+        #region StartCast - 시전 상태 시작: 앞 결과·그림을 지우고 양피지·펜 점을 켬(펜은 보이던 포인터 자리, 없으면 가운데), 커서를 잠그고 이동·시점 막을 쪽에 알림
         void StartCast()
         {
             _casting = true;
@@ -505,8 +523,8 @@ namespace Mage
             _stroke = null;
             _strokes.Clear();
             _resultLeft = 0f;
-            _pen = Vector2.zero;
             _pixelsPerUnit = PixelsPerUnit();
+            _pen = PenStart();
             if (_view != null)
             {
                 _view.Ink.Clear();
@@ -563,9 +581,31 @@ namespace Mage
         }
         #endregion
 
-        #region LockCursor - 커서를 잠그고(펜은 마우스 이동량으로 움직임) 이 캔버스의 UI 클릭을 꺼 둠 (책상: 커서 자리의 버튼이 눌리지 않게)
+        #region PenStart - 펜 시작 자리: 시전 전에 포인터가 보였으면(책상) 그 화면 위치를 칸 좌표로 바꿔 칸 안으로 맞추고 되돌릴 위치도 적어 둠. 포인터가 없었거나(숲) 못 바꾸면 칸 가운데
+        Vector2 PenStart()
+        {
+            _pointerBefore = null;
+            if (Cursor.lockState == CursorLockMode.Locked || Mouse.current == null) return Vector2.zero;
+            // 포인터 화면 위치
+            Vector2 screen = Mouse.current.position.ReadValue();
+            _pointerBefore = screen;
+            // 이 칸
+            var rect = (RectTransform)transform;
+            // 월드 캔버스면 그 카메라 (오버레이면 없음)
+            Camera cam = _canvas != null && _canvas.renderMode != RenderMode.ScreenSpaceOverlay ? _canvas.worldCamera : null;
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, screen, cam, out Vector2 local)) return Vector2.zero;
+            // 칸 크기
+            Rect area = rect.rect;
+            return new Vector2(
+                Mathf.Clamp(local.x, area.xMin + PenMargin, area.xMax - PenMargin),
+                Mathf.Clamp(local.y, area.yMin + PenMargin, area.yMax - PenMargin));
+        }
+        #endregion
+
+        #region LockCursor - 커서를 잠그고(펜은 마우스 이동량으로 움직임) 이 캔버스의 UI 클릭을 꺼 둠 (책상: 커서 자리의 버튼이 눌리지 않게). 되돌리기 대기 중이었으면 취소
         void LockCursor()
         {
+            _restorePending = false;
             _prevCursor = Cursor.lockState;
             Cursor.lockState = CursorLockMode.Locked;
             if (_raycaster != null && _raycaster.enabled)
@@ -576,10 +616,14 @@ namespace Mage
         }
         #endregion
 
-        #region UnlockCursor - 커서·UI 클릭을 되돌림. 커서는 우리가 잠근 그대로일 때만 (그 사이 일시정지가 풀었으면 건드리지 않음)
+        #region UnlockCursor - 커서·UI 클릭을 되돌림. 커서는 우리가 잠근 그대로일 때만 (그 사이 일시정지가 풀었으면 건드리지 않음). 시전 전에 포인터가 보였으면 되돌릴 차례를 받음
         void UnlockCursor()
         {
-            if (Cursor.lockState == CursorLockMode.Locked) Cursor.lockState = _prevCursor;
+            if (Cursor.lockState == CursorLockMode.Locked)
+            {
+                Cursor.lockState = _prevCursor;
+                _restorePending = _pointerBefore.HasValue;
+            }
             if (_raycasterOff && _raycaster != null) _raycaster.enabled = true;
             _raycasterOff = false;
         }
