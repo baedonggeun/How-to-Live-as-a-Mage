@@ -4928,16 +4928,7 @@ MonoBehaviour:
   _clock: {fileID: 151041479}
   _resetSequence: {fileID: 523114969}
   _hudCanvas: {fileID: 728956505}
-  _dungeonOutside: {fileID: 2130597218}
-  _dungeonStart: {fileID: 1523003399}
-  _dungeonSpawnPoints:
-  - {fileID: 1629712717}
-  - {fileID: 486815787}
-  _bossPoint: {fileID: 360646073}
-  _bossChoices:
-  - {fileID: 11400000, guid: 64ffca6135aa6314f96788e793c40b12, type: 2}
-  - {fileID: 11400000, guid: 0c2725e4eb4abb446960f00eb3d55c25, type: 2}
-  _bossPrefab: {fileID: 6916962619672623387, guid: a808d4bfe192c3e4f9565bd479f0bb53, type: 3}
+  _dungeon: {fileID: 1419057606}
 --- !u!4 &151041478
 Transform:
   m_ObjectHideFlags: 0
@@ -52223,6 +52214,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1419057605}
   - component: {fileID: 1419057604}
+  - component: {fileID: 1419057606}
   m_Layer: 0
   m_Name: Dungeon
   m_TagString: Untagged
@@ -52289,6 +52281,29 @@ Transform:
   - {fileID: 991574609}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1419057606
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1419057603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cee0df5e9da77c54da487be5215ecbfc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Mage::Mage.DungeonView
+  _outside: {fileID: 2130597218}
+  _startPoint: {fileID: 1523003399}
+  _spawnPoints:
+  - {fileID: 1629712717}
+  - {fileID: 486815787}
+  _bossPoint: {fileID: 360646073}
+  _bossChoices:
+  - {fileID: 11400000, guid: 64ffca6135aa6314f96788e793c40b12, type: 2}
+  - {fileID: 11400000, guid: 0c2725e4eb4abb446960f00eb3d55c25, type: 2}
+  _bossPrefab: {fileID: 6916962619672623387, guid: a808d4bfe192c3e4f9565bd479f0bb53, type: 3}
+  _enemyPrefab: {fileID: 1222089151962726343, guid: 935fda4dce002be48b4a89aba7f2b2a9, type: 3}
 --- !u!1001 &1422540282
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -33,6 +33,15 @@
 - **자가 점검**: 새 클래스 작성/리네이밍 시 위 표 자가 점검. 위배 시 명명/책임 재배치 후 진행
 - **신규 접미사 도입**: 위 표 외 접미사가 필요하면 본 표 확장. 즉흥 명명 금지
 
+## 캡슐화 (기능마다, 반드시)
+새로 만드는 기능·고치는 기능 모두. 어긋나면 나눈 뒤 진행
+1. **자기 데이터는 자기가**: 그 기능만 쓰는 판 데이터는 `{기능}Entry` 하나로 묶어 그 캡슐만 만짐 (RunEntry에 낱개 필드로 흩지 않음)
+2. **좁은 진입점 + 이벤트**: 공개 메서드는 몇 개만, 결과·변화는 이벤트로 알림. 안쪽 상태·목록을 밖에 내주지 않음
+3. **캡슐끼리 직접 안 부름**: 연결은 상태(State)만. 캡슐 이벤트를 상태가 받아 다른 캡슐을 부르고, 토스트·금화 같은 바깥 일도 상태가 함
+4. **받아서 단독 실행**: 필요한 씬 참조(View)·서비스·데이터를 생성자(MonoBehaviour는 Init)로 받음. 캡슐 안에서 `XxxManager.Instance`·`Game.Run`·`Find*` 안 씀
+- 캡슐 = View(씬 참조) + Entry(데이터) + Service/Handler/Controller(로직). 필요 없는 칸은 생략. 새 캡슐은 기능 폴더에 모음 (예: `Field/Dungeon/`)
+- 상태(State)·Manager는 연결 쪽이라 3·4번 예외
+
 ## 다국어 (PaulowniaSky Localization Kit)
 - 화면에 보이는 글자 하드코딩 금지 (코드·프리팹·SO). String Table 키로만 넣음
 - UI 텍스트: `Assets/Localization/Prefabs/LocalizedText.prefab` (키 연결 + 언어별 폰트 교체 포함)
@@ -45,36 +54,25 @@
 - 언어 선택 UI: 키트 샘플(Package Manager > Samples > Language Dropdown)을 가져와서 꾸밈
 - 키트: `Packages/com.paulowniasky.localization-kit/` (embedded). 사용법은 그 README
 
-## 응답 규칙 (항상 적용)
-
-### 말투
-한국어 응답은 반말 (해/해줘/됨/아님). 존댓말 금지.
-
-### 압축
-제거: 관사(a/an/the), 필러(just/really/basically/actually), 인사말(sure/certainly/물론이죠/~해드릴게요), 헤징(~일 수도/~하는 게 좋을 것 같아요). 단문 OK. 기술 용어·코드·에러 문자열: 원문 유지. 짧은 동의어(big ← extensive, fix ← "솔루션을 구현").
-
-패턴: `[대상] [동작] [이유]. [다음 단계].`
-
-❌ "네, 물론이죠! 말씀하신 문제는 아마도..."
-✅ "auth 미들웨어 버그. 토큰 만료 체크 `<` → `<=` 수정:"
-
-### 예외 (압축 해제)
-- 보안 경고
-- 되돌릴 수 없는 작업 확인 (git reset --hard 등)
-- 단문 순서 모호로 오해 가능한 다단계 시퀀스
+## 응답 규칙
+출력 스타일 `harness:terse-ko`(반말·압축)로 적용. 설정: `.claude/settings.json`의 `outputStyle`
 
 ## 코드 작성 Ladder (ponytail-full)
 코드 작성 전 반드시 출력: YAGNI → 코드베이스 재사용 → Unity API → 패키지 → stdlib → 한 줄 → 최소 구현.
-상세: `.claude/hooks/session-init.sh`
+상세: 세션 시작 때 harness 플러그인 session-init이 넣음
+
+## 컴파일·테스트 확인
+- 콘솔·테스트: Unity MCP(`unity-editor-mcp`)의 console·test 도구
+- Editor.log 직접 읽기는 Unity MCP가 연결 안 될 때만
 
 ## 작업 방식
 - 파일 생성·수정·삭제, 명령 실행(Unity 조작·설치·빌드 포함) 전: 대상 파일·변경 내용·검증 방법 먼저 보여주고 승인 후 진행
 - 읽기·검색·상태 확인은 승인 없이 진행
-- plan 파일은 사용자가 요청할 때만 (`/plan`)
+- plan 파일은 사용자가 요청할 때만 (`/harness:plan`)
 
 ## Plan 라우팅
 - 모든 plan: `docs/plan-{kebab-topic}.md`. followup 짝: `docs/plan-{topic}-followup.md`
-- 새 plan: `/plan {topic}`. 이어 진행은 사용자가 직접 `Read docs/plan-{topic}.md`
+- 새 plan: `/harness:plan {topic}` (`/plan`은 Claude Code 기본 plan 모드 명령). 이어 진행은 사용자가 직접 `Read docs/plan-{topic}.md`
 
 ## 커밋
 - 사용자가 직접 커밋. plan 있으면 끝 `## 커밋 메시지` 섹션 참고

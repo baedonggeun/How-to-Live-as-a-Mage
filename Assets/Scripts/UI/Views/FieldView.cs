@@ -74,23 +74,8 @@ namespace Mage
         /// <summary>HUD 캔버스 (리셋 연출 동안 끔. 인스펙터에서만 연결)</summary>
         [SerializeField] Canvas _hudCanvas;
 
-        /// <summary>던전 입구 밖 (나오면 서는 곳, 줍는 몬스터가 물건을 가져가는 곳. 인스펙터에서만 연결)</summary>
-        [SerializeField] Transform _dungeonOutside;
-
-        /// <summary>던전 안 시작 자리 (인스펙터에서만 연결)</summary>
-        [SerializeField] Transform _dungeonStart;
-
-        /// <summary>던전 적 무리 자리 (인스펙터에서만 연결)</summary>
-        [SerializeField] SpawnPointView[] _dungeonSpawnPoints;
-
-        /// <summary>보스 자리 (인스펙터에서만 연결)</summary>
-        [SerializeField] Transform _bossPoint;
-
-        /// <summary>보스 후보 (던전을 만들 때 하나를 고름. 인스펙터에서만 연결)</summary>
-        [SerializeField] MonsterSO[] _bossChoices;
-
-        /// <summary>보스 프리팹 (Boss.prefab. 인스펙터에서만 연결)</summary>
-        [SerializeField] EnemyController _bossPrefab;
+        /// <summary>고블린 던전 씬 참조 (Dungeon 오브젝트. 인스펙터에서만 연결)</summary>
+        [SerializeField] DungeonView _dungeon;
 
         /// <summary>1인칭 조작</summary>
         public PlayerController Player => _player;
@@ -161,22 +146,7 @@ namespace Mage
         /// <summary>HUD 캔버스</summary>
         public Canvas HudCanvas => _hudCanvas;
 
-        /// <summary>던전 입구 밖</summary>
-        public Transform DungeonOutside => _dungeonOutside;
-
-        /// <summary>던전 안 시작 자리</summary>
-        public Transform DungeonStart => _dungeonStart;
-
-        /// <summary>던전 적 무리 자리</summary>
-        public SpawnPointView[] DungeonSpawnPoints => _dungeonSpawnPoints;
-
-        /// <summary>보스 자리</summary>
-        public Transform BossPoint => _bossPoint;
-
-        /// <summary>보스 후보</summary>
-        public MonsterSO[] BossChoices => _bossChoices;
-
-        /// <summary>보스 프리팹</summary>
-        public EnemyController BossPrefab => _bossPrefab;
+        /// <summary>고블린 던전 씬 참조</summary>
+        public DungeonView Dungeon => _dungeon;
     }
 }

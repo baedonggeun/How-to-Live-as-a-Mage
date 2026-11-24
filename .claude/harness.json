@@ -1,0 +1,5 @@
+{
+  "workflow": "(1) 파일 탐색 → (2) 작업 계획 제시 → [승인 대기] → (3) 작업 → (4) 커밋(사용자)",
+  "remind": "반말 유지. 압축 유지. 필러·인사말 제거. 파일 수정·명령 실행 전 작업 계획 먼저 보여주고 승인받기.",
+  "suffixes": ["View", "UIBinder", "Controller", "Sequence", "Drawer", "Manager", "Service", "State", "SO", "Effect", "Entry", "Pool", "Spawner", "Handler", "Spec", "Calculator", "Director", "Core", "Base", "Filter", "Detector", "Router", "Attribute"]
+}

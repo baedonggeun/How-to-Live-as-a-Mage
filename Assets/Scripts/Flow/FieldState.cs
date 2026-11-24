@@ -2,13 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.InputSystem;
 using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>숲. 3구역 회색 숲에 마법사·용병·적(쓰러뜨린 적은 쓰러진 자리에 시체)과 1구역 고블린 던전(지하, 보스)을 두고 현장 시전·안개 지도·시계·12시 안내(전투 중엔 숨김)를 켬. 숲이 70% 넘게 빈 채 나갔으면 들어올 때 리셋 연출 뒤 시체가 일어남. 숲 입구에서 F로 귀환, 소탕 대상을 다 쓰러뜨리면 의뢰 목표 달성, 기간이 지나면 의뢰 실패. 죽으면 금화를 떨구고 덮개 밑에서 용병 도망을 빠르게 돌린 뒤 여관 방 침대(방이 없으면 정문)에서 부활</summary>
+    /// <summary>숲. 3구역 회색 숲에 마법사·용병·적(쓰러뜨린 적은 쓰러진 자리에 시체)과 1구역 고블린 던전(지하, 보스)을 두고 현장 시전·안개 지도·시계·12시 안내(전투 중엔 숨김)를 켬. 숲이 70% 넘게 빈 채 나갔으면 들어올 때 리셋 연출 뒤 시체가 일어남. 숲 입구에서 F로 귀환, 소탕 대상을 다 쓰러뜨리면 의뢰 목표 달성, 기간이 지나면 의뢰 실패. 죽으면 금화를 떨구고 덮개 밑에서 용병 도망을 빠르게 돌린 뒤 여관 방 침대(방이 없으면 정문)에서 부활. 던전·숲 리셋·떨어진 금화는 캡슐(DungeonService·ForestResetService·FieldLootHandler)이 맡고 여기선 만들어 이음</summary>
     public sealed class FieldState : FlowStateBase
     {
         /// <summary>이 상태의 씬 이름 (지역이 늘면 의뢰 데이터에서 받음)</summary>
@@ -41,26 +40,8 @@ namespace Mage
         /// <summary>던전 보관함 지점 id</summary>
         const string StashId = "stash";
 
-        /// <summary>숲 적 자리 대비 쓰러뜨린 적이 이 비율 이상이면 리셋 (기획 70%)</summary>
-        const float ForestResetRatio = 0.7f;
-
-        /// <summary>부하를 보스 둘레에 흩는 반지름 (m)</summary>
-        const float SummonSpread = 6f;
-
-        /// <summary>던전 무리 번호 시작 (숲 무리와 안 겹치게)</summary>
-        const int DungeonPackBase = 1000;
-
-        /// <summary>던전 적 키 형식 ({0} 던전 세대, {1} 자리 id, {2} 번호)</summary>
-        const string DungeonKeyFormat = "dungeon.{0}.{1}.{2}";
-
-        /// <summary>보스 키 형식 ({0} 던전 세대)</summary>
-        const string BossKeyFormat = "dungeon.{0}.boss";
-
         /// <summary>마법사 최대 체력 (v1: 100 + 생존 4 × 6, 임시)</summary>
         const float PlayerMaxHp = 124f;
-
-        /// <summary>놓을 자리를 NavMesh에 붙일 때 찾는 거리 (m)</summary>
-        const float SampleDistance = 4f;
 
         /// <summary>용병을 입구 둘레에 놓는 간격 (m)</summary>
         const float PartySpread = 2f;
@@ -131,8 +112,14 @@ namespace Mage
         /// <summary>살아 있는 소탕 대상</summary>
         readonly List<EnemyController> _targets = new();
 
-        /// <summary>떨어진 금화 지점 (없으면 null)</summary>
-        InteractPointView _goldPile;
+        /// <summary>고블린 던전 캡슐</summary>
+        DungeonService _dungeon;
+
+        /// <summary>숲 리셋 캡슐</summary>
+        ForestResetService _reset;
+
+        /// <summary>떨어진 금화 캡슐</summary>
+        FieldLootHandler _loot;
 
         /// <summary>지도 탭 입력 (Exit에서 구독 해제)</summary>
         InputAction _map;
@@ -146,40 +133,32 @@ namespace Mage
         /// <summary>들어올 때 목표가 바뀌었는지 (Reveal에서 알림)</summary>
         bool _objectiveChanged;
 
-        /// <summary>리셋 연출에서 일어날 숲 시체</summary>
-        readonly List<EnemyController> _corpses = new();
-
-        /// <summary>일어날 시체마다 돌아갈 집 (원래 적 자리)</summary>
-        readonly Dictionary<EnemyController, Vector3> _corpseHomes = new();
-
-        /// <summary>숲 적 자리 수 합 (70% 판정)</summary>
+        /// <summary>숲 적 자리 수 합 (리셋 캡슐의 70% 판정에 넘김)</summary>
         int _forestTotal;
 
-        /// <summary>이번 진입에 리셋 연출을 트는지</summary>
-        bool _resetting;
-
-        #region OnSceneReady - 현장 규칙(보관 장소 = 던전 입구 밖)·안개 지도, 리셋 여부, 차원문 자리, 던전 준비, 마법사를 입구에, 용병·숲 적·던전 적·보스·떨어진 금화를 놓고, 금화 알림 구독, 시전·안개·시계·HUD·지도를 연결, 목표를 정함 (덮개 밑)
+        #region OnSceneReady - 현장 규칙(보관 장소 = 던전 입구 밖)·안개 지도, 캡슐(숲 리셋·던전·떨어진 금화)을 만들어 잇고(몬스터가 보관한 금화 → 던전), 차원문 자리, 마법사를 입구에, 용병·숲 적(시체는 리셋 캡슐에)·던전·떨어진 금화를 놓고, 시전·안개·시계·HUD·지도를 연결, 목표를 정함 (덮개 밑)
         protected override void OnSceneReady()
         {
             _view = FindView<FieldView>();
             if (_view == null) return;
             // 이번 판 데이터
             RunEntry run = Game.Run;
-            _service = new FieldService(_view.PlayerUnit) { StashPoint = _view.DungeonOutside };
+            _service = new FieldService(_view.PlayerUnit) { StashPoint = _view.Dungeon.Outside };
             _fog = new FogMapService(_view.MapArea, run.ForestFog);
             run.ForestFog = _fog.Revealed;
-            _resetting = run.ForestResetPending;
+            _reset = new ForestResetService(run.ForestReset, _view.ResetSequence, _service);
+            _reset.Finished += OnResetFinished;
+            _dungeon = new DungeonService(run.Dungeon, _view.Dungeon, _service);
+            _dungeon.Cleared += OnDungeonCleared;
+            _loot = new FieldLootHandler(run.Loot, _service, _view.GoldPilePrefab);
+            _service.LootStored += _dungeon.AddStash;
             PlacePortal(run);
-            PrepareDungeon(run);
             _view.Player.PlaceAt(_view.Entry);
             _view.PlayerUnit.Init(PlayerMaxHp);
             SpawnParty(run);
             SpawnEnemies(run);
-            SpawnDungeon(run);
-            SpawnGold(run);
-            _service.LootTaken += OnLootTaken;
-            _service.LootDropped += OnLootDropped;
-            _service.LootStored += OnLootStored;
+            _dungeon.Spawn();
+            _loot.Spawn();
             _view.Cast.Init(run, DataManager.Instance.Spells, DataManager.Instance.Runes, _service, _view.Player, _view.PlayerUnit, _view.Detector);
             _view.FogReveal.Init(_fog);
             _view.Clock.Init(run);
@@ -187,7 +166,7 @@ namespace Mage
             _view.Hud.Minimap.Bind(_fog, _view.Player.transform, ObjectivePosition, _view.Entry.position);
             UIManager.Instance.SetMapSource(_fog, _view.Player.transform, ObjectivePosition, _view.Entry.position);
             _view.Hud.InteractPrompt.gameObject.SetActive(false);
-            if (!_resetting && QuestActive(run) && _targets.Count == 0) run.QuestCleared = true;
+            if (!_reset.IsResetting && QuestActive(run) && _targets.Count == 0) run.QuestCleared = true;
             _objectiveChanged = UpdateObjective(false);
         }
         #endregion
@@ -205,11 +184,11 @@ namespace Mage
             _map = InputSystem.actions.FindAction(MapActionPath);
             if (_map != null) _map.performed += OnMapPressed;
             else Debug.LogError($"[Field] {MapActionPath} 액션 없음. 지도 튜토리얼을 못 배움");
-            if (_resetting)
+            if (_reset.IsResetting)
             {
                 SetControl(false);
                 _view.HudCanvas.enabled = false;
-                _view.ResetSequence.Play(_view.Portal, _corpses, _view.Player.transform, OnResetFinished);
+                _reset.Play(_view.Portal, _view.Player.transform);
                 return;
             }
             StartControl();
@@ -246,6 +225,12 @@ namespace Mage
                 _view.Hud.Minimap.Unbind();
             }
             if (_service != null) _service.CombatChanged -= OnCombatChanged;
+            if (_reset != null) _reset.Finished -= OnResetFinished;
+            if (_dungeon != null)
+            {
+                _dungeon.Cleared -= OnDungeonCleared;
+                if (_service != null) _service.LootStored -= _dungeon.AddStash;
+            }
             if (_map != null) _map.performed -= OnMapPressed;
             UIManager.Instance.ClearMapSource();
             TutorialManager.Instance.SetSuppressed(false);
@@ -296,8 +281,8 @@ namespace Mage
             {
                 case ExitId: Return(); break;
                 case GoldId: PickGold(); break;
-                case DungeonEnterId: MoveParty(_view.DungeonStart); break;
-                case DungeonExitId: MoveParty(_view.DungeonOutside); break;
+                case DungeonEnterId: MoveParty(_view.Dungeon.StartPoint); break;
+                case DungeonExitId: MoveParty(_view.Dungeon.Outside); break;
                 case StashId: TakeStash(); break;
                 default: Debug.LogWarning($"[Field] 모르는 지점 id: {target.Id} ({target.name})"); break;
             }
@@ -314,11 +299,11 @@ namespace Mage
         }
         #endregion
 
-        #region PickGold - 떨어진 금화를 다 주워 금화에 더함 (지점은 금화 알림이 지움)
+        #region PickGold - 떨어진 금화를 다 주워 금화에 더함 (지점은 금화 캡슐이 지움)
         void PickGold()
         {
             // 주운 금화
-            int gold = _service.TakeLoot();
+            int gold = _loot.Pick();
             if (gold <= 0) return;
             Game.Run.Gold += gold;
             UIManager.Instance.ShowToast(Table, GoldPickedKey, gold);
@@ -334,7 +319,7 @@ namespace Mage
                 // 입구 기준 자리 (뒤 양옆)
                 Vector3 offset = new((i % 2 == 0 ? -1f : 1f) * PartySpread, 0f, -PartySpread);
                 // 놓을 곳
-                Vector3 position = Sample(_view.Entry.position + _view.Entry.rotation * offset);
+                Vector3 position = FieldService.Sample(_view.Entry.position + _view.Entry.rotation * offset);
                 // 놓은 용병
                 MercenaryController merc = Object.Instantiate(_view.MercenaryPrefab, position, _view.Entry.rotation);
                 merc.Init(run.Party[i], _service, _view.Player.transform, i);
@@ -344,7 +329,7 @@ namespace Mage
         }
         #endregion
 
-        #region SpawnEnemies - 적 자리마다 수만큼 놓음: 쓰러진 키는 쓰러진 곳에 시체, 아니면 자리 둘레에 살아 있는 적. 무리 번호는 자리 순서. 의뢰 소탕 대상이면 따로 셈
+        #region SpawnEnemies - 적 자리마다 수만큼 놓음: 쓰러진 키는 쓰러진 곳에 시체(리셋 캡슐에 넘김), 아니면 자리 둘레에 살아 있는 적. 무리 번호는 자리 순서. 의뢰 소탕 대상이면 따로 셈
         /// <param name="run">이번 판 데이터</param>
         void SpawnEnemies(RunEntry run)
         {
@@ -366,17 +351,13 @@ namespace Mage
                     // 쓰러졌는지, 쓰러진 곳
                     bool dead = run.ForestDead.TryGetValue(key, out Vector3 corpseAt);
                     // 놓을 곳
-                    Vector3 position = Sample(dead ? corpseAt : SpawnPosition(point));
+                    Vector3 position = FieldService.Sample(dead ? corpseAt : SpawnPosition(point));
                     // 놓은 적
                     EnemyController enemy = Object.Instantiate(_view.EnemyPrefab, position, Quaternion.Euler(0f, Random.Range(0f, 360f), 0f));
                     if (dead)
                     {
                         enemy.InitCorpse(point.Monster, key, pack);
-                        if (_resetting)
-                        {
-                            _corpses.Add(enemy);
-                            _corpseHomes[enemy] = point.transform.position;
-                        }
+                        _reset.AddCorpse(enemy, point.transform.position);
                         continue;
                     }
                     enemy.Init(point.Monster, _service, key, pack);
@@ -397,22 +378,6 @@ namespace Mage
         }
         #endregion
 
-        #region Sample - 가까운 NavMesh 위 자리 (없으면 그대로)
-        /// <param name="position">놓으려는 곳</param>
-        static Vector3 Sample(Vector3 position) =>
-            NavMesh.SamplePosition(position, out NavMeshHit hit, SampleDistance, NavMesh.AllAreas) ? hit.position : position;
-        #endregion
-
-        #region SpawnGold - 떨어진 금화가 있으면 그 자리에 금화 지점을 놓음
-        /// <param name="run">이번 판 데이터</param>
-        void SpawnGold(RunEntry run)
-        {
-            if (run.DroppedGold <= 0) return;
-            _goldPile = Object.Instantiate(_view.GoldPilePrefab, run.DroppedGoldPosition, Quaternion.identity);
-            _service.SetLoot(_goldPile.transform, run.DroppedGold);
-        }
-        #endregion
-
         #region PlacePortal - 이 판에서 처음이면 3구역 먼 쪽 절반에서 차원문 자리를 정해 판 데이터에 남기고, 차원문을 그 자리에
         /// <param name="run">이번 판 데이터</param>
         void PlacePortal(RunEntry run)
@@ -423,7 +388,7 @@ namespace Mage
                 Bounds area = _view.PortalArea;
                 // 고른 곳
                 var picked = new Vector3(Random.Range(area.min.x, area.max.x), area.center.y, Random.Range(area.min.z, area.max.z));
-                run.PortalPosition = Sample(picked);
+                run.PortalPosition = FieldService.Sample(picked);
             }
             _view.Portal.position = run.PortalPosition.Value;
         }
@@ -563,15 +528,11 @@ namespace Mage
         }
         #endregion
 
-        #region DropGold - 앞에 떨어진 금화는 사라지고, 들고 있던 금화를 죽은 자리에 떨굼 (없으면 떨어진 것 없음)
+        #region DropGold - 들고 있던 금화를 죽은 자리에 떨굼 (금화 캡슐이 앞 금화를 지우고 다음 진입 때 놓음. 없으면 떨어진 것 없음)
         /// <param name="run">이번 판 데이터</param>
         void DropGold(RunEntry run)
         {
-            if (_goldPile != null) Object.Destroy(_goldPile.gameObject);
-            _goldPile = null;
-            _service.SetLoot(null, 0);
-            run.DroppedGold = run.Gold;
-            run.DroppedGoldPosition = _view.Player.transform.position;
+            _loot.DropOnDeath(_view.Player.transform.position, run.Gold);
             run.Gold = 0;
         }
         #endregion
@@ -613,24 +574,20 @@ namespace Mage
         }
         #endregion
 
-        #region OnResetFinished - 리셋 연출이 끝남: 시체를 원래 적 자리를 집으로 살리고(소탕 대상이면 다시 셈), 쓰러진 기록·리셋 표시를 지움, HUD를 켜고 조작 시작
-        void OnResetFinished()
+        #region OnResetFinished - 리셋 연출이 끝나 시체가 일어남: 살아난 적의 쓰러짐을 구독하고 소탕 대상이면 다시 셈, 숲 쓰러진 기록을 지움, HUD를 켜고 조작 시작
+        /// <param name="revived">살아난 적</param>
+        void OnResetFinished(IReadOnlyList<EnemyController> revived)
         {
             if (_view == null) return;
             // 이번 판 데이터
             RunEntry run = Game.Run;
-            foreach (EnemyController corpse in _corpses)
+            foreach (EnemyController enemy in revived)
             {
-                if (corpse == null) continue;
-                corpse.Revive(_service, _corpseHomes.TryGetValue(corpse, out Vector3 home) ? home : corpse.transform.position);
-                corpse.Died += OnEnemyDied;
-                if (IsQuestTarget(run, corpse.Monster)) _targets.Add(corpse);
+                if (enemy == null) continue;
+                enemy.Died += OnEnemyDied;
+                if (IsQuestTarget(run, enemy.Monster)) _targets.Add(enemy);
             }
-            _corpses.Clear();
-            _corpseHomes.Clear();
             run.ForestDead.Clear();
-            run.ForestResetPending = false;
-            _resetting = false;
             if (QuestActive(run) && _targets.Count == 0) run.QuestCleared = true;
             if (UpdateObjective(false)) _objectiveChanged = true;
             _view.HudCanvas.enabled = true;
@@ -638,136 +595,8 @@ namespace Mage
         }
         #endregion
 
-        #region PrepareDungeon - 던전이 아직 없거나 새로 만들어야 하면: 세대를 올리고 쓰러진 기록·클리어·보관 금화를 비우고 보스를 후보 중 무작위로 고름 (모양은 고정, 무작위 형태는 보류)
-        /// <param name="run">이번 판 데이터</param>
-        void PrepareDungeon(RunEntry run)
-        {
-            if (run.DungeonBossId != null && !run.DungeonNeedsReset) return;
-            run.DungeonGeneration++;
-            run.DungeonDead.Clear();
-            run.DungeonCleared = false;
-            run.DungeonNeedsReset = false;
-            run.DungeonStashGold = 0;
-            // 보스 후보
-            MonsterSO[] choices = _view.BossChoices;
-            // 고른 보스
-            MonsterSO pick = choices != null && choices.Length > 0 ? choices[Random.Range(0, choices.Length)] : null;
-            run.DungeonBossId = pick != null ? pick.Id : string.Empty;
-        }
-        #endregion
-
-        #region SpawnDungeon - 던전 적 자리마다 수만큼 놓음 (쓰러진 키는 시체, 키에 던전 세대가 들어감), 보스를 놓음. 무리 번호는 숲과 안 겹치게
-        /// <param name="run">이번 판 데이터</param>
-        void SpawnDungeon(RunEntry run)
-        {
-            // 무리 번호 (던전 자리마다 하나)
-            int pack = DungeonPackBase;
-            foreach (SpawnPointView point in _view.DungeonSpawnPoints)
-            {
-                if (point == null || point.Monster == null)
-                {
-                    Debug.LogWarning("[Field] 비었거나 몬스터가 없는 던전 적 자리", point);
-                    continue;
-                }
-                pack++;
-                for (int i = 0; i < point.Count; i++)
-                {
-                    // 이 적 키
-                    string key = string.Format(CultureInfo.InvariantCulture, DungeonKeyFormat, run.DungeonGeneration, point.Id, i);
-                    // 쓰러졌는지, 쓰러진 곳
-                    bool dead = run.DungeonDead.TryGetValue(key, out Vector3 corpseAt);
-                    // 놓은 적
-                    EnemyController enemy = Object.Instantiate(_view.EnemyPrefab, Sample(dead ? corpseAt : SpawnPosition(point)), Quaternion.Euler(0f, Random.Range(0f, 360f), 0f));
-                    if (dead)
-                    {
-                        enemy.InitCorpse(point.Monster, key, pack);
-                        continue;
-                    }
-                    enemy.Init(point.Monster, _service, key, pack);
-                    enemy.Died += OnDungeonEnemyDied;
-                }
-            }
-            SpawnBoss(run, pack + 1);
-        }
-        #endregion
-
-        #region SpawnBoss - 이번 던전 보스를 보스 자리에 놓음 (쓰러졌으면 시체). 패턴에 현장 규칙·부하 부르기를 넘김
-        /// <param name="run">이번 판 데이터</param>
-        /// <param name="pack">보스 무리 번호 (부하도 같음)</param>
-        void SpawnBoss(RunEntry run, int pack)
-        {
-            // 보스 데이터
-            MonsterSO boss = FindBoss(run.DungeonBossId);
-            if (boss == null)
-            {
-                Debug.LogWarning($"[Field] 던전 보스 없음: {run.DungeonBossId}");
-                return;
-            }
-            // 보스 키
-            string key = string.Format(CultureInfo.InvariantCulture, BossKeyFormat, run.DungeonGeneration);
-            // 쓰러졌는지, 쓰러진 곳
-            bool dead = run.DungeonDead.TryGetValue(key, out Vector3 corpseAt);
-            // 놓은 보스
-            EnemyController enemy = Object.Instantiate(_view.BossPrefab, Sample(dead ? corpseAt : _view.BossPoint.position), _view.BossPoint.rotation);
-            if (dead)
-            {
-                enemy.InitCorpse(boss, key, pack);
-                return;
-            }
-            enemy.Init(boss, _service, key, pack);
-            enemy.Died += OnBossDied;
-            if (enemy.TryGetComponent(out BossPatternController pattern))
-                pattern.Init(_service, (monster, near) => Summon(monster, near, pack));
-        }
-        #endregion
-
-        #region FindBoss - 보스 후보에서 id로 찾기 (대소문자 구분). 없으면 null
-        /// <param name="id">몬스터 id</param>
-        MonsterSO FindBoss(string id)
-        {
-            if (string.IsNullOrEmpty(id) || _view.BossChoices == null) return null;
-            foreach (MonsterSO monster in _view.BossChoices)
-                if (monster != null && string.Equals(monster.Id, id, System.StringComparison.Ordinal)) return monster;
-            return null;
-        }
-        #endregion
-
-        #region Summon - 보스 둘레에 부하 하나를 놓고 마법사를 쫓게 함 (키가 없어 판 데이터에 안 남음)
-        /// <param name="monster">부하 데이터</param>
-        /// <param name="near">보스 자리</param>
-        /// <param name="pack">보스 무리 번호</param>
-        EnemyController Summon(MonsterSO monster, Vector3 near, int pack)
-        {
-            // 흩는 거리
-            Vector2 offset = Random.insideUnitCircle * SummonSpread;
-            // 놓은 부하
-            EnemyController enemy = Object.Instantiate(_view.EnemyPrefab, Sample(near + new Vector3(offset.x, 0f, offset.y)), Quaternion.identity);
-            enemy.Init(monster, _service, string.Empty, pack);
-            enemy.Wake(_service.Player);
-            return enemy;
-        }
-        #endregion
-
-        #region OnDungeonEnemyDied - 던전 적이 쓰러진 곳을 판 데이터에 남김
-        /// <param name="enemy">쓰러진 적</param>
-        void OnDungeonEnemyDied(EnemyController enemy)
-        {
-            enemy.Died -= OnDungeonEnemyDied;
-            Game.Run.DungeonDead[enemy.SpawnKey] = enemy.transform.position;
-        }
-        #endregion
-
-        #region OnBossDied - 보스가 쓰러짐: 판 데이터에 남기고 던전 클리어, 토스트
-        /// <param name="enemy">쓰러진 보스</param>
-        void OnBossDied(EnemyController enemy)
-        {
-            enemy.Died -= OnBossDied;
-            // 이번 판 데이터
-            RunEntry run = Game.Run;
-            run.DungeonDead[enemy.SpawnKey] = enemy.transform.position;
-            run.DungeonCleared = true;
-            UIManager.Instance.ShowToast(Table, DungeonClearedKey);
-        }
+        #region OnDungeonCleared - 던전 보스가 쓰러짐: 토스트
+        void OnDungeonCleared() => UIManager.Instance.ShowToast(Table, DungeonClearedKey);
         #endregion
 
         #region MoveParty - 화면이 덮인 사이 마법사·살아 있는 용병을 그 자리로 옮기고, 다 걷히면 조작을 돌려줌 (던전 드나들기)
@@ -793,7 +622,7 @@ namespace Mage
                 if (merc == null || !merc.Unit.IsAlive) continue;
                 // 자리 기준 뒤 양옆
                 Vector3 offset = new((i % 2 == 0 ? -1f : 1f) * PartySpread, 0f, -PartySpread);
-                merc.WarpTo(Sample(point.position + point.rotation * offset));
+                merc.WarpTo(FieldService.Sample(point.position + point.rotation * offset));
             }
         }
         #endregion
@@ -801,60 +630,24 @@ namespace Mage
         #region TakeStash - 던전 보관 금화가 있으면 다 챙겨 금화에 더함 (없으면 비었다)
         void TakeStash()
         {
-            // 이번 판 데이터
-            RunEntry run = Game.Run;
-            // 보관 금화
-            int gold = run.DungeonStashGold;
+            // 챙긴 보관 금화
+            int gold = _dungeon.TakeStash();
             if (gold <= 0)
             {
                 UIManager.Instance.ShowToast(Table, StashEmptyKey);
                 return;
             }
-            run.DungeonStashGold = 0;
-            run.Gold += gold;
+            Game.Run.Gold += gold;
             UIManager.Instance.ShowToast(Table, StashTakenKey, gold);
         }
         #endregion
 
-        #region OnLootTaken - 떨어진 금화가 주워짐 (플레이어·고블린): 지점을 지우고 판 데이터 떨어진 금화를 비움
-        void OnLootTaken()
-        {
-            if (_goldPile != null) Object.Destroy(_goldPile.gameObject);
-            _goldPile = null;
-            Game.Run.DroppedGold = 0;
-        }
-        #endregion
-
-        #region OnLootDropped - 들고 가던 몬스터가 쓰러져 금화를 떨굼: 그 자리(NavMesh 위)에 금화 지점을 놓고 판 데이터·현장 규칙에 남김
-        /// <param name="position">떨군 곳</param>
-        /// <param name="gold">금화</param>
-        void OnLootDropped(Vector3 position, int gold)
-        {
-            // 이번 판 데이터
-            RunEntry run = Game.Run;
-            if (_goldPile != null) Object.Destroy(_goldPile.gameObject);
-            // 놓을 곳
-            Vector3 at = Sample(position);
-            run.DroppedGold = gold;
-            run.DroppedGoldPosition = at;
-            _goldPile = Object.Instantiate(_view.GoldPilePrefab, at, Quaternion.identity);
-            _service.SetLoot(_goldPile.transform, gold);
-        }
-        #endregion
-
-        #region OnLootStored - 몬스터가 금화를 던전에 보관함: 판 데이터 보관 금화에 더함
-        /// <param name="gold">금화</param>
-        void OnLootStored(int gold) => Game.Run.DungeonStashGold += gold;
-        #endregion
-
-        #region MarkLeaving - 숲을 나갈 때(입구 귀환·죽음): 숲 적 자리 대비 쓰러뜨린 적이 70% 이상이면 다음에 리셋, 던전을 클리어했으면 새 던전 표시·보관 금화는 사라짐
+        #region MarkLeaving - 숲을 나갈 때(입구 귀환·죽음): 리셋 캡슐에 숲 적 자리 대비 쓰러뜨린 수를 넘기고(70% 이상이면 다음에 리셋), 던전 캡슐에 알림(클리어했으면 새 던전·보관 금화는 사라짐)
         /// <param name="run">이번 판 데이터</param>
         void MarkLeaving(RunEntry run)
         {
-            if (_forestTotal > 0 && (float)run.ForestDead.Count / _forestTotal >= ForestResetRatio) run.ForestResetPending = true;
-            if (!run.DungeonCleared) return;
-            run.DungeonNeedsReset = true;
-            run.DungeonStashGold = 0;
+            _reset.MarkLeaving(run.ForestDead.Count, _forestTotal);
+            _dungeon.MarkLeaving();
         }
         #endregion
 
