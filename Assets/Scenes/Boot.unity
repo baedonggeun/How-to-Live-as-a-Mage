@@ -7067,6 +7067,10 @@ MonoBehaviour:
   _recruit: {fileID: 1382329373}
   _questBoard: {fileID: 218923651}
   _menuMap: {fileID: 679274517}
+  _menuJournal: {fileID: 291910575}
+  _menuSpells: {fileID: 1492013306}
+  _menuTutorials: {fileID: 1000725940}
+  _settingsBinder: {fileID: 1179378750}
   _tutorialWindow: {fileID: 1668459831}
 --- !u!1 &1025414389
 GameObject:

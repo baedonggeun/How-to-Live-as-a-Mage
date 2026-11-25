@@ -1,9 +1,10 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mage
 {
-    /// <summary>튜토리얼 탭 ← 배운 튜토리얼 (이 PC). 탭이 켜질 때 목록을 다시 만들고, 스포일러 토글을 켜면 안 배운 것까지 다 보임. 항목을 누르면 제목·설명</summary>
+    /// <summary>튜토리얼 탭 ← 배운 튜토리얼 (이 PC. 튜토리얼 목록·배웠는지는 UIManager가 Init으로 넘김). 탭이 켜질 때 목록을 다시 만들고, 스포일러 토글을 켜면 안 배운 것까지 다 보임. 항목을 누르면 제목·설명</summary>
     public sealed class TutorialListUIBinder : MonoBehaviour
     {
         /// <summary>메뉴 창 참조 (인스펙터에서만 연결)</summary>
@@ -12,12 +13,33 @@ namespace Mage
         /// <summary>지금 만든 목록 항목</summary>
         readonly List<TutorialListItemView> _items = new();
 
-        #region OnEnable - 토글 구독, 목록 만들기
+        /// <summary>튜토리얼 전부 (DataManager 순서. Init 전이면 null)</summary>
+        IReadOnlyList<TutorialSO> _tutorials;
+
+        /// <summary>이 PC에서 배운 튜토리얼인지 (튜토리얼 id → 배웠는지. Init 전이면 null)</summary>
+        Func<string, bool> _isLearned;
+
+        #region Init - 튜토리얼 목록·배웠는지 묻는 함수를 받음 (UIManager가 Start에서)
+        /// <param name="tutorials">튜토리얼 전부 (DataManager 순서)</param>
+        /// <param name="isLearned">이 PC에서 배운 튜토리얼인지</param>
+        public void Init(IReadOnlyList<TutorialSO> tutorials, Func<string, bool> isLearned)
+        {
+            _tutorials = tutorials ?? throw new ArgumentNullException(nameof(tutorials));
+            _isLearned = isLearned ?? throw new ArgumentNullException(nameof(isLearned));
+        }
+        #endregion
+
+        #region OnEnable - 토글 구독, 목록 만들기 (Init 전이면 에러. 탭을 여는 건 늘 Init 뒤)
         void OnEnable()
         {
             if (_view == null)
             {
                 Debug.LogError("[Menu] TutorialListUIBinder에 GameMenuView 연결 안 됨", this);
+                return;
+            }
+            if (_tutorials == null)
+            {
+                Debug.LogError("[Menu] TutorialListUIBinder Init 안 됨 (UIManager 연결 확인)", this);
                 return;
             }
             _view.SpoilerToggle.onValueChanged.AddListener(OnSpoilerChanged);
@@ -49,10 +71,10 @@ namespace Mage
             bool showAll = _view.SpoilerToggle.isOn;
             // 목록 첫 항목 (설명을 처음 보일 것. 없으면 null)
             TutorialSO first = null;
-            foreach (TutorialSO tutorial in DataManager.Instance.Tutorials)
+            foreach (TutorialSO tutorial in _tutorials)
             {
                 if (tutorial == null) continue;
-                if (!showAll && !TutorialManager.Instance.IsLearned(tutorial.Id)) continue;
+                if (!showAll && !_isLearned(tutorial.Id)) continue;
                 // 이 튜토리얼 항목
                 TutorialListItemView item = Instantiate(_view.TutorialItemPrefab, _view.TutorialList);
                 item.Title.StringReference.SetReference(tutorial.Title.TableReference, tutorial.Title.TableEntryReference);

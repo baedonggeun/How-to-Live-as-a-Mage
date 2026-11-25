@@ -37,8 +37,8 @@ namespace Mage
         /// <summary>전초기지 첫 도착 연출(역마차)을 봤는지. 새 판은 false, 디버그 판은 true (연출은 새 게임으로 확인)</summary>
         public bool HasArrived { get; set; }
 
-        /// <summary>지금 목표 (임무 일지). 없으면 null. 판마다 새로</summary>
-        public ObjectiveSO CurrentObjective { get; set; }
+        /// <summary>임무 일지 지금 목표 (JournalService만 만짐)</summary>
+        public JournalEntry Journal { get; } = new();
 
         /// <summary>숲에서 쓰러뜨린 적 (ForestEnemyService만 만짐)</summary>
         public ForestEntry Forest { get; } = new();

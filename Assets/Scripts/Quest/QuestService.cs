@@ -17,6 +17,12 @@ namespace Mage
         /// <summary>받은 의뢰의 기간 (일, 식량 계산. 의뢰가 없으면 0)</summary>
         public int NeededDays => _data.Current != null ? _data.Current.Days : 0;
 
+        /// <summary>받은 의뢰 (없으면 null. 임무 일지 의뢰 줄)</summary>
+        public QuestSO Current => _data.Current;
+
+        /// <summary>받은 의뢰 기한 (판 시각 초, 아직 안 셌으면 0. 임무 일지 남은 날)</summary>
+        public float Deadline => _data.Deadline;
+
         #region QuestService - 의뢰 판 데이터를 받음
         /// <param name="data">의뢰 판 데이터</param>
         public QuestService(QuestEntry data)

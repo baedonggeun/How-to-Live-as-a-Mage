@@ -119,6 +119,10 @@ namespace Mage
         public SpellSO[] CollectedSpells() => _spells.Where(spell => spell != null && _data.CollectedSpells.Contains(spell)).ToArray();
         #endregion
 
+        #region CollectedSpellsInRegisterOrder - 등록한 다중 룬 마법 (등록 순서, 복사본. 메뉴 주문 도감 탭)
+        public SpellSO[] CollectedSpellsInRegisterOrder() => _data.CollectedSpells.Where(spell => spell != null).ToArray();
+        #endregion
+
         #region TryRegister - 생략 없이 시전한 다중 룬 마법이 아직 등록 안 됐으면 등록하고 비교 그림을 다시 만든 뒤 알림 (룬 주문은 등록 없음). 새로 등록했으면 true
         /// <param name="spec">판정 결과</param>
         public bool TryRegister(SpellJudgeSpec spec)

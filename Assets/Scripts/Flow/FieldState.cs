@@ -6,7 +6,7 @@ using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>숲. 3구역 회색 숲에 마법사·용병·적(쓰러뜨린 적은 쓰러진 자리에 시체)과 1구역 고블린 던전(지하, 보스)을 두고 현장 시전·안개 지도·시계·12시 안내(전투 중엔 숨김)를 켬. 숲이 70% 넘게 빈 채 나갔으면 들어올 때 리셋 연출 뒤 시체가 일어남. 숲 입구에서 F로 귀환, 소탕 대상을 다 쓰러뜨리면 의뢰 목표 달성, 기간이 지나면 의뢰 실패. 죽으면 금화를 떨구고 덮개 밑에서 용병 도망을 빠르게 돌린 뒤 여관 방 침대(방이 없으면 정문)에서 부활. 숲 적·의뢰·용병·던전·숲 리셋·떨어진 금화·코덱스는 캡슐이 맡고, 여기선 캡슐을 만들어 이음 (토스트·금화·목표·튜토리얼·화면 전환·시전 소리)</summary>
+    /// <summary>숲. 3구역 회색 숲에 마법사·용병·적(쓰러뜨린 적은 쓰러진 자리에 시체)과 1구역 고블린 던전(지하, 보스)을 두고 현장 시전·안개 지도·시계·12시 안내(전투 중엔 숨김)를 켬. 숲이 70% 넘게 빈 채 나갔으면 들어올 때 리셋 연출 뒤 시체가 일어남. 숲 입구에서 F로 귀환, 소탕 대상을 다 쓰러뜨리면 의뢰 목표 달성, 기간이 지나면 의뢰 실패. 죽으면 금화를 떨구고 덮개 밑에서 용병 도망을 빠르게 돌린 뒤 여관 방 침대(방이 없으면 정문)에서 부활. 숲 적·의뢰·용병·던전·숲 리셋·떨어진 금화·임무 일지·코덱스는 캡슐이 맡고, 여기선 캡슐을 만들어 이음 (토스트·금화·목표·튜토리얼·화면 전환·시전 소리)</summary>
     public sealed class FieldState : FlowStateBase
     {
         /// <summary>이 상태의 씬 이름 (지역이 늘면 의뢰 데이터에서 받음)</summary>
@@ -120,8 +120,11 @@ namespace Mage
         /// <summary>떨어진 금화 캡슐</summary>
         FieldLootHandler _loot;
 
-        /// <summary>코덱스 캡슐 (판정·이름·등록. 현장 시전에 넘김)</summary>
+        /// <summary>코덱스 캡슐 (판정·이름·등록. 현장 시전·메뉴 주문 도감에 넘김)</summary>
         CodexService _codex;
+
+        /// <summary>임무 일지 캡슐 (지금 목표)</summary>
+        JournalService _journal;
 
         /// <summary>지도 탭 입력 (Exit에서 구독 해제)</summary>
         InputAction _map;
@@ -135,7 +138,7 @@ namespace Mage
         /// <summary>들어올 때 목표가 바뀌었는지 (Reveal에서 알림)</summary>
         bool _objectiveChanged;
 
-        #region OnSceneReady - 현장 규칙(보관 장소 = 던전 입구 밖)·안개 지도와 캡슐(의뢰·숲 리셋·숲 적·용병·던전·떨어진 금화·코덱스)을 만들어 잇고(숲 적 → 의뢰 소탕 대상·리셋 시체, 몬스터가 보관한 금화 → 던전, 코덱스 등록 → 토스트, 시전 성공·실패 → 소리), 차원문을 놓고, 마법사를 입구에, 용병·숲 적·던전·떨어진 금화를 놓고, 시전·안개·시계·HUD·지도를 연결, 목표를 정함 (덮개 밑)
+        #region OnSceneReady - 현장 규칙(보관 장소 = 던전 입구 밖)·안개 지도와 캡슐(의뢰·임무 일지·숲 리셋·숲 적·용병·던전·떨어진 금화·코덱스)을 만들어 잇고(숲 적 → 의뢰 소탕 대상·리셋 시체, 몬스터가 보관한 금화 → 던전, 코덱스 등록 → 토스트, 시전 성공·실패 → 소리, 메뉴 임무 일지·주문 도감에 출처), 차원문을 놓고, 마법사를 입구에, 용병·숲 적·던전·떨어진 금화를 놓고, 시전·안개·시계·HUD·지도를 연결, 목표를 정함 (덮개 밑)
         protected override void OnSceneReady()
         {
             _view = FindView<FieldView>();
@@ -147,6 +150,7 @@ namespace Mage
             _quest = new FieldQuestService(run.Quest);
             _quest.Cleared += OnQuestCleared;
             _quest.Expired += OnQuestExpired;
+            _journal = new JournalService(run.Journal);
             _reset = new ForestResetService(run.ForestReset, _view.ResetSequence, _view.Portal, _view.PortalArea, _service);
             _reset.Finished += OnResetFinished;
             _forest = new ForestEnemyService(run.Forest, _view.SpawnPoints, _view.EnemyPrefab, _service);
@@ -176,6 +180,8 @@ namespace Mage
             _view.HudBinder.Bind(_view.PlayerUnit, _view.Player, _view.Cast, _party.Mercenaries, _service, _fog, ZoneAt, () => _view.Clock.Day);
             _view.Hud.Minimap.Bind(_fog, _view.Player.transform, ObjectivePosition, _view.Entry.position);
             UIManager.Instance.SetMapSource(_fog, _view.Player.transform, ObjectivePosition, _view.Entry.position);
+            UIManager.Instance.SetJournalSource(JournalNow);
+            UIManager.Instance.SetCodexSource(_codex, run.PlayerName);
             _view.Hud.InteractPrompt.gameObject.SetActive(false);
             if (!_reset.IsResetting) _quest.SettleIfEmpty();
             _objectiveChanged = UpdateObjective(false);
@@ -215,7 +221,7 @@ namespace Mage
         }
         #endregion
 
-        #region Exit - 도망 시뮬을 멈추고 게임 속도를 되돌림, 구독·캡슐 연결 해제, 조작 끔, HUD·지도 출처를 놓음, 안내 숨김 풀고 정리, 자막 숨김, 커서 풂
+        #region Exit - 도망 시뮬을 멈추고 게임 속도를 되돌림, 구독·캡슐 연결 해제, 조작 끔, HUD·지도·임무 일지·주문 도감 출처를 놓음, 안내 숨김 풀고 정리, 자막 숨김, 커서 풂
         public override void Exit()
         {
             if (_death != null)
@@ -239,6 +245,8 @@ namespace Mage
             Unwire();
             if (_map != null) _map.performed -= OnMapPressed;
             UIManager.Instance.ClearMapSource();
+            UIManager.Instance.ClearJournalSource();
+            UIManager.Instance.ClearCodexSource();
             TutorialManager.Instance.SetSuppressed(false);
             TutorialManager.Instance.Clear();
             UIManager.Instance.HideSubtitle();
@@ -359,26 +367,27 @@ namespace Mage
         }
         #endregion
 
-        #region UpdateObjective - 받은 의뢰가 없으면 없음, 목표를 안 끝냈으면 소탕, 끝냈으면 돌아가기. 바뀌었으면 판 데이터에 넣고 (notify면) 알림. 바뀌었으면 true
+        #region UpdateObjective - 받은 의뢰가 없으면 없음, 목표를 안 끝냈으면 소탕, 끝냈으면 돌아가기. 임무 일지 캡슐에 넣고, 바뀌었으면 (notify면) 알림. 바뀌었으면 true
         /// <param name="notify">바뀌면 "임무 일지 갱신" 토스트를 띄울지</param>
         bool UpdateObjective(bool notify)
         {
-            // 이번 판 데이터
-            RunEntry run = Game.Run;
             // 정한 목표
             ObjectiveSO next = !_quest.HasQuest ? null : _quest.IsCleared ? _view.ReturnObjective : _view.ClearObjective;
-            if (next == run.CurrentObjective) return false;
-            run.CurrentObjective = next;
+            if (!_journal.Set(next)) return false;
             if (notify) NotifyObjective();
             return true;
         }
         #endregion
 
+        #region JournalNow - 메뉴 임무 일지 탭에 보일 것: 임무 일지 캡슐의 목표, 의뢰 캡슐의 받은 의뢰·기한, 판 시각 (탭이 열릴 때마다 부름)
+        JournalSpec JournalNow() => new(_journal.Current, _quest.Current, _quest.Deadline, Game.Run.Clock.PlaySeconds);
+        #endregion
+
         #region NotifyObjective - 지금 목표가 있으면 "임무 일지 갱신: 이름" 토스트
         void NotifyObjective()
         {
-            // 이번 판 현재 목표
-            ObjectiveSO objective = Game.Run.CurrentObjective;
+            // 지금 목표 (임무 일지 캡슐)
+            ObjectiveSO objective = _journal.Current;
             if (objective == null) return;
             UIManager.Instance.ShowToast(MenuTable, ObjectiveUpdatedKey, objective.Title.GetLocalizedString());
         }

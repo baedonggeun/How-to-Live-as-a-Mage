@@ -22,6 +22,12 @@ namespace Mage
         /// <summary>받은 의뢰의 목표를 끝냈는지 (의뢰가 없으면 false)</summary>
         public bool IsCleared => _data.Current != null && _data.Cleared;
 
+        /// <summary>받은 의뢰 (없으면 null. 임무 일지 의뢰 줄)</summary>
+        public QuestSO Current => _data.Current;
+
+        /// <summary>받은 의뢰 기한 (판 시각 초, 아직 안 셌으면 0. 임무 일지 남은 날)</summary>
+        public float Deadline => _data.Deadline;
+
         /// <summary>받은 의뢰가 있고 아직 목표를 안 끝냈는지</summary>
         bool IsActive => _data.Current != null && !_data.Cleared;
 

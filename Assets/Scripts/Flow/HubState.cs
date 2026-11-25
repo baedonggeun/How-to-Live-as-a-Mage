@@ -6,7 +6,7 @@ using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>전초기지. 첫 도착이면 역마차 연출부터. 1인칭으로 돌아다니며 상호작용 키(F)로 여관(방·식량)·여관 방 책상(코덱스: 룬 주문·다중 룬 마법·주문 연습)·길드(영입·게시판)·정문(경비병)을 씀 → 숲. 여관·원정·영입·의뢰·코덱스·책상은 캡슐이 맡고, 여기선 캡슐을 만들어 이음 (대화 선택지·금화·토스트·목표·화면 글자·화면 전환·주문 연습 소리)</summary>
+    /// <summary>전초기지. 첫 도착이면 역마차 연출부터. 1인칭으로 돌아다니며 상호작용 키(F)로 여관(방·식량)·여관 방 책상(코덱스: 룬 주문·다중 룬 마법·주문 연습)·길드(영입·게시판)·정문(경비병)을 씀 → 숲. 여관·원정·영입·의뢰·임무 일지·코덱스·책상은 캡슐이 맡고, 여기선 캡슐을 만들어 이음 (대화 선택지·금화·토스트·목표·화면 글자·화면 전환·주문 연습 소리)</summary>
     public sealed class HubState : FlowStateBase
     {
         /// <summary>이 상태의 씬 이름</summary>
@@ -162,8 +162,11 @@ namespace Mage
         /// <summary>책상 캡슐</summary>
         DeskService _desk;
 
-        /// <summary>코덱스 캡슐 (판정·이름·등록. 책상 코덱스에 넘김)</summary>
+        /// <summary>코덱스 캡슐 (판정·이름·등록. 책상 코덱스·메뉴 주문 도감에 넘김)</summary>
         CodexService _codex;
+
+        /// <summary>임무 일지 캡슐 (지금 목표)</summary>
+        JournalService _journal;
 
         /// <summary>이번 진입이 첫 도착이라 역마차 연출을 트는지 (OnSceneReady에서 정함)</summary>
         bool _arriving;
@@ -174,7 +177,7 @@ namespace Mage
         /// <summary>이번 진입이 숲에서 죽어 부활한 것인지 (여관 방 침대·정문에서 시작. OnSceneReady에서 정함)</summary>
         bool _respawning;
 
-        #region OnSceneReady - 캡슐(여관·원정·영입·의뢰·코덱스·책상)을 만들어 잇고 (코덱스 등록 → 토스트, 책상 연습 판정 → 소리·튜토리얼), 첫 도착이면 플레이어를 하차 지점에 두고 숨김·화면 글자 숨김(연출 뒤 켬), 숲에서 죽었으면 여관 방 침대(방이 없으면 정문 안쪽), 숲에서 돌아왔으면 정문 밖, 아니면 시작 위치. 파티 수·금화 표시, 안내 글 숨김, 코덱스 표지(이름·마법진), 스태미나 막대
+        #region OnSceneReady - 캡슐(여관·원정·영입·의뢰·임무 일지·코덱스·책상)을 만들어 잇고 (코덱스 등록 → 토스트, 책상 연습 판정 → 소리·튜토리얼, 메뉴 임무 일지·주문 도감에 출처), 첫 도착이면 플레이어를 하차 지점에 두고 숨김·화면 글자 숨김(연출 뒤 켬), 숲에서 죽었으면 여관 방 침대(방이 없으면 정문 안쪽), 숲에서 돌아왔으면 정문 밖, 아니면 시작 위치. 파티 수·금화 표시, 안내 글 숨김, 코덱스 표지(이름·마법진), 스태미나 막대
         protected override void OnSceneReady()
         {
             _view = FindView<HubView>();
@@ -185,6 +188,7 @@ namespace Mage
             _expedition = new ExpeditionService(run.Expedition);
             _recruit = new RecruitService(run.Party);
             _quest = new QuestService(run.Quest);
+            _journal = new JournalService(run.Journal);
             _codex = new CodexService(run.Codex, DataManager.Instance.Spells, DataManager.Instance.Runes);
             _codex.Registered += OnSpellRegistered;
             _view.Codex.PracticeJudged += OnPracticeJudged;
@@ -200,6 +204,8 @@ namespace Mage
             RefreshParty();
             RefreshMoney();
             _view.Codex.ShowCover(run.PlayerName, DataManager.Instance.Runes);
+            UIManager.Instance.SetJournalSource(JournalNow);
+            UIManager.Instance.SetCodexSource(_codex, run.PlayerName);
             _view.Stamina.Bind(_view.Player);
         }
         #endregion
@@ -269,8 +275,8 @@ namespace Mage
         #region NotifyObjective - 지금 목표가 있으면 "임무 일지 갱신: 이름" 토스트
         void NotifyObjective()
         {
-            // 이번 판 현재 목표
-            ObjectiveSO objective = Game.Run.CurrentObjective;
+            // 지금 목표 (임무 일지 캡슐)
+            ObjectiveSO objective = _journal.Current;
             if (objective == null) return;
             UIManager.Instance.ShowToast(MenuTable, ObjectiveUpdatedKey, objective.Title.GetLocalizedString());
         }
@@ -299,7 +305,7 @@ namespace Mage
         }
         #endregion
 
-        #region Exit - 연출 중이면 알림 없이 멈춤, 알림 구독 해제, 책상이면 코덱스를 바로 덮고 머리를 바로 되돌림(책상 캡슐), 조작·지점 찾기 끔, 커서 풀기, 조작 안내·자막 정리
+        #region Exit - 연출 중이면 알림 없이 멈춤, 알림 구독 해제, 책상이면 코덱스를 바로 덮고 머리를 바로 되돌림(책상 캡슐), 조작·지점 찾기 끔, 커서 풀기, 조작 안내·자막 정리, 메뉴 임무 일지·주문 도감 출처를 놓음
         public override void Exit()
         {
             if (_view != null)
@@ -319,6 +325,8 @@ namespace Mage
             if (_codex != null) _codex.Registered -= OnSpellRegistered;
             TutorialManager.Instance.Clear();
             UIManager.Instance.HideSubtitle();
+            UIManager.Instance.ClearJournalSource();
+            UIManager.Instance.ClearCodexSource();
             Cursor.lockState = CursorLockMode.None;
         }
         #endregion
@@ -611,17 +619,18 @@ namespace Mage
         }
         #endregion
 
-        #region UpdateObjective - 목표가 바뀌었으면 판 데이터에 넣고 (notify면) 알림. 바뀌었으면 true
+        #region UpdateObjective - 캡슐 상태로 정한 목표를 임무 일지 캡슐에 넣고, 바뀌었으면 (notify면) 알림. 바뀌었으면 true
         /// <param name="notify">바뀌면 "임무 일지 갱신" 토스트를 띄울지</param>
         bool UpdateObjective(bool notify)
         {
-            // 캡슐 상태로 정한 목표
-            ObjectiveSO next = NextObjective();
-            if (next == Game.Run.CurrentObjective) return false;
-            Game.Run.CurrentObjective = next;
+            if (!_journal.Set(NextObjective())) return false;
             if (notify) NotifyObjective();
             return true;
         }
+        #endregion
+
+        #region JournalNow - 메뉴 임무 일지 탭에 보일 것: 임무 일지 캡슐의 목표, 의뢰 캡슐의 받은 의뢰·기한, 판 시각 (탭이 열릴 때마다 부름)
+        JournalSpec JournalNow() => new(_journal.Current, _quest.Current, _quest.Deadline, Game.Run.Clock.PlaySeconds);
         #endregion
 
         #region RefreshParty - 파티 수 표시 갱신 ({0}/{1})

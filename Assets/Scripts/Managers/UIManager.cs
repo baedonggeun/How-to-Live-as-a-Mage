@@ -8,7 +8,7 @@ using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>씬을 넘어 쓰는 공용 UI 담당: 토스트·자막·설정 창·확인창·일시정지 메뉴·메뉴 창(지도·임무 일지·튜토리얼·주문 도감)·툴팁·NPC 대화·영입 창·게시판 창·화면 페이드</summary>
+    /// <summary>씬을 넘어 쓰는 공용 UI 담당: 토스트·자막·설정 창·확인창·일시정지 메뉴·메뉴 창(지도·임무 일지·튜토리얼·주문 도감)·툴팁·버튼 클릭음·NPC 대화·영입 창·게시판 창·화면 페이드</summary>
     public sealed class UIManager : MonoSingleton<UIManager>
     {
         /// <summary>토스트 표시 시간 (초)</summary>
@@ -67,6 +67,18 @@ namespace Mage
 
         /// <summary>메뉴 창 지도 탭 지도 (Boot 씬 UICanvas/GameMenu/…/MapPage/Map. 출처는 상태가 SetMapSource로 넘김)</summary>
         [SerializeField] MapUIBinder _menuMap;
+
+        /// <summary>메뉴 창 임무 일지 탭 (Boot 씬 UICanvas/GameMenu 안. 출처는 상태가 SetJournalSource로 넘김)</summary>
+        [SerializeField] JournalUIBinder _menuJournal;
+
+        /// <summary>메뉴 창 주문 도감 탭 (Boot 씬 UICanvas/GameMenu 안. 출처는 상태가 SetCodexSource로 넘김)</summary>
+        [SerializeField] SpellCodexUIBinder _menuSpells;
+
+        /// <summary>메뉴 창 튜토리얼 탭 (Boot 씬 UICanvas/GameMenu 안. Start에서 튜토리얼 목록·배웠는지를 넘김)</summary>
+        [SerializeField] TutorialListUIBinder _menuTutorials;
+
+        /// <summary>설정 창 음량·음소거 (Boot 씬 설정 창. Start에서 기기 설정·음량 바꾸기를 넘김)</summary>
+        [SerializeField] SettingsUIBinder _settingsBinder;
 
         /// <summary>설명창 (Boot 씬 UICanvas 자식. 게시판 창 위)</summary>
         [SerializeField] TutorialWindowController _tutorialWindow;
@@ -148,7 +160,7 @@ namespace Mage
         }
         #endregion
 
-        #region InitWindows - 설정 창·확인창·일시정지 메뉴를 끄고 버튼을 한 번만 연결, Esc 구독, 메뉴 창·자막·툴팁·대화·영입·게시판 끄기, M·J 구독
+        #region InitWindows - 설정 창·확인창·일시정지 메뉴를 끄고 버튼을 한 번만 연결, Esc 구독, 메뉴 창·자막·툴팁·대화·영입·게시판 끄기, 메뉴 탭·설정 창 Binder 연결 확인, 클릭음·툴팁 알림 구독, M·J 구독
         void InitWindows()
         {
             if (_pauseMenu == null)
@@ -214,6 +226,10 @@ namespace Mage
             }
 
             if (_menuMap == null) Debug.LogError("[UI] 메뉴 지도 MapUIBinder 연결 안 됨");
+            if (_menuJournal == null) Debug.LogError("[UI] 메뉴 임무 일지 JournalUIBinder 연결 안 됨");
+            if (_menuSpells == null) Debug.LogError("[UI] 메뉴 주문 도감 SpellCodexUIBinder 연결 안 됨");
+            if (_menuTutorials == null) Debug.LogError("[UI] 메뉴 튜토리얼 TutorialListUIBinder 연결 안 됨");
+            if (_settingsBinder == null) Debug.LogError("[UI] 설정 창 SettingsUIBinder 연결 안 됨");
 
             if (_tutorialWindow == null)
                 Debug.LogError("[UI] TutorialWindowController 연결 안 됨");
@@ -222,6 +238,10 @@ namespace Mage
                 _tutorialWindow.gameObject.SetActive(false);
                 if (_tutorialWindow.View != null) _tutorialWindow.View.CloseButton.onClick.AddListener(HideTutorialWindow);
             }
+
+            ClickSoundHandler.Clicked += OnButtonClicked;
+            TooltipHandler.ShowRequested += ShowTooltip;
+            TooltipHandler.HideRequested += HideTooltip;
 
             _map = FindAction(MapActionPath);
             if (_map != null) _map.performed += OnMap;
@@ -236,12 +256,31 @@ namespace Mage
         }
         #endregion
 
-        #region OnDestroy - Esc·M·J 구독 해제
+        #region Start - 메뉴 튜토리얼 탭에 튜토리얼 목록·배웠는지, 설정 창에 기기 설정·음량 바꾸기를 넘김 (매니저끼리 Awake 순서가 없어서 Start에서. 빠진 매니저는 Instance가 에러를 남김)
+        void Start()
+        {
+            // 튜토리얼 목록을 들고 있는 곳 (Boot 상주)
+            DataManager data = DataManager.Instance;
+            // 배운 튜토리얼을 아는 곳 (Boot 상주)
+            TutorialManager tutorials = TutorialManager.Instance;
+            if (_menuTutorials != null && data != null && tutorials != null) _menuTutorials.Init(data.Tutorials, tutorials.IsLearned);
+            // 기기 설정을 들고 있는 곳 (Boot 상주)
+            SettingsManager settings = SettingsManager.Instance;
+            // 음량을 믹서에 넣는 곳 (Boot 상주)
+            AudioManager audio = AudioManager.Instance;
+            if (_settingsBinder != null && settings != null && audio != null) _settingsBinder.Init(settings.Device, audio.SetVolume);
+        }
+        #endregion
+
+        #region OnDestroy - Esc·M·J·클릭음·툴팁 알림 구독 해제
         protected override void OnDestroy()
         {
             if (_cancel != null) _cancel.performed -= OnCancel;
             if (_map != null) _map.performed -= OnMap;
             if (_journal != null) _journal.performed -= OnJournal;
+            ClickSoundHandler.Clicked -= OnButtonClicked;
+            TooltipHandler.ShowRequested -= ShowTooltip;
+            TooltipHandler.HideRequested -= HideTooltip;
             base.OnDestroy();
         }
         #endregion
@@ -566,6 +605,37 @@ namespace Mage
         }
         #endregion
 
+        #region SetJournalSource - 메뉴 창 임무 일지 탭에 보일 것을 만드는 출처를 넘김 (전초기지·숲이 들어올 때)
+        /// <param name="source">지금 목표·받은 의뢰·날 수를 만드는 함수</param>
+        public void SetJournalSource(Func<JournalSpec> source)
+        {
+            if (_menuJournal != null) _menuJournal.Bind(source);
+        }
+        #endregion
+
+        #region ClearJournalSource - 메뉴 창 임무 일지 탭 출처를 놓음 (나갈 때. 다음에 열면 빈 일지)
+        public void ClearJournalSource()
+        {
+            if (_menuJournal != null) _menuJournal.Unbind();
+        }
+        #endregion
+
+        #region SetCodexSource - 메뉴 창 주문 도감 탭에 코덱스 캡슐·플레이어 이름을 넘김 (전초기지·숲이 들어올 때)
+        /// <param name="codex">코덱스 캡슐</param>
+        /// <param name="playerName">플레이어 이름</param>
+        public void SetCodexSource(CodexService codex, string playerName)
+        {
+            if (_menuSpells != null) _menuSpells.Bind(codex, playerName);
+        }
+        #endregion
+
+        #region ClearCodexSource - 메뉴 창 주문 도감 탭 출처를 놓음 (나갈 때. 다음에 열면 빈 도감)
+        public void ClearCodexSource()
+        {
+            if (_menuSpells != null) _menuSpells.Unbind();
+        }
+        #endregion
+
         #region FadeThrough - 화면을 잠깐 검게 덮고 다 덮였을 때 onBlack, 걷힌 뒤 onDone. 이미 덮는 중이면 안 하고 false (연결이 없으면 바로 둘 다 부름)
         /// <param name="onBlack">다 덮였을 때 할 일</param>
         /// <param name="onDone">다 걷힌 뒤 할 일</param>
@@ -629,10 +699,10 @@ namespace Mage
         }
         #endregion
 
-        #region ShowTooltip - 툴팁 띄우기 (TooltipHandler가 부름)
+        #region ShowTooltip - 툴팁 띄우기 (TooltipHandler 알림)
         /// <param name="title">제목</param>
         /// <param name="body">설명 (비면 제목만)</param>
-        public void ShowTooltip(LocalizedString title, LocalizedString body)
+        void ShowTooltip(LocalizedString title, LocalizedString body)
         {
             if (_tooltip == null)
             {
@@ -643,10 +713,20 @@ namespace Mage
         }
         #endregion
 
-        #region HideTooltip - 툴팁 숨기기
-        public void HideTooltip()
+        #region HideTooltip - 툴팁 숨기기 (TooltipHandler 알림)
+        void HideTooltip()
         {
             if (_tooltip != null) _tooltip.Hide();
+        }
+        #endregion
+
+        #region OnButtonClicked - 버튼 클릭음 알림 (ClickSoundHandler): 클릭음을 2D로 냄 (소리 담당이 없으면 무음)
+        /// <param name="sound">낼 클릭음</param>
+        void OnButtonClicked(SoundDataSO sound)
+        {
+            // 소리를 낼 곳 (Boot 상주)
+            AudioManager audio = AudioManager.Instance;
+            if (audio != null) audio.Play(sound);
         }
         #endregion
     }
