@@ -13,10 +13,10 @@ namespace Mage
         /// <summary>룬 그림 (인스펙터에서만 연결)</summary>
         [SerializeField] Image _icon;
 
-        /// <summary>룬 이름 글자. 테이블·키는 상태가 넣음 (인스펙터에서만 연결)</summary>
+        /// <summary>룬 이름 글자. 테이블·키는 생성 캡슐이 넣음 (인스펙터에서만 연결)</summary>
         [SerializeField] LocalizeStringEvent _nameText;
 
-        /// <summary>마우스를 올리면 룬 이름·설명 툴팁 (내용은 상태가 넣음. 인스펙터에서만 연결)</summary>
+        /// <summary>마우스를 올리면 룬 이름·설명 툴팁 (내용은 생성 캡슐이 넣음. 인스펙터에서만 연결)</summary>
         [SerializeField] TooltipHandler _tooltip;
 
         /// <summary>고르기 토글</summary>
