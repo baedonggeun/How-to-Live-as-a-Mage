@@ -485,7 +485,7 @@ namespace Mage
             if (control == null) return;
             try
             {
-                Write(control, target, isFloat ? (float)value : (int)Math.Round(value));
+                Write(control, target, isFloat ? (object)(float)value : (object)(int)Math.Round(value));
                 TryRead(control, target, out object now);
                 _pending.Remove(row.Key);
                 _log = string.Format(CultureInfo.InvariantCulture, "{0} → {1}", row.Label, Format(now));

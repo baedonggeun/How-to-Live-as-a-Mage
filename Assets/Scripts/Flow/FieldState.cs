@@ -151,7 +151,7 @@ namespace Mage
             _quest.Cleared += OnQuestCleared;
             _quest.Expired += OnQuestExpired;
             _journal = new JournalService(run.Journal);
-            _reset = new ForestResetService(run.ForestReset, _view.ResetSequence, _view.Portal, _view.PortalArea, _service);
+            _reset = new ForestResetService(run.ForestReset, _view.ResetSequence, _view.Portal, _view.PortalArea, _service, Zones(), _view.Entry.position);
             _reset.Finished += OnResetFinished;
             _forest = new ForestEnemyService(run.Forest, _view.SpawnPoints, _view.EnemyPrefab, _service);
             _forest.EnemySpawned += _quest.Track;
@@ -407,7 +407,11 @@ namespace Mage
         #endregion
 
         #region ZoneAt - 플레이어가 있는 구역 번호 (입구에서 z로 잰 깊이, 1~구역 수)
-        int ZoneAt() => Mathf.Clamp(Mathf.FloorToInt((_view.Player.transform.position.z - _view.MapArea.yMin) / _view.ZoneDepth) + 1, 1, _view.ZoneCount);
+        int ZoneAt() => Zones().ZoneOf(_view.Player.transform.position.z);
+        #endregion
+
+        #region Zones - 숲 화면 값(지역·구역 깊이·구역 수)으로 만든 숲 구역
+        ForestZoneSpec Zones() => new(_view.MapArea, _view.ZoneDepth, _view.ZoneCount);
         #endregion
 
         #region OnCombatChanged - 전투 상황이면 12시 안내를 숨기고 (이 PC가 처음이면) 게임을 멈추고 설명창. 끝나면 안내를 다시 보임
