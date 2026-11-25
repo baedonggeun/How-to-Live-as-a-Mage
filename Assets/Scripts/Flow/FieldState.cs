@@ -7,7 +7,7 @@ using UnityEngine.Localization.Tables;
 namespace Mage
 {
     /// <summary>숲. 3구역 회색 숲에 마법사·용병·적(쓰러뜨린 적은 쓰러진 자리에 시체)과 1구역 고블린 던전(지하, 보스)을 두고 현장 시전·안개 지도·시계·12시 안내(전투 중엔 숨김)를 켬. 숲이 70% 넘게 빈 채 나갔으면 들어올 때 리셋 연출 뒤 시체가 일어남. 숲 입구에서 F로 귀환, 소탕 대상을 다 쓰러뜨리면 의뢰 목표 달성, 기간이 지나면 의뢰 실패. 죽으면 금화를 떨구고 덮개 밑에서 용병 도망을 빠르게 돌린 뒤 여관 방 침대(방이 없으면 정문)에서 부활. 숲 적·의뢰·용병·던전·숲 리셋·떨어진 금화·임무 일지·코덱스는 캡슐이 맡고, 여기선 캡슐을 만들어 이음 (토스트·금화·목표·튜토리얼·화면 전환·시전 소리·벌칙·조작 잠금)</summary>
-    public sealed class FieldState : FlowStateBase
+    public sealed partial class FieldState : FlowStateBase
     {
         /// <summary>이 상태의 씬 이름 (지역이 늘면 의뢰 데이터에서 받음)</summary>
         public const string Scene = "Forest";

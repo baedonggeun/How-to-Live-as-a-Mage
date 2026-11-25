@@ -23,6 +23,7 @@
 | **Controller** | 로직 위주 (연출 혼합 허용) | PlayerTurnController, GachaController |
 | **Sequence** | 순수 연출 (비즈니스 로직 없음) | MapSequence, SynergyCounterShakeSequence |
 | **Drawer** | UGUI `Graphic` 상속, 받은 점을 이어 선 메시로 그림 (로직 없음) | StrokeDrawer |
+| **Window** | 에디터 전용 도구 창 (`EditorWindow`, `Assets/Editor`, 빌드에 안 들어감). 게임 쪽 진입점은 `#if UNITY_EDITOR` partial(`{State}.Debug.cs`) | FieldCheckWindow |
 
 ### 인프라 13종 허용 리스트
 - **Manager** (MonoSingleton, Service 컴포지션) / **Service** (비즈니스 로직, MonoBehaviour 미상속) / **State** (FSM 노드, Enter/Update/Exit) / **SO** (ScriptableObject 데이터)

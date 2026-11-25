@@ -32,6 +32,9 @@ namespace Mage
         /// <summary>지금 흐름 상태. 시작 전엔 null</summary>
         FlowStateBase _state;
 
+        /// <summary>지금 흐름 상태 (에디터 확인 패널이 읽음). 시작 전엔 null</summary>
+        public FlowStateBase State => _state;
+
         /// <summary>상태 전환 진행 중이면 true. 중복 전환 막기용</summary>
         bool _isSwitching;
 
