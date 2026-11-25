@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 namespace Mage
 {
     /// <summary>튜토리얼 진행 담당: 게임 코드가 상황(튜토리얼 id)을 알리면 튜토리얼을 찾아 진행 캡슐(TutorialService)에 넘기고, 매 프레임 입력(이동·달리기·둘러보기)을 읽어 넘김. 캡슐 알림을 받아 12시 안내를 맞추고 배운 기록을 이 PC에 저장. 다른 코드가 튜토리얼 중인지 묻지 않게 알림만 받음</summary>
-    public sealed class TutorialManager : MonoSingleton<TutorialManager>
+    public sealed partial class TutorialManager : MonoSingleton<TutorialManager>
     {
         /// <summary>이동 입력 액션 경로 (전역 액션)</summary>
         const string MoveActionPath = "Player/Move";

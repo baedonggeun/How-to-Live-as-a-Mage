@@ -30,6 +30,10 @@ namespace Mage
             // 이번 프레임 게임 시간 (초)
             float dt = Time.deltaTime;
             if (dt <= 0f) return;
+#if UNITY_EDITOR
+            // 디버그 패널 시계 배속 (에디터 전용)
+            dt *= _debugSpeed;
+#endif
             _data.PlaySeconds += dt;
             Ticked?.Invoke(_data.PlaySeconds);
         }

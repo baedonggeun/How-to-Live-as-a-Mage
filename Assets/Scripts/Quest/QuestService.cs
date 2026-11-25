@@ -3,7 +3,7 @@ using System;
 namespace Mage
 {
     /// <summary>의뢰 캡슐의 전초기지 쪽 (MonoBehaviour 아님. HubState가 만들고 이음): 의뢰 판 데이터를 받아 게시판 의뢰 받기, 받았는지·끝냈는지, 출발할 때 기한 정하기(처음 한 번), 숲에서 소탕을 끝낸 의뢰를 끝낸 의뢰로 남기기를 맡음</summary>
-    public sealed class QuestService
+    public sealed partial class QuestService
     {
         /// <summary>의뢰 판 데이터</summary>
         readonly QuestEntry _data;

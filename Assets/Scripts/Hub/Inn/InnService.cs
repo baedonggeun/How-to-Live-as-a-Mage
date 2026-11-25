@@ -3,7 +3,7 @@ using System;
 namespace Mage
 {
     /// <summary>여관 캡슐 (MonoBehaviour 아님. HubState가 만들고 이음): 여관 판 데이터를 받아 방을 잡았는지·방 잡기(한 번)·식량 하루치 값을 맡음. 금화를 내는 일과 대화는 상태가 함</summary>
-    public sealed class InnService
+    public sealed partial class InnService
     {
         /// <summary>여관 방값 (금화, 처음 방 잡을 때 한 번. 임시)</summary>
         public const int RoomPrice = 70;

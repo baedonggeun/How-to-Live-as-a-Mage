@@ -7,7 +7,7 @@ namespace Mage
 {
     /// <summary>기기 설정 (이 PC에만 맞는 값: 음량, 창이 비활성이면 음소거, 배운 튜토리얼). settings_device.json 내용 그대로. 필드 이름이 JSON 키라 바꾸면 CurrentVersion을 올리고 읽을 때 옮겨야 함 (새 필드는 파일에 없으면 기본값이라 안 올려도 됨)</summary>
     [Serializable]
-    public sealed class DeviceSettingsEntry
+    public sealed partial class DeviceSettingsEntry
     {
         /// <summary>지금 파일 구조 버전. 필드 이름·뜻을 바꾸면 올림</summary>
         public const int CurrentVersion = 1;

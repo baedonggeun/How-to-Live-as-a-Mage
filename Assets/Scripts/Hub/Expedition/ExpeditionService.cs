@@ -20,7 +20,7 @@ namespace Mage
     }
 
     /// <summary>원정 캡슐 (MonoBehaviour 아님. HubState가 만들고 이음): 원정 판 데이터를 받아 식량(여관에서 산 만큼 더함)·첫 출발 전 검사(용병·의뢰·식량)·출발(필요한 식량을 빼고 출발 표시)을 맡음. 대화·화면 전환은 상태가 함</summary>
-    public sealed class ExpeditionService
+    public sealed partial class ExpeditionService
     {
         /// <summary>원정 판 데이터</summary>
         readonly ExpeditionEntry _data;

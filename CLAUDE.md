@@ -23,8 +23,8 @@
 | **Controller** | 로직 위주 (연출 혼합 허용) | PlayerTurnController, GachaController |
 | **Sequence** | 순수 연출 (비즈니스 로직 없음) | MapSequence, SynergyCounterShakeSequence |
 | **Drawer** | UGUI `Graphic` 상속, 받은 점을 이어 선 메시로 그림 (로직 없음) | StrokeDrawer |
-| **Window** | 에디터 전용 도구 창 (`EditorWindow`, `Assets/Editor`, 빌드에 안 들어감). 확인 패널 버튼·상태 줄은 기능마다 `#if UNITY_EDITOR` partial(`{기능}.Debug.cs`)에 선언, 창은 모아 보이기만 | CheckWindow |
-| **Attribute** | C# 어트리뷰트 (`System.Attribute` 상속, 표시만, 로직 없음) | CheckButtonAttribute, CheckStatusAttribute |
+| **Window** | 에디터 전용 도구 창 (`EditorWindow`, `Assets/Editor`, 빌드에 안 들어감). 디버그 패널 조작(켜기·끄기·숫자·값 줄·버튼)은 기능마다 `#if UNITY_EDITOR` partial(`{기능}.Debug.cs`)에 선언, 창은 모아 보이기만 | DebugWindow |
+| **Attribute** | C# 어트리뷰트 (`System.Attribute` 상속, 표시만, 로직 없음) | DebugControlAttribute |
 
 ### 인프라 13종 허용 리스트
 - **Manager** (MonoSingleton, Service 컴포지션) / **Service** (비즈니스 로직, MonoBehaviour 미상속) / **State** (FSM 노드, Enter/Update/Exit) / **SO** (ScriptableObject 데이터)
@@ -43,7 +43,7 @@
 4. **받아서 단독 실행**: 필요한 씬 참조(View)·서비스·데이터를 생성자(MonoBehaviour는 Init)로 받음. 캡슐 안에서 `XxxManager.Instance`·`Game.Run`·`Find*` 안 씀
 - 캡슐 = View(씬 참조) + Entry(데이터) + Service/Handler/Controller(로직). 필요 없는 칸은 생략. 새 캡슐은 기능 폴더에 모음 (예: `Field/Dungeon/`)
 - 상태(State)·Manager는 연결 쪽이라 3·4번 예외
-- 확인 패널 진입점(`{기능}.Debug.cs`, `#if UNITY_EDITOR` partial)도 같은 규칙: 캡슐 버튼(`[CheckButton]`)·상태 줄(`[CheckStatus]`)은 자기 데이터와 받은 것만 씀. 여러 캡슐에 걸치는 상황(죽기·나갔다 오기·시계 → 의뢰 기한)은 상태 Debug partial이 캡슐 진입점을 불러 만들고 판 데이터를 직접 안 고침. 새 캡슐은 상태 `CheckTargets`에 한 줄
+- 디버그 패널 진입점(`{기능}.Debug.cs`, `#if UNITY_EDITOR` partial)도 같은 규칙: 캡슐 조작(`[DebugControl]`)은 자기 데이터와 받은 것만 씀. 여러 캡슐에 걸치는 상황(죽기·나갔다 오기·시계 → 의뢰 기한)은 상태 Debug partial이 캡슐 진입점을 불러 만들고 판 데이터를 직접 안 고침. 새 캡슐은 상태 `DebugTargets`에 한 줄
 
 ## 다국어 (PaulowniaSky Localization Kit)
 - 화면에 보이는 글자 하드코딩 금지 (코드·프리팹·SO). String Table 키로만 넣음
@@ -76,7 +76,7 @@
 ## Plan 라우팅
 - 모든 plan: `docs/plan-{kebab-topic}.md`. followup 짝: `docs/plan-{topic}-followup.md`
 - 새 plan: `/harness:plan {topic}` (`/plan`은 Claude Code 기본 plan 모드 명령). 이어 진행은 사용자가 직접 `Read docs/plan-{topic}.md`
-- 확인 목록(`## 확인 목록`): 줄 하나에 한 가지 (`N.` 또는 `N-k.`, 무엇을 하면 → 무엇이 보임), [ ] 안은 확인 패널 버튼 글. 확인 패널이 이 목록을 읽어 버튼 `Items` 번호와 맞춤
+- 확인 목록(`## 확인 목록`): 줄 하나에 한 가지 (`N.` 또는 `N-k.`, 무엇을 하면 → 무엇이 보임)
 
 ## 커밋
 - 사용자가 직접 커밋. plan 있으면 끝 `## 커밋 메시지` 섹션 참고

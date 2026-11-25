@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace Mage
 {
     /// <summary>코덱스 판 데이터 (RunEntry가 씬을 넘어 들고 다님). CodexService만 만짐 (디버그 판은 RunEntry.CreateDebug가 처음에 채움)</summary>
-    public sealed class CodexEntry
+    public sealed partial class CodexEntry
     {
         /// <summary>익힌 룬 (캐릭터 생성에서 고름). 주문 판정·코덱스 룬 주문 장이 씀</summary>
         public List<RuneSO> LearnedRunes { get; } = new();

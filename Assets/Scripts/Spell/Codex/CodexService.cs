@@ -8,7 +8,7 @@ using UnityEngine.Localization.Tables;
 namespace Mage
 {
     /// <summary>코덱스 캡슐 (MonoBehaviour 아님. 상태가 만들어 책상 코덱스·숲 시전에 넘김): 코덱스 판 데이터와 다중 룬 마법·룬 목록을 받아, 익힌 룬·등록한 마법·생략 가능 수로 판정 비교 그림을 만들고 그린 획을 판정함. 판정 그림 번호의 이름·마법·룬·성공 사운드, 룬 id의 이름을 알려 주고, 생략 없이 처음 시전한 다중 룬 마법을 등록해(비교 그림을 다시 만듦) Registered로 알림. 캐릭터 생성에서 고른 룬을 익힘</summary>
-    public sealed class CodexService
+    public sealed partial class CodexService
     {
         /// <summary>룬 주문 이름 키 ({0} 룬 이름)</summary>
         const string RuneSpellKey = "codex.rune_spell";

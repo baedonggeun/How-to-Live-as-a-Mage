@@ -14,7 +14,7 @@ namespace Mage
     }
 
     /// <summary>현장에서 맞고 죽는 몸 하나 (마법사·용병·적 공통): 편, 체력, 받는 피해 배율, 맞음·죽음 알림. 움직임은 같은 오브젝트의 다른 Controller가 함</summary>
-    public sealed class FieldUnitController : MonoBehaviour
+    public sealed partial class FieldUnitController : MonoBehaviour
     {
         /// <summary>몸 반지름 최솟값 (m)</summary>
         const float MinRadius = 0.05f;
@@ -86,6 +86,10 @@ namespace Mage
         public void TakeDamage(float amount, FieldUnitController source)
         {
             if (!IsAlive || amount <= 0f) return;
+#if UNITY_EDITOR
+            // 디버그 패널 무적 (에디터 전용)
+            if (DebugInvincible) return;
+#endif
             // 실제로 깎는 피해 (배율 적용, 남은 체력까지만)
             float dealt = Mathf.Min(Hp, amount * DamageScale);
             Hp -= dealt;
