@@ -343,13 +343,12 @@ namespace Mage
         }
         #endregion
 
-        #region Return - 숲에서 돌아감 표시 후 전초기지로 (정문 밖에서 시작)
+        #region Return - 숲 입구로 귀환해 전초기지로 (정문 밖에서 시작)
         void Return()
         {
             if (_dying) return;
             MarkLeaving();
-            Game.Run.ReturningFromField = true;
-            Game.ChangeState(new HubState());
+            Game.ChangeState(new HubState(HubArrival.FromField));
         }
         #endregion
 
@@ -468,7 +467,7 @@ namespace Mage
         }
         #endregion
 
-        #region DeathRoutine - 게임 속도를 올리고 살아 있는 용병을 숲 입구로 도망치게 해 돌림 (용병 캡슐이 무사·죽음을 정함). 다 정해지거나 40초가 지나면 속도를 되돌리고 부활 표시 후 전초기지로
+        #region DeathRoutine - 게임 속도를 올리고 살아 있는 용병을 숲 입구로 도망치게 해 돌림 (용병 캡슐이 무사·죽음을 정함). 다 정해지거나 40초가 지나면 속도를 되돌리고 죽어서 깨어남으로 전초기지로
         IEnumerator DeathRoutine()
         {
             _party.StartFlee(_view.ExitPoint);
@@ -486,8 +485,7 @@ namespace Mage
             Game.SetGameSpeed(1f);
             _death = null;
             MarkLeaving();
-            Game.Run.RespawningFromDeath = true;
-            Game.ChangeState(new HubState());
+            Game.ChangeState(new HubState(HubArrival.FromDeath));
         }
         #endregion
 

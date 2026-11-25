@@ -6,6 +6,19 @@ using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
+    /// <summary>전초기지에 어떻게 들어왔는지 (전 상태가 HubState 생성자로 넘김)</summary>
+    public enum HubArrival
+    {
+        /// <summary>그냥 들어옴 (새 판 첫 도착이면 역마차 연출, 아니면 시작 위치)</summary>
+        Normal,
+
+        /// <summary>숲 입구로 귀환 (정문 밖에서 시작, 경비병 자막)</summary>
+        FromField,
+
+        /// <summary>숲에서 죽음 (여관 방 침대, 방이 없으면 정문 안쪽에서 깨어남)</summary>
+        FromDeath,
+    }
+
     /// <summary>전초기지. 첫 도착이면 역마차 연출부터. 1인칭으로 돌아다니며 상호작용 키(F)로 여관(방·식량)·여관 방 책상(코덱스: 룬 주문·다중 룬 마법·주문 연습)·길드(영입·게시판)·정문(경비병)을 씀 → 숲. 여관·원정·영입·의뢰·임무 일지·코덱스·책상은 캡슐이 맡고, 여기선 캡슐을 만들어 이음 (대화 선택지·금화·토스트·목표·화면 글자·화면 전환·주문 연습 소리)</summary>
     public sealed class HubState : FlowStateBase
     {
@@ -171,11 +184,19 @@ namespace Mage
         /// <summary>이번 진입이 첫 도착이라 역마차 연출을 트는지 (OnSceneReady에서 정함)</summary>
         bool _arriving;
 
-        /// <summary>이번 진입이 숲에서 돌아온 것인지 (정문 밖에서 시작. OnSceneReady에서 정함)</summary>
+        /// <summary>이번 진입이 숲에서 돌아온 것인지 (정문 밖에서 시작. 생성자 값으로 OnSceneReady에서 정함)</summary>
         bool _returning;
 
-        /// <summary>이번 진입이 숲에서 죽어 부활한 것인지 (여관 방 침대·정문에서 시작. OnSceneReady에서 정함)</summary>
+        /// <summary>이번 진입이 숲에서 죽어 부활한 것인지 (여관 방 침대·정문에서 시작. 생성자 값으로 OnSceneReady에서 정함)</summary>
         bool _respawning;
+
+        /// <summary>어떻게 들어왔는지 (생성자로 받음)</summary>
+        readonly HubArrival _arrival;
+
+        #region HubState - 전초기지 상태 만들기 (어떻게 들어왔는지를 받음. 숲 귀환·죽음은 숲 상태가 넘김)
+        /// <param name="arrival">어떻게 들어왔는지 (기본: 그냥 들어옴)</param>
+        public HubState(HubArrival arrival = HubArrival.Normal) => _arrival = arrival;
+        #endregion
 
         #region OnSceneReady - 캡슐(여관·원정·영입·의뢰·임무 일지·코덱스·책상)을 만들어 잇고 (코덱스 등록 → 토스트, 책상 연습 판정 → 소리·튜토리얼, 메뉴 임무 일지·주문 도감에 출처), 첫 도착이면 플레이어를 하차 지점에 두고 숨김·화면 글자 숨김(연출 뒤 켬), 숲에서 죽었으면 여관 방 침대(방이 없으면 정문 안쪽), 숲에서 돌아왔으면 정문 밖, 아니면 시작 위치. 파티 수·금화 표시, 안내 글 숨김, 코덱스 표지(이름·마법진), 스태미나 막대
         protected override void OnSceneReady()
@@ -195,8 +216,8 @@ namespace Mage
             _desk = new DeskService(_view.DeskSequence, _view.Codex, _view.Player.Head, _view.DeskSeat);
             _desk.Left += OnDeskLeft;
             _arriving = !run.HasArrived;
-            _respawning = !_arriving && run.RespawningFromDeath;
-            _returning = !_arriving && !_respawning && run.ReturningFromField;
+            _respawning = !_arriving && _arrival == HubArrival.FromDeath;
+            _returning = !_arriving && _arrival == HubArrival.FromField;
             _view.Player.PlaceAt(_arriving ? _view.ArrivalPoint : _respawning ? RespawnPoint() : _returning ? _view.ReturnPoint : _view.Spawn);
             _view.Player.gameObject.SetActive(!_arriving);
             _view.Hud.SetActive(!_arriving);
@@ -224,8 +245,6 @@ namespace Mage
             StartControl();
             if (_respawning)
             {
-                Game.Run.RespawningFromDeath = false;
-                Game.Run.ReturningFromField = false;
                 FinishQuestIfCleared(false);
                 UpdateObjective(false);
                 UIManager.Instance.ShowToast(Table, _inn.HasRoom ? RespawnInnKey : RespawnGateKey);
@@ -237,7 +256,6 @@ namespace Mage
                 return;
             }
             // 숲에서 돌아옴: 소탕을 끝냈으면 의뢰를 끝냄 (정산은 나중. 못 끝냈으면 의뢰는 남음)
-            Game.Run.ReturningFromField = false;
             FinishQuestIfCleared(true);
             UpdateObjective(false);
             UIManager.Instance.ShowSubtitle(new LocalizedString(Table, GuardKey), new LocalizedString(Table, GuardWelcomeKey), NotifyObjective);

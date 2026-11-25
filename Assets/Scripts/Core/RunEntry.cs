@@ -28,9 +28,6 @@ namespace Mage
         /// <summary>원정 식량·첫 출발 (ExpeditionService만 만짐)</summary>
         public ExpeditionEntry Expedition { get; } = new();
 
-        /// <summary>숲에서 막 돌아오는 중인지 (전초기지가 정문 밖에서 시작하고 한 번 쓰면 끔)</summary>
-        public bool ReturningFromField { get; set; }
-
         /// <summary>익힌 룬·등록한 다중 룬 마법·생략 가능 수 (CodexService만 만짐)</summary>
         public CodexEntry Codex { get; } = new();
 
@@ -48,9 +45,6 @@ namespace Mage
 
         /// <summary>떨어진 금화 (FieldLootHandler만 만짐)</summary>
         public LootEntry Loot { get; } = new();
-
-        /// <summary>숲에서 죽어 마을에서 부활하는 중인지 (HubState가 여관 방 침대·정문에서 시작하고 한 번 쓰면 끔)</summary>
-        public bool RespawningFromDeath { get; set; }
 
         /// <summary>판 시계 (FieldClockController만 흘림)</summary>
         public ClockEntry Clock { get; } = new();
