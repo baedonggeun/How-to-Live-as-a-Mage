@@ -6,7 +6,7 @@ using Random = UnityEngine.Random;
 namespace Mage
 {
     /// <summary>숲 리셋·차원문 캡슐 (MonoBehaviour 아님. FieldState가 만들고 이음): 판 데이터·연출·차원문·차원문 놓을 곳·현장 규칙을 받아, 이 판에서 처음이면 차원문 자리를 정해 놓음. 숲이 70% 넘게 빈 채 나갔으면(판 데이터 Pending) 이번 진입에 시체를 받아 모으고 연출을 틀어, 끝나면 시체를 원래 적 자리를 집으로 살린 뒤 Finished로 살린 적을 알림. 숲을 나갈 때 쓰러뜨린 비율을 보고 다음 리셋을 정함</summary>
-    public sealed class ForestResetService
+    public sealed partial class ForestResetService
     {
         /// <summary>숲 적 자리 대비 쓰러뜨린 적이 이 비율 이상이면 리셋 (기획 70%)</summary>
         const float ResetRatio = 0.7f;

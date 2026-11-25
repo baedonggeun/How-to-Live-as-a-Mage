@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 namespace Mage
 {
     /// <summary>고블린 던전 캡슐 (MonoBehaviour 아님. FieldState가 만들고 이음): 던전 판 데이터·씬 참조·현장 규칙을 받아, 던전이 없거나 새로 만들 차례면 세대를 올리고 보스를 고른 뒤 적 자리마다 적(쓰러진 키는 시체)·보스를 놓음. 보스가 쓰러지면 Cleared로 알림. 몬스터가 보관한 금화를 모아 두고 챙기면 내줌. 숲을 나갈 때 클리어했으면 다음엔 새 던전</summary>
-    public sealed class DungeonService
+    public sealed partial class DungeonService
     {
         /// <summary>던전 무리 번호 시작 (숲 무리와 안 겹치게)</summary>
         const int PackBase = 1000;

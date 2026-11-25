@@ -11,7 +11,7 @@ namespace Mage
         const float WindUpSeconds = 0.26f;
 
         /// <summary>쫓던 대상이 이보다 멀면 포기 (m, v1)</summary>
-        const float GiveUpDistance = 46f;
+        public const float GiveUpDistance = 46f;
 
         /// <summary>마법사를 노리는 적이 마법사를 고르는 거리 (m, v1)</summary>
         const float MageFocusDistance = 26f;

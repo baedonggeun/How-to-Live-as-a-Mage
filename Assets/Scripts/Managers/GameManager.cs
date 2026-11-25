@@ -38,6 +38,9 @@ namespace Mage
         /// <summary>상태 전환 진행 중이면 true. 중복 전환 막기용</summary>
         bool _isSwitching;
 
+        /// <summary>상태 전환 진행 중인지 (에디터 확인 패널이 버튼을 막음)</summary>
+        public bool IsSwitching => _isSwitching;
+
         /// <summary>게임 시간 배율 규칙 (로딩창·일시정지 메뉴면 0, 아니면 게임 속도)</summary>
         readonly TimeScaleService _time = new();
 

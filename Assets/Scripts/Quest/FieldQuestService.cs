@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Mage
 {
     /// <summary>의뢰 캡슐의 숲 쪽 (MonoBehaviour 아님. FieldState가 만들고 이음): 의뢰 판 데이터를 받아, 받은 의뢰의 소탕 대상인 적을 따라가다 다 쓰러지면 목표를 끝냄(Cleared 알림). 판 시각을 받아 못 끝낸 의뢰의 기한이 지나면 의뢰를 비움(Expired 알림). 지도 목표 자리(남은 대상 집의 가운데)를 알려 줌</summary>
-    public sealed class FieldQuestService
+    public sealed partial class FieldQuestService
     {
         /// <summary>의뢰 판 데이터</summary>
         readonly QuestEntry _data;

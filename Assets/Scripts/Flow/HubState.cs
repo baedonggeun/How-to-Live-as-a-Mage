@@ -20,7 +20,7 @@ namespace Mage
     }
 
     /// <summary>전초기지. 첫 도착이면 역마차 연출부터. 1인칭으로 돌아다니며 상호작용 키(F)로 여관(방·식량)·여관 방 책상(코덱스: 룬 주문·다중 룬 마법·주문 연습)·길드(영입·게시판)·정문(경비병)을 씀 → 숲. 여관·원정·영입·의뢰·임무 일지·코덱스·책상은 캡슐이 맡고, 여기선 캡슐을 만들어 이음 (대화 선택지·금화·토스트·목표·화면 글자·화면 전환·주문 연습 소리)</summary>
-    public sealed class HubState : FlowStateBase
+    public sealed partial class HubState : FlowStateBase
     {
         /// <summary>이 상태의 씬 이름</summary>
         public const string Scene = "Outpost";

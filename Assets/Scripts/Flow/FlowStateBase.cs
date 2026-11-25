@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Mage
 {
     /// <summary>흐름 상태 공통. 상태 하나 = 내용 씬 하나</summary>
-    public abstract class FlowStateBase
+    public abstract partial class FlowStateBase
     {
         /// <summary>이 상태의 내용 씬 이름. 빌드 목록 이름과 같아야 함</summary>
         public abstract string SceneName { get; }

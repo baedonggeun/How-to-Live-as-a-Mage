@@ -6,7 +6,7 @@ using UnityEngine.AI;
 namespace Mage
 {
     /// <summary>숲 한 판의 현장 규칙 (MonoBehaviour 아님. FieldState가 만들어 Controller들에 넘김): 몸 목록, 가까운 상대·조준 보정 대상·범위 안 몸 찾기, 무리 깨우기, 전투 상황, 마법사가 마지막으로 때린 적, 놓을 자리를 NavMesh에 붙이기</summary>
-    public sealed class FieldService
+    public sealed partial class FieldService
     {
         /// <summary>같은 층으로 치는 높이 차이 (m). 던전(숲 지하 60m)과 숲은 같은 x·z라도 다른 층이라 서로 못 알아채고 못 때림</summary>
         public const float LevelGap = 8f;

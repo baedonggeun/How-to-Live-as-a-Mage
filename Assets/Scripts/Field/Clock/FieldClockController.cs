@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Mage
 {
     /// <summary>숲 시계 캡슐: 시계 판 데이터를 받아 게임 시간만큼 판 시간을 흐르게 하고 (구현 임시: 숲에서만, 멈췄으면 안 흐름) 매 프레임 지금 판 시각을 알림. 의뢰 기한 검사는 의뢰 캡슐이 함</summary>
-    public sealed class FieldClockController : MonoBehaviour
+    public sealed partial class FieldClockController : MonoBehaviour
     {
         /// <summary>시계 판 데이터 (없으면 안 함)</summary>
         ClockEntry _data;

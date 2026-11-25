@@ -5,7 +5,7 @@ using Object = UnityEngine.Object;
 namespace Mage
 {
     /// <summary>떨어진 금화 캡슐 (MonoBehaviour 아님. FieldState가 만들고 이음): 금화 판 데이터·현장 규칙·금화 지점 프리팹을 받아, 떨어진 금화가 있으면 그 자리에 지점을 놓고 현장 규칙에 알림(줍는 몬스터가 찾음). 누가 주우면(마법사·몬스터) 지점과 데이터를 지우고, 들고 가던 몬스터가 쓰러지면 그 자리에 다시 놓음. 마법사가 죽으면 지금 지점을 지우고 다음 진입 때 놓을 금화를 적어 둠</summary>
-    public sealed class FieldLootHandler
+    public sealed partial class FieldLootHandler
     {
         /// <summary>떨어진 금화 판 데이터</summary>
         readonly LootEntry _data;

@@ -8,7 +8,7 @@ using Random = UnityEngine.Random;
 namespace Mage
 {
     /// <summary>숲 적 캡슐 (MonoBehaviour 아님. FieldState가 만들고 이음): 숲 판 데이터·적 자리·적 프리팹·현장 규칙을 받아, 적 자리마다 수만큼 놓음(쓰러진 키는 쓰러진 곳에 시체, 아니면 자리 둘레에 살아 있는 적. 무리 번호는 자리 순서). 살아 있는 적·시체를 놓을 때와 적이 쓰러질 때 알리고, 쓰러진 곳을 판 데이터에 남김. 리셋으로 살아난 적을 다시 받으면 쓰러진 기록을 비움</summary>
-    public sealed class ForestEnemyService
+    public sealed partial class ForestEnemyService
     {
         /// <summary>적 키 형식 ({0} 자리 id, {1} 번호)</summary>
         const string SpawnKeyFormat = "{0}.{1}";
