@@ -31,20 +31,14 @@ namespace Mage
         /// <summary>숲에서 막 돌아오는 중인지 (전초기지가 정문 밖에서 시작하고 한 번 쓰면 끔)</summary>
         public bool ReturningFromField { get; set; }
 
-        /// <summary>익힌 룬 (캐릭터 생성에서 고름). 주문 판정·코덱스 룬 주문 장이 씀</summary>
-        public List<RuneSO> LearnedRunes { get; } = new();
+        /// <summary>익힌 룬·등록한 다중 룬 마법·생략 가능 수 (CodexService만 만짐)</summary>
+        public CodexEntry Codex { get; } = new();
 
         /// <summary>전초기지 첫 도착 연출(역마차)을 봤는지. 새 판은 false, 디버그 판은 true (연출은 새 게임으로 확인)</summary>
         public bool HasArrived { get; set; }
 
         /// <summary>지금 목표 (임무 일지). 없으면 null. 판마다 새로</summary>
         public ObjectiveSO CurrentObjective { get; set; }
-
-        /// <summary>코덱스에 등록한 다중 룬 마법 (생략 없이 처음 완성. 등록 순서). 생략은 등록한 마법에만</summary>
-        public List<SpellSO> CollectedSpells { get; } = new();
-
-        /// <summary>생략 가능 수 (레벨이 생기면 레벨이 정함. 지금은 프로토타입 기본 0)</summary>
-        public int OmitLimit { get; set; }
 
         /// <summary>숲에서 쓰러뜨린 적 (ForestEnemyService만 만짐)</summary>
         public ForestEntry Forest { get; } = new();
@@ -77,9 +71,9 @@ namespace Mage
             // 디버그 판 데이터. 빌드에선 늘 Title부터 시작해서 이 이름이 화면에 안 나옴
             var run = new RunEntry { PlayerName = "디버그 마법사", HasArrived = true };
             foreach (RuneSO rune in runes)
-                if (rune != null) run.LearnedRunes.Add(rune);
+                if (rune != null) run.Codex.LearnedRunes.Add(rune);
             foreach (SpellSO spell in spells)
-                if (spell != null) run.CollectedSpells.Add(spell);
+                if (spell != null) run.Codex.CollectedSpells.Add(spell);
             return run;
         }
         #endregion

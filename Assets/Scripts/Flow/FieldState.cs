@@ -6,7 +6,7 @@ using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>숲. 3구역 회색 숲에 마법사·용병·적(쓰러뜨린 적은 쓰러진 자리에 시체)과 1구역 고블린 던전(지하, 보스)을 두고 현장 시전·안개 지도·시계·12시 안내(전투 중엔 숨김)를 켬. 숲이 70% 넘게 빈 채 나갔으면 들어올 때 리셋 연출 뒤 시체가 일어남. 숲 입구에서 F로 귀환, 소탕 대상을 다 쓰러뜨리면 의뢰 목표 달성, 기간이 지나면 의뢰 실패. 죽으면 금화를 떨구고 덮개 밑에서 용병 도망을 빠르게 돌린 뒤 여관 방 침대(방이 없으면 정문)에서 부활. 숲 적·의뢰·용병·던전·숲 리셋·떨어진 금화는 캡슐이 맡고, 여기선 캡슐을 만들어 이음 (토스트·금화·목표·튜토리얼·화면 전환)</summary>
+    /// <summary>숲. 3구역 회색 숲에 마법사·용병·적(쓰러뜨린 적은 쓰러진 자리에 시체)과 1구역 고블린 던전(지하, 보스)을 두고 현장 시전·안개 지도·시계·12시 안내(전투 중엔 숨김)를 켬. 숲이 70% 넘게 빈 채 나갔으면 들어올 때 리셋 연출 뒤 시체가 일어남. 숲 입구에서 F로 귀환, 소탕 대상을 다 쓰러뜨리면 의뢰 목표 달성, 기간이 지나면 의뢰 실패. 죽으면 금화를 떨구고 덮개 밑에서 용병 도망을 빠르게 돌린 뒤 여관 방 침대(방이 없으면 정문)에서 부활. 숲 적·의뢰·용병·던전·숲 리셋·떨어진 금화·코덱스는 캡슐이 맡고, 여기선 캡슐을 만들어 이음 (토스트·금화·목표·튜토리얼·화면 전환·시전 소리)</summary>
     public sealed class FieldState : FlowStateBase
     {
         /// <summary>이 상태의 씬 이름 (지역이 늘면 의뢰 데이터에서 받음)</summary>
@@ -72,11 +72,17 @@ namespace Mage
         /// <summary>목표가 바뀌었을 때 토스트 키 ({0} 목표 이름, Menu 테이블)</summary>
         const string ObjectiveUpdatedKey = "menu.journal.updated";
 
+        /// <summary>마법 등록 토스트 키 ({0} 마법 이름, Codex 테이블)</summary>
+        const string SpellRegisteredKey = "codex.toast.registered";
+
         /// <summary>숲 문구 테이블</summary>
         static readonly TableReference Table = "Field";
 
         /// <summary>메뉴 창 문구 테이블</summary>
         static readonly TableReference MenuTable = "Menu";
+
+        /// <summary>코덱스 문구 테이블 (마법 등록 토스트)</summary>
+        static readonly TableReference CodexTable = "Codex";
 
         /// <summary>이 상태의 씬 이름 (빌드 목록과 같음)</summary>
         public override string SceneName => Scene;
@@ -114,6 +120,9 @@ namespace Mage
         /// <summary>떨어진 금화 캡슐</summary>
         FieldLootHandler _loot;
 
+        /// <summary>코덱스 캡슐 (판정·이름·등록. 현장 시전에 넘김)</summary>
+        CodexService _codex;
+
         /// <summary>지도 탭 입력 (Exit에서 구독 해제)</summary>
         InputAction _map;
 
@@ -126,7 +135,7 @@ namespace Mage
         /// <summary>들어올 때 목표가 바뀌었는지 (Reveal에서 알림)</summary>
         bool _objectiveChanged;
 
-        #region OnSceneReady - 현장 규칙(보관 장소 = 던전 입구 밖)·안개 지도와 캡슐(의뢰·숲 리셋·숲 적·용병·던전·떨어진 금화)을 만들어 잇고(숲 적 → 의뢰 소탕 대상·리셋 시체, 몬스터가 보관한 금화 → 던전), 차원문을 놓고, 마법사를 입구에, 용병·숲 적·던전·떨어진 금화를 놓고, 시전·안개·시계·HUD·지도를 연결, 목표를 정함 (덮개 밑)
+        #region OnSceneReady - 현장 규칙(보관 장소 = 던전 입구 밖)·안개 지도와 캡슐(의뢰·숲 리셋·숲 적·용병·던전·떨어진 금화·코덱스)을 만들어 잇고(숲 적 → 의뢰 소탕 대상·리셋 시체, 몬스터가 보관한 금화 → 던전, 코덱스 등록 → 토스트, 시전 성공·실패 → 소리), 차원문을 놓고, 마법사를 입구에, 용병·숲 적·던전·떨어진 금화를 놓고, 시전·안개·시계·HUD·지도를 연결, 목표를 정함 (덮개 밑)
         protected override void OnSceneReady()
         {
             _view = FindView<FieldView>();
@@ -157,7 +166,11 @@ namespace Mage
             _forest.Spawn();
             _dungeon.Spawn();
             _loot.Spawn();
-            _view.Cast.Init(run, DataManager.Instance.Spells, DataManager.Instance.Runes, _service, _view.Player, _view.PlayerUnit, _view.Detector);
+            _codex = new CodexService(run.Codex, DataManager.Instance.Spells, DataManager.Instance.Runes);
+            _codex.Registered += OnSpellRegistered;
+            _view.Cast.Init(_codex, _service, _view.Player, _view.PlayerUnit, _view.Detector);
+            _view.Cast.CastAccepted += OnCastAccepted;
+            _view.Cast.CastFailed += OnCastFailed;
             _view.FogReveal.Init(_fog);
             _view.Clock.Init(run.Clock);
             _view.HudBinder.Bind(_view.PlayerUnit, _view.Player, _view.Cast, _party.Mercenaries, _service, _fog, ZoneAt, () => _view.Clock.Day);
@@ -256,6 +269,12 @@ namespace Mage
             {
                 _dungeon.Cleared -= OnDungeonCleared;
                 if (_service != null) _service.LootStored -= _dungeon.AddStash;
+            }
+            if (_codex != null) _codex.Registered -= OnSpellRegistered;
+            if (_view != null)
+            {
+                _view.Cast.CastAccepted -= OnCastAccepted;
+                _view.Cast.CastFailed -= OnCastFailed;
             }
         }
         #endregion
@@ -472,6 +491,31 @@ namespace Mage
 
         #region OnDungeonCleared - 던전 보스가 쓰러짐: 토스트
         void OnDungeonCleared() => UIManager.Instance.ShowToast(Table, DungeonClearedKey);
+        #endregion
+
+        #region OnCastAccepted - 맞는 주문을 받아들임 (현장 시전 알림): 그 주문의 성공 사운드를 2D로 냄 (소리를 안 넣었으면 조용히 넘어감)
+        /// <param name="cast">받아들여진 주문</param>
+        void OnCastAccepted(FieldCastSpec cast)
+        {
+            // 소리를 낼 곳 (없으면 무음)
+            AudioManager audio = AudioManager.Instance;
+            if (audio != null) audio.Play(cast.Sound);
+        }
+        #endregion
+
+        #region OnCastFailed - 시전 실패 (현장 시전 알림): 실패 사운드 (벌칙은 현장 시전이 함)
+        void OnCastFailed()
+        {
+            // 소리를 낼 곳과 데이터 (둘 중 하나라도 없으면 무음)
+            AudioManager audio = AudioManager.Instance;
+            DataManager data = DataManager.Instance;
+            if (audio != null && data != null) audio.Play(data.CastFailSound);
+        }
+        #endregion
+
+        #region OnSpellRegistered - 다중 룬 마법을 새로 등록함 (코덱스 캡슐 알림): 토스트
+        /// <param name="spell">등록한 마법</param>
+        void OnSpellRegistered(SpellSO spell) => UIManager.Instance.ShowToast(CodexTable, SpellRegisteredKey, spell.Name.GetLocalizedString());
         #endregion
 
         #region MoveParty - 화면이 덮인 사이 마법사·살아 있는 용병을 그 자리로 옮기고, 다 걷히면 조작을 돌려줌 (던전 드나들기)

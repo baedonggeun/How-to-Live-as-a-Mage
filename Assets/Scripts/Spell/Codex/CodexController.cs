@@ -9,7 +9,7 @@ using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>코덱스 (마법사가 늘 들고 다니는 책이자 주문 도감. 방에선 책상 위에 덮어 두고 앉으면 씀): 덮인 표지를 누르면 왼쪽으로 펼침. 탭은 룬 주문·다중 룬 마법(장마다 하나, 장 바깥 끝 띠로 넘김, 다중 룬 마법은 묶음 드롭다운)·주문 연습(목록 + 그리기 판정, 다중 룬 마법은 생략 없이 처음 완성하면 등록). 익힌 룬·등록한 마법만 나옴. 판 데이터·목록은 상태가 넘김</summary>
+    /// <summary>코덱스 (마법사가 늘 들고 다니는 책이자 주문 도감. 방에선 책상 위에 덮어 두고 앉으면 씀): 덮인 표지를 누르면 왼쪽으로 펼침. 탭은 룬 주문·다중 룬 마법(장마다 하나, 장 바깥 끝 띠로 넘김, 다중 룬 마법은 묶음 드롭다운)·주문 연습(목록 + 그리기 판정, 다중 룬 마법은 생략 없이 처음 완성하면 등록). 익힌 룬·등록한 마법만 나옴. 판정·등록은 상태가 넘긴 코덱스 캡슐이 하고, 연습 판정은 PracticeJudged로 알림 (소리·튜토리얼·등록 토스트는 상태가 함). 표지 마법진은 CodexEmblemCalculator</summary>
     public sealed class CodexController : MonoBehaviour
     {
         /// <summary>펼친 책 탭</summary>
@@ -41,9 +41,6 @@ namespace Mage
         /// <summary>다중 룬 마법 묶음의 최대 룬 수 (1룬 ~ 8룬 마법)</summary>
         const int MaxRuneCount = 8;
 
-        /// <summary>주문 그리기 튜토리얼 id (처음 판정까지 그리면 배움)</summary>
-        const string DrawTutorialId = "draw";
-
         /// <summary>룬 주문 이름 키 ({0} 룬 이름)</summary>
         const string RuneSpellKey = "codex.rune_spell";
 
@@ -68,24 +65,6 @@ namespace Mage
         /// <summary>자유 그리기 키</summary>
         const string FreeDrawKey = "codex.practice.free";
 
-        /// <summary>등록 토스트 키 ({0} 마법 이름)</summary>
-        const string RegisteredKey = "codex.toast.registered";
-
-        /// <summary>마법진 원 점 수</summary>
-        const int EmblemCirclePoints = 64;
-
-        /// <summary>마법진 안쪽 원 반지름 (바깥 원 1 대비. 육망성이 이 원에 닿음)</summary>
-        const float EmblemInner = 0.78f;
-
-        /// <summary>마법진 가운데 원 반지름</summary>
-        const float EmblemCenter = 0.3f;
-
-        /// <summary>마법진 둘레 룬 그림 자리 반지름</summary>
-        const float EmblemGlyphRadius = 0.89f;
-
-        /// <summary>마법진 둘레 룬 그림 크기 (룬 그림 좌표 1 대비)</summary>
-        const float EmblemGlyphScale = 0.07f;
-
         /// <summary>코덱스 문구 테이블</summary>
         static readonly TableReference Table = "Codex";
 
@@ -101,9 +80,6 @@ namespace Mage
         /// <summary>지금 만든 묶음 드롭다운 항목</summary>
         readonly List<TutorialListItemView> _categoryItems = new();
 
-        /// <summary>익힌 룬 id (비교 그림을 만들 때 채움)</summary>
-        readonly HashSet<string> _learnedIds = new(StringComparer.Ordinal);
-
         /// <summary>룬 주문 탭 장 (짝수 개, 빈 장은 null)</summary>
         readonly List<PageEntry> _runePages = new();
 
@@ -113,20 +89,8 @@ namespace Mage
         /// <summary>다중 룬 마법 묶음 → 첫 장 번호 (마법이 있는 묶음만)</summary>
         readonly Dictionary<int, int> _magicStart = new();
 
-        /// <summary>판정 비교 그림 (익힌 룬·등록이 바뀌면 다시 만듦)</summary>
-        List<SpellCandidateEntry> _candidates = new();
-
-        /// <summary>이번 판 데이터 (앉아 있는 동안. 일어나면 null)</summary>
-        RunEntry _run;
-
-        /// <summary>다중 룬 마법 전부 (DataManager 순서)</summary>
-        IReadOnlyList<SpellSO> _spells;
-
-        /// <summary>룬 전부 (DataManager 순서)</summary>
-        IReadOnlyList<RuneSO> _runes;
-
-        /// <summary>판정 비교 그림 원본 (다중 룬 마법 순서 뒤에 룬 순서, 빈 칸은 null). 판정 ShapeIndex가 이 번호</summary>
-        SpellShapeEntry[] _shapes;
+        /// <summary>판정·등록을 맡는 코덱스 캡슐 (앉아 있는 동안. 일어나면 null)</summary>
+        CodexService _codex;
 
         /// <summary>일어나기를 누르면 할 일 (상태가 넘김)</summary>
         Action _onLeave;
@@ -147,13 +111,16 @@ namespace Mage
         Coroutine _routine;
 
         /// <summary>앉아서 쓰는 중인지 (Open ~ Close)</summary>
-        public bool IsOpen => _run != null;
+        public bool IsOpen => _codex != null;
 
         /// <summary>여닫기·장 넘김 연출 중인지</summary>
         public bool IsBusy => _busy;
 
         /// <summary>주문 연습에서 그리는 중인지 (Esc를 그리기 취소로 씀)</summary>
         public bool IsCasting => _view != null && _view.Draw.IsCasting;
+
+        /// <summary>주문 연습 판정·취소가 끝남 (판정 결과. 상태가 소리·튜토리얼을 맡음)</summary>
+        public event Action<SpellJudgeSpec> PracticeJudged;
 
         #region Awake - 연결 확인, 버튼 연결 (처음 한 번), 덮인 책으로 두고 입력을 막음 (책상에 앉으면 Open)
         void Awake()
@@ -185,25 +152,18 @@ namespace Mage
             if (_view == null) return;
             _view.CoverName.StringReference.Arguments = new object[] { playerName ?? string.Empty };
             _view.CoverName.RefreshString();
-            _view.Emblem.SetStrokes(BuildEmblem(runes), true);
+            _view.Emblem.SetStrokes(CodexEmblemCalculator.Build(runes), true);
         }
         #endregion
 
-        #region Open - 앉아서 쓰기 시작: 판 데이터·목록을 받아 장·비교 그림을 만들고 입력을 켬. 책은 덮인 채 (표지를 누르면 펼침)
-        /// <param name="run">이번 판 데이터</param>
-        /// <param name="spells">다중 룬 마법 전부 (DataManager 순서)</param>
-        /// <param name="runes">룬 전부 (DataManager 순서)</param>
+        #region Open - 앉아서 쓰기 시작: 코덱스 캡슐을 받아 장을 만들고 입력을 켬. 책은 덮인 채 (표지를 누르면 펼침)
+        /// <param name="codex">판정·등록을 맡는 코덱스 캡슐</param>
         /// <param name="onLeave">일어나기를 누르면 할 일</param>
-        public void Open(RunEntry run, IReadOnlyList<SpellSO> spells, IReadOnlyList<RuneSO> runes, Action onLeave)
+        public void Open(CodexService codex, Action onLeave)
         {
             if (_view == null) return;
-            _run = run ?? throw new ArgumentNullException(nameof(run));
-            _spells = spells ?? throw new ArgumentNullException(nameof(spells));
-            _runes = runes ?? throw new ArgumentNullException(nameof(runes));
+            _codex = codex ?? throw new ArgumentNullException(nameof(codex));
             _onLeave = onLeave;
-            _shapes = spells.Select(spell => spell != null ? spell.Shape : null)
-                .Concat(runes.Select(rune => rune != null ? rune.Shape : null)).ToArray();
-            RebuildCandidates();
             BuildPages();
             SetSeated(true);
         }
@@ -254,12 +214,8 @@ namespace Mage
             _view.Draw.End();
             ClearItems(_listItems);
             SetSeated(false);
-            _run = null;
-            _spells = null;
-            _runes = null;
-            _shapes = null;
+            _codex = null;
             _onLeave = null;
-            _candidates.Clear();
         }
         #endregion
 
@@ -623,106 +579,37 @@ namespace Mage
             if (entry == null) SetText(_view.PracticeTitle, Table, FreeDrawKey);
             else if (entry.Rune != null) SetText(_view.PracticeTitle, Table, RuneSpellKey, entry.Rune.Name.GetLocalizedString());
             else SetText(_view.PracticeTitle, entry.Spell.Name);
-            _view.Draw.Begin(NameAt, Judge, OnJudged);
+            _view.Draw.Begin(_codex, OnJudged);
             _view.Draw.ShowGuide(entry == null ? null : entry.Rune != null ? entry.Rune.Shape : entry.Spell.Shape);
         }
         #endregion
 
-        #region Judge - 그린 획 판정 (기준은 기본값, 임시)
-        /// <param name="strokes">그린 획</param>
-        SpellJudgeSpec Judge(IReadOnlyList<Vector2[]> strokes) =>
-            SpellRecognitionCalculator.Judge(strokes, _candidates, _learnedIds, SpellRecognitionCalculator.DefaultPartMin, SpellRecognitionCalculator.DefaultAllMin);
-        #endregion
-
-        #region NameAt - 판정 그림 번호의 이름 (지금 언어): 다중 룬 마법 이름, 그 뒤 번호는 '불 룬 주문'
-        /// <param name="index">판정 ShapeIndex</param>
-        string NameAt(int index)
-        {
-            if (_spells == null || _runes == null || index < 0) return string.Empty;
-            if (index < _spells.Count) return _spells[index] != null ? _spells[index].Name.GetLocalizedString() : string.Empty;
-            // 룬 번호
-            int rune = index - _spells.Count;
-            return rune < _runes.Count && _runes[rune] != null ? Text(RuneSpellKey, _runes[rune].Name.GetLocalizedString()) : string.Empty;
-        }
-        #endregion
-
-        #region OnJudged - 판정 뒤: 주문 그리기를 배움으로 (직접 취소 빼고). 생략 없이 시전한 미등록 다중 룬 마법이면 등록하고 장·목록을 다시 만듦 (룬 주문은 등록 없음)
+        #region OnJudged - 판정 뒤: 판정을 알림 (상태가 소리·튜토리얼). 코덱스 캡슐이 생략 없이 시전한 미등록 다중 룬 마법을 등록하면 (룬 주문은 등록 없음) 장·목록을 다시 만듦
         /// <param name="spec">판정 결과</param>
         void OnJudged(SpellJudgeSpec spec)
         {
-            if (_run == null) return;
-            PlayResultSound(spec);
-            if (spec.Reason != SpellJudgeReason.Canceled) TutorialManager.Instance.MarkLearned(DrawTutorialId);
-            if (!spec.IsCast || spec.Candidate.Omit.Count > 0) return;
-            // 시전한 그림 번호
-            int index = spec.Candidate.ShapeIndex;
-            if (index < 0 || index >= _spells.Count || !Register(_spells[index])) return;
-            RebuildCandidates();
+            if (_codex == null) return;
+            PracticeJudged?.Invoke(spec);
+            if (!_codex.TryRegister(spec)) return;
             BuildPages();
             if (_tab == Tab.Practice) RebuildList();
         }
         #endregion
 
-        #region PlayResultSound - 성공이면 그 마법의 성공 사운드, 실패면 실패 사운드 (실전과 같게. 소리를 안 넣었으면 조용히 넘어감. 체력·마나·효과는 책상에 없어서 소리까지만)
-        /// <param name="spec">판정 결과</param>
-        void PlayResultSound(SpellJudgeSpec spec)
-        {
-            // 소리를 낼 곳
-            AudioManager audio = AudioManager.Instance;
-            if (audio == null) return;
-            if (spec.IsFailure)
-            {
-                audio.Play(DataManager.Instance.CastFailSound);
-                return;
-            }
-            if (!spec.IsCast) return;
-            // 시전한 그림 번호
-            int index = spec.Candidate.ShapeIndex;
-            // 룬 주문이면 룬 번호
-            int rune = index - _spells.Count;
-            if (index >= 0 && index < _spells.Count) audio.Play(_spells[index] != null ? _spells[index].SuccessSound : null);
-            else if (rune >= 0 && rune < _runes.Count) audio.Play(_runes[rune] != null ? _runes[rune].SuccessSound : null);
-        }
-        #endregion
-
-        #region Register - 등록 안 한 다중 룬 마법이면 등록하고 토스트. 새로 등록했으면 true
-        /// <param name="spell">등록할 마법</param>
-        bool Register(SpellSO spell)
-        {
-            if (spell == null || _run.CollectedSpells.Contains(spell)) return false;
-            _run.CollectedSpells.Add(spell);
-            UIManager.Instance.ShowToast(Table, RegisteredKey, spell.Name.GetLocalizedString());
-            return true;
-        }
-        #endregion
-
-        #region RebuildCandidates - 익힌 룬·등록한 마법·생략 가능 수로 판정 비교 그림을 다시 만듦
-        void RebuildCandidates()
-        {
-            _learnedIds.Clear();
-            foreach (RuneSO rune in _run.LearnedRunes)
-                if (rune != null) _learnedIds.Add(rune.Id);
-            // 등록한 마법 id
-            var collected = new HashSet<string>(StringComparer.Ordinal);
-            foreach (SpellSO spell in _run.CollectedSpells)
-                if (spell != null) collected.Add(spell.Id);
-            _candidates = SpellRecognitionCalculator.BuildCandidates(_shapes, _learnedIds, collected, _run.OmitLimit);
-        }
-        #endregion
-
-        #region BuildPages - 장 목록을 다시 만듦: 룬 주문(익힌 룬, 룬 순서), 다중 룬 마법(등록한 마법, 룬 수 순서·묶음마다 왼쪽 장에서 시작). 둘 다 짝수 개로
+        #region BuildPages - 장 목록을 다시 만듦 (코덱스 캡슐의 목록): 룬 주문(익힌 룬, 룬 순서), 다중 룬 마법(등록한 마법, 룬 수 순서·묶음마다 왼쪽 장에서 시작). 둘 다 짝수 개로
         void BuildPages()
         {
             _runePages.Clear();
-            foreach (RuneSO rune in _runes)
-                if (rune != null && _run.LearnedRunes.Contains(rune)) _runePages.Add(new PageEntry { Rune = rune });
+            foreach (RuneSO rune in _codex.LearnedRunes()) _runePages.Add(new PageEntry { Rune = rune });
             PadPages(_runePages);
             _magicPages.Clear();
             _magicStart.Clear();
+            // 등록한 다중 룬 마법 (DataManager 순서)
+            SpellSO[] collected = _codex.CollectedSpells();
             for (int n = 1; n <= MaxRuneCount; n++)
             {
-                // 이 룬 수의 등록한 마법 (DataManager 순서)
-                List<SpellSO> group = _spells.Where(spell => spell != null && spell.Parts.Count == n && _run.CollectedSpells.Contains(spell)).ToList();
+                // 이 룬 수의 등록한 마법
+                List<SpellSO> group = collected.Where(spell => spell.Parts.Count == n).ToList();
                 if (group.Count == 0) continue;
                 if (_magicPages.Count % 2 == 1) _magicPages.Add(null);
                 _magicStart[n] = _magicPages.Count;
@@ -739,55 +626,6 @@ namespace Mage
         {
             if (pages.Count == 0) pages.Add(null);
             if (pages.Count % 2 == 1) pages.Add(null);
-        }
-        #endregion
-
-        #region BuildEmblem - 마법진 획: 원 셋(바깥·안쪽·가운데), 안쪽 원에 닿는 육망성(세모 둘), 둘레에 룬 그림 (룬 순서로 위에서 시계 방향)
-        /// <param name="runes">둘레에 그릴 룬 (빈 칸은 건너뜀)</param>
-        static List<Vector2[]> BuildEmblem(IReadOnlyList<RuneSO> runes)
-        {
-            // 마법진 획
-            var strokes = new List<Vector2[]> { Circle(1f), Circle(EmblemInner), Circle(EmblemCenter) };
-            for (int t = 0; t < 2; t++)
-            {
-                // 세모 하나 (꼭짓점 셋 + 처음 점)
-                var triangle = new Vector2[4];
-                for (int i = 0; i < 4; i++)
-                {
-                    // 꼭짓점 각도 (라디안)
-                    float a = t * Mathf.PI + i * 2f * Mathf.PI / 3f;
-                    triangle[i] = new Vector2(Mathf.Sin(a), Mathf.Cos(a)) * EmblemInner;
-                }
-                strokes.Add(triangle);
-            }
-            if (runes == null) return strokes;
-            // 그릴 룬
-            List<RuneSO> drawn = runes.Where(rune => rune != null).ToList();
-            for (int i = 0; i < drawn.Count; i++)
-            {
-                // 이 룬 그림 자리
-                float a = i * 2f * Mathf.PI / drawn.Count;
-                Vector2 center = new Vector2(Mathf.Sin(a), Mathf.Cos(a)) * EmblemGlyphRadius;
-                foreach (StrokeEntry stroke in drawn[i].Strokes)
-                    strokes.Add(stroke.Points.Select(p => center + p * EmblemGlyphScale).ToArray());
-            }
-            return strokes;
-        }
-        #endregion
-
-        #region Circle - 원점 중심 원 (위에서 시작해 시계 방향, EmblemCirclePoints칸)
-        /// <param name="radius">반지름</param>
-        static Vector2[] Circle(float radius)
-        {
-            // 원 점
-            var points = new Vector2[EmblemCirclePoints + 1];
-            for (int i = 0; i <= EmblemCirclePoints; i++)
-            {
-                // 각도 (라디안)
-                float a = i * 2f * Mathf.PI / EmblemCirclePoints;
-                points[i] = new Vector2(Mathf.Sin(a), Mathf.Cos(a)) * radius;
-            }
-            return points;
         }
         #endregion
 
@@ -819,13 +657,7 @@ namespace Mage
         #region RuneNames - 마법 그림 부분 룬 이름 목록 (지금 언어)
         /// <param name="spell">다중 룬 마법</param>
         static string RuneNames(SpellSO spell) =>
-            UIManager.Instance.JoinList(spell.Parts.Select(part => part.Rune != null ? part.Rune.Name.GetLocalizedString() : null));
-        #endregion
-
-        #region Text - 이 테이블 문구를 지금 언어로 읽음
-        /// <param name="key">문구 키</param>
-        /// <param name="args">자리 값</param>
-        static string Text(string key, params object[] args) => new LocalizedString(Table, key).GetLocalizedString(args);
+            TextListCalculator.Join(spell.Parts.Select(part => part.Rune != null ? part.Rune.Name.GetLocalizedString() : null));
         #endregion
 
         #region SetText - 글자에 테이블 키·자리 값을 넣고 다시 읽음

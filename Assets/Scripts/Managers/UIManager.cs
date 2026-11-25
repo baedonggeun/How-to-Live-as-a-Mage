@@ -20,9 +20,6 @@ namespace Mage
         /// <summary>일시정지 메뉴 '타이틀로' 확인창 문구 키 (UI 테이블)</summary>
         const string ToTitleConfirmKey = "pause.to_title_confirm";
 
-        /// <summary>목록 이름 사이 구분자 키 (UI 테이블, 끝 공백 포함)</summary>
-        const string ListSeparatorKey = "common.list_separator";
-
         /// <summary>자막을 보이는 시간 (초, 게임 시간이라 일시정지 중엔 멈춤)</summary>
         const float SubtitleSeconds = 4f;
 
@@ -138,21 +135,6 @@ namespace Mage
             _toast.Text.RefreshString();
             if (_hideToast != null) StopCoroutine(_hideToast);
             _hideToast = StartCoroutine(HideToastAfter(ToastSeconds));
-        }
-        #endregion
-
-        #region JoinList - 지금 언어의 목록 구분자(UI/common.list_separator)로 글을 이음. 빈 글은 뺌
-        /// <param name="items">이을 글 (이미 지금 언어로 읽은 것)</param>
-        public string JoinList(IEnumerable<string> items)
-        {
-            if (items == null) return string.Empty;
-            // 지금 언어 목록 구분자
-            string separator = new LocalizedString(UiTable, ListSeparatorKey).GetLocalizedString();
-            // 빈 글을 뺀 목록
-            var kept = new List<string>();
-            foreach (string item in items)
-                if (!string.IsNullOrEmpty(item)) kept.Add(item);
-            return string.Join(separator, kept);
         }
         #endregion
 

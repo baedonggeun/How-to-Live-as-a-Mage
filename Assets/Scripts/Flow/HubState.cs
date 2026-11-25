@@ -6,7 +6,7 @@ using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>전초기지. 첫 도착이면 역마차 연출부터. 1인칭으로 돌아다니며 상호작용 키(F)로 여관(방·식량)·여관 방 책상(코덱스: 룬 주문·다중 룬 마법·주문 연습)·길드(영입·게시판)·정문(경비병)을 씀 → 숲. 여관·원정·영입·의뢰·책상은 캡슐이 맡고, 여기선 캡슐을 만들어 이음 (대화 선택지·금화·토스트·목표·화면 글자·화면 전환)</summary>
+    /// <summary>전초기지. 첫 도착이면 역마차 연출부터. 1인칭으로 돌아다니며 상호작용 키(F)로 여관(방·식량)·여관 방 책상(코덱스: 룬 주문·다중 룬 마법·주문 연습)·길드(영입·게시판)·정문(경비병)을 씀 → 숲. 여관·원정·영입·의뢰·코덱스·책상은 캡슐이 맡고, 여기선 캡슐을 만들어 이음 (대화 선택지·금화·토스트·목표·화면 글자·화면 전환·주문 연습 소리)</summary>
     public sealed class HubState : FlowStateBase
     {
         /// <summary>이 상태의 씬 이름</summary>
@@ -120,11 +120,20 @@ namespace Mage
         /// <summary>목표가 바뀌었을 때 토스트 키 ({0} 목표 이름, Menu 테이블)</summary>
         const string ObjectiveUpdatedKey = "menu.journal.updated";
 
+        /// <summary>주문 그리기 튜토리얼 id (책상 연습에서 판정하면 배움, 직접 취소는 뺌)</summary>
+        const string DrawTutorialId = "draw";
+
+        /// <summary>마법 등록 토스트 키 ({0} 마법 이름, Codex 테이블)</summary>
+        const string SpellRegisteredKey = "codex.toast.registered";
+
         /// <summary>전초기지 문구 테이블</summary>
         static readonly TableReference Table = "Hub";
 
         /// <summary>메뉴 창 문구 테이블</summary>
         static readonly TableReference MenuTable = "Menu";
+
+        /// <summary>코덱스 문구 테이블 (마법 등록 토스트)</summary>
+        static readonly TableReference CodexTable = "Codex";
 
         /// <summary>이 상태의 씬 이름 (빌드 목록과 같음)</summary>
         public override string SceneName => Scene;
@@ -153,6 +162,9 @@ namespace Mage
         /// <summary>책상 캡슐</summary>
         DeskService _desk;
 
+        /// <summary>코덱스 캡슐 (판정·이름·등록. 책상 코덱스에 넘김)</summary>
+        CodexService _codex;
+
         /// <summary>이번 진입이 첫 도착이라 역마차 연출을 트는지 (OnSceneReady에서 정함)</summary>
         bool _arriving;
 
@@ -162,7 +174,7 @@ namespace Mage
         /// <summary>이번 진입이 숲에서 죽어 부활한 것인지 (여관 방 침대·정문에서 시작. OnSceneReady에서 정함)</summary>
         bool _respawning;
 
-        #region OnSceneReady - 캡슐(여관·원정·영입·의뢰·책상)을 만들어 잇고, 첫 도착이면 플레이어를 하차 지점에 두고 숨김·화면 글자 숨김(연출 뒤 켬), 숲에서 죽었으면 여관 방 침대(방이 없으면 정문 안쪽), 숲에서 돌아왔으면 정문 밖, 아니면 시작 위치. 파티 수·금화 표시, 안내 글 숨김, 코덱스 표지(이름·마법진), 스태미나 막대
+        #region OnSceneReady - 캡슐(여관·원정·영입·의뢰·코덱스·책상)을 만들어 잇고 (코덱스 등록 → 토스트, 책상 연습 판정 → 소리·튜토리얼), 첫 도착이면 플레이어를 하차 지점에 두고 숨김·화면 글자 숨김(연출 뒤 켬), 숲에서 죽었으면 여관 방 침대(방이 없으면 정문 안쪽), 숲에서 돌아왔으면 정문 밖, 아니면 시작 위치. 파티 수·금화 표시, 안내 글 숨김, 코덱스 표지(이름·마법진), 스태미나 막대
         protected override void OnSceneReady()
         {
             _view = FindView<HubView>();
@@ -173,6 +185,9 @@ namespace Mage
             _expedition = new ExpeditionService(run.Expedition);
             _recruit = new RecruitService(run.Party);
             _quest = new QuestService(run.Quest);
+            _codex = new CodexService(run.Codex, DataManager.Instance.Spells, DataManager.Instance.Runes);
+            _codex.Registered += OnSpellRegistered;
+            _view.Codex.PracticeJudged += OnPracticeJudged;
             _desk = new DeskService(_view.DeskSequence, _view.Codex, _view.Player.Head, _view.DeskSeat);
             _desk.Left += OnDeskLeft;
             _arriving = !run.HasArrived;
@@ -293,6 +308,7 @@ namespace Mage
                 _view.Opening.Cancel();
                 _view.Detector.TargetChanged -= OnTargetChanged;
                 _view.Detector.Interacted -= OnInteracted;
+                _view.Codex.PracticeJudged -= OnPracticeJudged;
                 if (_desk != null)
                 {
                     _desk.Left -= OnDeskLeft;
@@ -300,6 +316,7 @@ namespace Mage
                 }
                 SetControl(false);
             }
+            if (_codex != null) _codex.Registered -= OnSpellRegistered;
             TutorialManager.Instance.Clear();
             UIManager.Instance.HideSubtitle();
             Cursor.lockState = CursorLockMode.None;
@@ -366,13 +383,13 @@ namespace Mage
         }
         #endregion
 
-        #region UseDesk - 책상에 앉음: 조작·화면 글자를 끄고 책상 캡슐이 커서를 풀고 머리를 옮긴 뒤 코덱스를 엶 (판 데이터·마법·룬 목록을 넘김)
+        #region UseDesk - 책상에 앉음: 조작·화면 글자를 끄고 책상 캡슐이 커서를 풀고 머리를 옮긴 뒤 코덱스를 엶 (코덱스 캡슐을 넘김)
         void UseDesk()
         {
             if (_desk.IsActive) return;
             SetControl(false);
             _view.Hud.SetActive(false);
-            _desk.Sit(Game.Run, DataManager.Instance.Spells, DataManager.Instance.Runes);
+            _desk.Sit(_codex);
         }
         #endregion
 
@@ -383,6 +400,26 @@ namespace Mage
             _view.Hud.SetActive(true);
             SetControl(true);
         }
+        #endregion
+
+        #region OnPracticeJudged - 책상 연습 판정 (코덱스 알림): 성공이면 그 주문의 성공 사운드, 실패면 실패 사운드 (실전과 같게. 소리를 안 넣었으면 조용히 넘어감), 직접 취소가 아니면 주문 그리기 배움
+        /// <param name="spec">판정 결과</param>
+        void OnPracticeJudged(SpellJudgeSpec spec)
+        {
+            // 소리를 낼 곳 (없으면 무음)
+            AudioManager audio = AudioManager.Instance;
+            if (audio != null)
+            {
+                if (spec.IsFailure) audio.Play(DataManager.Instance.CastFailSound);
+                else if (spec.IsCast) audio.Play(_codex.SuccessSoundAt(spec.Candidate.ShapeIndex));
+            }
+            if (spec.Reason != SpellJudgeReason.Canceled) TutorialManager.Instance.MarkLearned(DrawTutorialId);
+        }
+        #endregion
+
+        #region OnSpellRegistered - 다중 룬 마법을 새로 등록함 (코덱스 캡슐 알림): 토스트
+        /// <param name="spell">등록한 마법</param>
+        void OnSpellRegistered(SpellSO spell) => UIManager.Instance.ShowToast(CodexTable, SpellRegisteredKey, spell.Name.GetLocalizedString());
         #endregion
 
         #region HandleCancel - Esc: 책상이면 책상 캡슐이 처리 (그리는 중엔 그리기 취소, 아니면 일어남. 일시정지 메뉴 안 엶). 책상이 아니면 처리 안 함

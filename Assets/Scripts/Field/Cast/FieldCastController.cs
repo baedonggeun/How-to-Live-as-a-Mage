@@ -1,15 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Localization;
 using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>현장 시전 (숲): 그리기(F 꾹 → 양피지 → 선 → F 떼면 판정, 우클릭은 취소·갈무리)는 주문 그리기 패드(SpellDrawController)가 하고, 여기서는 패드 결과를 받아 처리함. 성공(성공 사운드) → 방호막은 바로, 나머지는 3초 조준(시점만, 좌클릭이나 3초 끝 발사, 우클릭은 취소·갈무리) → 효과(투사체·불벽·방호막, 효과 프리팹이 있으면 입힘). 실패(맞는 마법이 아님)는 실패 사운드·피격·체력·마나·스태미나 감소. 마나(초당 9 회복)·방호막 재사용, 만드는 룬 혼자 던지기, 생략 없이 처음 그린 다중 룬 마법 등록. 그리는 동안 이동·시점, 조준·갈무리 중 이동(갈무리는 시점·상호작용까지)을 막음. 처음엔 꺼져 있고 켜고 끄는 건 상태가 함</summary>
+    /// <summary>현장 시전 (숲): 그리기(F 꾹 → 양피지 → 선 → F 떼면 판정, 우클릭은 취소·갈무리)는 주문 그리기 패드(SpellDrawController)가 하고, 여기서는 패드 결과를 받아 처리함. 성공(성공 사운드) → 방호막은 바로, 나머지는 3초 조준(시점만, 좌클릭이나 3초 끝 발사, 우클릭은 취소·갈무리) → 효과(투사체·불벽·방호막, 효과 프리팹이 있으면 입힘). 실패(맞는 마법이 아님)는 실패 사운드·피격·체력·마나·스태미나 감소. 마나(초당 9 회복)·방호막 재사용, 만드는 룬 혼자 던지기, 생략 없이 처음 그린 다중 룬 마법 등록. 그리는 동안 이동·시점, 조준·갈무리 중 이동(갈무리는 시점·상호작용까지)을 막음. 처음엔 꺼져 있고 켜고 끄는 건 상태가 함. 판정·이름·등록은 받은 코덱스 캡슐이, 탄·벽은 SpellEffectService가 하고, 성공·실패는 CastAccepted·CastFailed로 알림 (소리는 상태가 냄)</summary>
     public sealed class FieldCastController : MonoBehaviour
     {
         /// <summary>발사 입력 액션 경로 (전역 액션, 왼쪽 버튼. 조준 중에만)</summary>
@@ -36,24 +33,6 @@ namespace Mage
         /// <summary>시전 실패로 깎는 스태미나 (임시)</summary>
         const float FailStamina = 30f;
 
-        /// <summary>조준 보정: 앞쪽 최대 거리 (m, v1)</summary>
-        const float AimMaxDistance = 60f;
-
-        /// <summary>조준 보정: 시선에서 최대 가로 거리 (m, v1)</summary>
-        const float AimMaxOffset = 3.5f;
-
-        /// <summary>주문 탄 속도 (m/s, v1)</summary>
-        const float ProjectileSpeed = 34f;
-
-        /// <summary>주문 탄 최대 비행 시간 (초, v1)</summary>
-        const float ProjectileLife = 1.9f;
-
-        /// <summary>탄이 눈 앞 이만큼에서 나감 (m, v1)</summary>
-        const float MuzzleOffset = 0.7f;
-
-        /// <summary>화염 벽 조준점 최대 거리 (m, v1)</summary>
-        const float WallMaxDistance = 40f;
-
         /// <summary>알림 글이 남는 시간 (초)</summary>
         const float NoteSeconds = 1.6f;
 
@@ -78,23 +57,8 @@ namespace Mage
         /// <summary>알림: 현장 효과가 아직 없는 주문 ({0} 주문 이름)</summary>
         const string NoEffectKey = "field.note.no_effect";
 
-        /// <summary>룬 주문 이름 키 (Codex 테이블, {0} 룬 이름)</summary>
-        const string RuneSpellKey = "codex.rune_spell";
-
-        /// <summary>마법 등록 토스트 키 (Codex 테이블, {0} 마법 이름)</summary>
-        const string RegisteredKey = "codex.toast.registered";
-
         /// <summary>숲 문구 테이블</summary>
         static readonly TableReference Table = "Field";
-
-        /// <summary>코덱스 문구 테이블 (룬 주문 이름·등록 토스트)</summary>
-        static readonly TableReference CodexTable = "Codex";
-
-        /// <summary>불 탄 색</summary>
-        static readonly Color FireColor = new(1f, 0.55f, 0.15f);
-
-        /// <summary>물 탄 색</summary>
-        static readonly Color WaterColor = new(0.35f, 0.65f, 1f);
 
         /// <summary>시전 상태</summary>
         enum CastState
@@ -127,23 +91,11 @@ namespace Mage
         /// <summary>화염 벽 프리팹 (FlameWall.prefab. 인스펙터에서만 연결)</summary>
         [SerializeField] FlameWallController _wallPrefab;
 
-        /// <summary>익힌 룬 id (비교 그림을 만들 때 채움)</summary>
-        readonly HashSet<string> _learnedIds = new(StringComparer.Ordinal);
+        /// <summary>판정·이름·등록을 맡는 코덱스 캡슐</summary>
+        CodexService _codex;
 
-        /// <summary>판정 비교 그림 (등록이 바뀌면 다시 만듦)</summary>
-        List<SpellCandidateEntry> _candidates = new();
-
-        /// <summary>판정 비교 그림 원본 (다중 룬 마법 순서 뒤에 룬 순서. ShapeIndex가 이 번호)</summary>
-        SpellShapeEntry[] _shapes;
-
-        /// <summary>다중 룬 마법 전부 (DataManager 순서)</summary>
-        IReadOnlyList<SpellSO> _spells;
-
-        /// <summary>룬 전부 (DataManager 순서)</summary>
-        IReadOnlyList<RuneSO> _runes;
-
-        /// <summary>이번 판 데이터</summary>
-        RunEntry _run;
+        /// <summary>탄·벽 효과</summary>
+        SpellEffectService _effects;
 
         /// <summary>현장 규칙</summary>
         FieldService _service;
@@ -193,6 +145,12 @@ namespace Mage
         /// <summary>최대 마나</summary>
         public float ManaMax => ManaMaxValue;
 
+        /// <summary>맞는 주문을 받아들임 (조준·방호막 전. 상태가 성공 사운드를 냄)</summary>
+        public event Action<FieldCastSpec> CastAccepted;
+
+        /// <summary>시전 실패 (맞는 마법이 아님. 상태가 실패 사운드를 냄)</summary>
+        public event Action CastFailed;
+
         #region Awake - 연결 확인, 입력 액션 찾기, 처음엔 꺼 둠 (Reveal에서 상태가 켬)
         void Awake()
         {
@@ -215,26 +173,20 @@ namespace Mage
         }
         #endregion
 
-        #region Init - 판 데이터·주문·룬·현장 규칙·조작·몸·상호작용 감지기를 받아 비교 그림을 만들고 마나를 채움, HUD 조준·방호막 표시를 끔
-        /// <param name="run">이번 판 데이터</param>
-        /// <param name="spells">다중 룬 마법 전부</param>
-        /// <param name="runes">룬 전부</param>
+        #region Init - 코덱스 캡슐·현장 규칙·조작·몸·상호작용 감지기를 받아 탄·벽 효과를 만들고 마나를 채움, HUD 조준·방호막 표시를 끔
+        /// <param name="codex">판정·이름·등록을 맡는 코덱스 캡슐</param>
         /// <param name="service">현장 규칙</param>
         /// <param name="player">1인칭 조작</param>
         /// <param name="unit">마법사 몸</param>
         /// <param name="detector">바라본 지점 찾기</param>
-        public void Init(RunEntry run, IReadOnlyList<SpellSO> spells, IReadOnlyList<RuneSO> runes, FieldService service, PlayerController player, FieldUnitController unit, InteractDetector detector)
+        public void Init(CodexService codex, FieldService service, PlayerController player, FieldUnitController unit, InteractDetector detector)
         {
-            _run = run ?? throw new ArgumentNullException(nameof(run));
-            _spells = spells ?? throw new ArgumentNullException(nameof(spells));
-            _runes = runes ?? throw new ArgumentNullException(nameof(runes));
+            _codex = codex ?? throw new ArgumentNullException(nameof(codex));
             _service = service ?? throw new ArgumentNullException(nameof(service));
             _player = player != null ? player : throw new ArgumentNullException(nameof(player));
             _unit = unit != null ? unit : throw new ArgumentNullException(nameof(unit));
             _detector = detector != null ? detector : throw new ArgumentNullException(nameof(detector));
-            _shapes = spells.Select(spell => spell != null ? spell.Shape : null)
-                .Concat(runes.Select(rune => rune != null ? rune.Shape : null)).ToArray();
-            RebuildCandidates();
+            _effects = new SpellEffectService(_projectilePrefab, _wallPrefab, _eye, unit, service);
             Mana = ManaMax;
             _state = CastState.Idle;
             if (_hud == null) return;
@@ -255,7 +207,7 @@ namespace Mage
             _draw.CastStarted += OnCastStarted;
             _draw.Locked += OnLocked;
             _draw.Unlocked += OnUnlocked;
-            _draw.Begin(NameAt, Judge, OnJudged, CanStartCast);
+            _draw.Begin(_codex, OnJudged, CanStartCast);
         }
         #endregion
 
@@ -380,26 +332,19 @@ namespace Mage
         }
         #endregion
 
-        #region Fail - 시전 실패: 실패 사운드, 마나·스태미나를 깎고 체력을 깎음 (깎이면 기존 피격 붉은 번쩍이 저절로 뜸. 체력이 0이 되면 죽음)
+        #region Fail - 시전 실패: 알림(상태가 실패 사운드), 마나·스태미나를 깎고 체력을 깎음 (깎이면 기존 피격 붉은 번쩍이 저절로 뜸. 체력이 0이 되면 죽음)
         void Fail()
         {
-            // 소리를 낼 곳과 데이터 (둘 중 하나라도 없으면 무음)
-            AudioManager audio = AudioManager.Instance;
-            DataManager data = DataManager.Instance;
-            if (audio != null && data != null) audio.Play(data.CastFailSound);
+            CastFailed?.Invoke();
             Mana = Mathf.Max(0f, Mana - FailMana);
             _player.DrainStamina(FailStamina);
             _unit.TakeDamage(FailHp, null);
         }
         #endregion
 
-        #region PlaySuccess - 성공 사운드를 2D로 냄 (소리를 안 넣었으면 조용히 넘어감)
+        #region PlaySuccess - 받아들인 주문을 알림 (상태가 성공 사운드를 2D로 냄. 소리를 안 넣었으면 조용히 넘어감)
         /// <param name="cast">받아들여진 주문</param>
-        void PlaySuccess(FieldCastSpec cast)
-        {
-            AudioManager audio = AudioManager.Instance;
-            if (audio != null) audio.Play(cast.Sound);
-        }
+        void PlaySuccess(FieldCastSpec cast) => CastAccepted?.Invoke(cast);
         #endregion
 
         #region TryMakeCast - 판정한 그림으로 현장 값을 만듦. 두루마리·현장 효과 없는 주문·혼자 효과 없는 룬이면 알림 후 false. 다중 룬 마법을 생략 없이 그렸으면 등록
@@ -411,20 +356,19 @@ namespace Mage
             // 판정한 그림 번호
             int index = spec.Candidate.ShapeIndex;
             // 이름 (지금 언어)
-            string name = NameAt(index);
+            string name = _codex.NameAt(index);
             // 마법의 룬 수
             int tier = spec.Candidate.Shape.PartRuneIds.Count;
-            if (index >= 0 && index < _spells.Count)
+            // 그린 다중 룬 마법 (룬 주문 번호면 null)
+            SpellSO spell = _codex.SpellAt(index);
+            if (spell != null)
             {
-                // 그린 다중 룬 마법
-                SpellSO spell = _spells[index];
-                if (spell == null) return false;
                 if (spell.Kind == SpellKind.Scroll)
                 {
                     Note(ScrollKey);
                     return false;
                 }
-                if (spec.Candidate.Omit.Count == 0) Register(spell);
+                _codex.TryRegister(spec);
                 if (spell.FieldEffect == SpellFieldEffect.None)
                 {
                     Note(NoEffectKey, name);
@@ -433,10 +377,8 @@ namespace Mage
                 cast = FieldCastSpec.FromSpell(spell, name, spec.Accuracy, tier);
                 return true;
             }
-            // 룬 번호
-            int runeIndex = index - _spells.Count;
-            // 그린 룬
-            RuneSO rune = runeIndex >= 0 && runeIndex < _runes.Count ? _runes[runeIndex] : null;
+            // 그린 룬 (다중 룬 마법 번호의 빈 칸이면 null)
+            RuneSO rune = _codex.RuneAt(index);
             if (rune == null) return false;
             if (rune.SoloEffect == SpellFieldEffect.None)
             {
@@ -532,92 +474,22 @@ namespace Mage
         }
         #endregion
 
-        #region Cast - 마나를 쓰고 효과를 냄 (정확이면 위력 ×1.4): 탄·폭발 탄·물탄·부채꼴 세 발·화염 벽·방호막. 효과 프리팹이 있으면 입힘
+        #region Cast - 마나를 쓰고 효과를 냄 (정확이면 위력 ×1.4): 탄·폭발 탄·물탄·부채꼴 세 발·화염 벽은 효과 서비스가, 방호막은 여기서. 효과 프리팹이 있으면 입힘
         /// <param name="cast">쓸 주문</param>
         void Cast(FieldCastSpec cast)
         {
             Mana -= cast.ManaCost;
             // 정확 배율을 곱한 위력
             float power = cast.Power * cast.Scale;
-            switch (cast.Effect)
+            if (cast.Effect != SpellFieldEffect.Shield)
             {
-                case SpellFieldEffect.Bolt:
-                    Shoot(AimDirection(), power, 0f, 0f, FireColor, cast.EffectPrefab);
-                    break;
-                case SpellFieldEffect.Ball:
-                    Shoot(AimDirection(), power, cast.Area, 0f, FireColor, cast.EffectPrefab);
-                    break;
-                case SpellFieldEffect.Water:
-                    Shoot(AimDirection(), power, 0f, cast.Area, WaterColor, cast.EffectPrefab);
-                    break;
-                case SpellFieldEffect.Fan:
-                    // 가운데 방향
-                    Vector3 direction = AimDirection();
-                    Shoot(Quaternion.AngleAxis(-cast.Area, Vector3.up) * direction, power, 0f, 0f, FireColor, cast.EffectPrefab);
-                    Shoot(direction, power, 0f, 0f, FireColor, cast.EffectPrefab);
-                    Shoot(Quaternion.AngleAxis(cast.Area, Vector3.up) * direction, power, 0f, 0f, FireColor, cast.EffectPrefab);
-                    break;
-                case SpellFieldEffect.Wall:
-                    PlaceWall(cast, power);
-                    break;
-                case SpellFieldEffect.Shield:
-                    _shieldLeft = cast.Duration * cast.Scale;
-                    _shieldCooldown = cast.Cooldown;
-                    _unit.DamageScale = cast.Power;
-                    ShowShield(cast.EffectPrefab);
-                    break;
+                _effects.Apply(cast, power);
+                return;
             }
-        }
-        #endregion
-
-        #region AimDirection - 조준 보정 대상(시선 60m 안·가로 3.5m 안 적)이 있으면 그 겨눌 점으로, 없으면 시선 방향 (v1)
-        Vector3 AimDirection()
-        {
-            // 시선
-            var ray = new Ray(_eye.position, _eye.forward);
-            // 보정 대상 (없으면 null)
-            FieldUnitController target = _service.AimTarget(ray, AimMaxDistance, AimMaxOffset);
-            return target != null ? (target.AimPoint - _eye.position).normalized : _eye.forward;
-        }
-        #endregion
-
-        #region Shoot - 눈 앞에서 탄 한 발을 쏨 (적 편을 노림). 효과 프리팹이 있으면 날아가는 모습으로 입힘
-        /// <param name="direction">방향</param>
-        /// <param name="damage">피해</param>
-        /// <param name="splash">폭발 반지름 (m)</param>
-        /// <param name="push">밀쳐내기 (m)</param>
-        /// <param name="color">색</param>
-        /// <param name="visualPrefab">효과 프리팹 (없으면 null)</param>
-        void Shoot(Vector3 direction, float damage, float splash, float push, Color color, GameObject visualPrefab)
-        {
-            // 탄이 나갈 곳
-            Vector3 from = _eye.position + direction * MuzzleOffset;
-            // 쏜 탄
-            SpellProjectileController shot = Instantiate(_projectilePrefab, from, Quaternion.LookRotation(direction));
-            shot.Launch(direction, ProjectileSpeed, ProjectileLife, damage, splash, push, FieldTeam.Enemy, _unit, _service, color, visualPrefab);
-        }
-        #endregion
-
-        #region PlaceWall - 시선이 40m 안에서 닿은 곳(적이면 그 발밑, 없으면 앞 40m 땅)에 시선과 수직인 불벽
-        /// <param name="cast">화염 벽 주문</param>
-        /// <param name="damagePerSecond">초당 피해 (정확 배율 적용)</param>
-        void PlaceWall(FieldCastSpec cast, float damagePerSecond)
-        {
-            // 시선
-            var ray = new Ray(_eye.position, _eye.forward);
-            // 시선의 평면 앞 방향
-            Vector3 flatForward = Vector3.ProjectOnPlane(_eye.forward, Vector3.up).normalized;
-            // 벽 가운데 (기본: 앞 40m 마법사 발 높이)
-            Vector3 center = _unit.transform.position + flatForward * WallMaxDistance;
-            if (Physics.Raycast(ray, out RaycastHit hit, WallMaxDistance, ~0, QueryTriggerInteraction.Ignore))
-            {
-                // 닿은 몸 (몸이 아니면 null)
-                FieldUnitController unit = hit.collider.GetComponentInParent<FieldUnitController>();
-                center = unit != null ? unit.transform.position : hit.point;
-            }
-            // 세운 벽
-            FlameWallController wall = Instantiate(_wallPrefab, center, Quaternion.identity);
-            wall.Launch(center, _eye.right, cast.Area, cast.Duration, damagePerSecond, _unit, _service, cast.EffectPrefab);
+            _shieldLeft = cast.Duration * cast.Scale;
+            _shieldCooldown = cast.Cooldown;
+            _unit.DamageScale = cast.Power;
+            ShowShield(cast.EffectPrefab);
         }
         #endregion
 
@@ -674,50 +546,6 @@ namespace Mage
             _hud.NoteText.gameObject.SetActive(true);
             _hud.NoteText.RefreshString();
             _noteLeft = NoteSeconds;
-        }
-        #endregion
-
-        #region Register - 등록 안 한 다중 룬 마법이면 등록하고 토스트, 비교 그림을 다시 만듦 (생략본이 생김)
-        /// <param name="spell">생략 없이 그린 마법</param>
-        void Register(SpellSO spell)
-        {
-            if (_run.CollectedSpells.Contains(spell)) return;
-            _run.CollectedSpells.Add(spell);
-            UIManager.Instance.ShowToast(CodexTable, RegisteredKey, spell.Name.GetLocalizedString());
-            RebuildCandidates();
-        }
-        #endregion
-
-        #region RebuildCandidates - 익힌 룬·등록한 마법·생략 가능 수로 판정 비교 그림을 다시 만듦 (코덱스와 같은 방식)
-        void RebuildCandidates()
-        {
-            _learnedIds.Clear();
-            foreach (RuneSO rune in _run.LearnedRunes)
-                if (rune != null) _learnedIds.Add(rune.Id);
-            // 등록한 마법 id
-            var collected = new HashSet<string>(StringComparer.Ordinal);
-            foreach (SpellSO spell in _run.CollectedSpells)
-                if (spell != null) collected.Add(spell.Id);
-            _candidates = SpellRecognitionCalculator.BuildCandidates(_shapes, _learnedIds, collected, _run.OmitLimit);
-        }
-        #endregion
-
-        #region Judge - 그린 획 판정 (기준은 기본값, 임시)
-        /// <param name="strokes">그린 획</param>
-        SpellJudgeSpec Judge(IReadOnlyList<Vector2[]> strokes) =>
-            SpellRecognitionCalculator.Judge(strokes, _candidates, _learnedIds, SpellRecognitionCalculator.DefaultPartMin, SpellRecognitionCalculator.DefaultAllMin);
-        #endregion
-
-        #region NameAt - 판정 그림 번호의 이름 (지금 언어): 다중 룬 마법 이름, 그 뒤 번호는 '불 룬 주문'
-        /// <param name="index">판정 ShapeIndex</param>
-        string NameAt(int index)
-        {
-            if (_spells == null || _runes == null || index < 0) return string.Empty;
-            if (index < _spells.Count) return _spells[index] != null ? _spells[index].Name.GetLocalizedString() : string.Empty;
-            // 룬 번호
-            int rune = index - _spells.Count;
-            if (rune >= _runes.Count || _runes[rune] == null) return string.Empty;
-            return new LocalizedString(CodexTable, RuneSpellKey).GetLocalizedString(_runes[rune].Name.GetLocalizedString());
         }
         #endregion
 

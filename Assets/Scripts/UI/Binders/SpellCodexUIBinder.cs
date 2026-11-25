@@ -51,7 +51,7 @@ namespace Mage
             _view.CodexName.StringReference.Arguments = new object[] { run != null ? run.PlayerName : string.Empty };
             _view.CodexName.RefreshString();
             // 이번 판 도감 등록 주문 (판이 없으면 null)
-            IReadOnlyList<SpellSO> spells = run?.CollectedSpells;
+            IReadOnlyList<SpellSO> spells = run?.Codex.CollectedSpells;
             // 목록 첫 주문 (자세히를 처음 보일 것. 없으면 null)
             SpellSO first = null;
             if (spells != null)
@@ -84,7 +84,7 @@ namespace Mage
             runes.SetReference(Table, RunesKey);
             runes.Arguments = new object[]
             {
-                UIManager.Instance.JoinList(spell.Parts.Select(part => part.Rune != null ? part.Rune.Name.GetLocalizedString() : null)),
+                TextListCalculator.Join(spell.Parts.Select(part => part.Rune != null ? part.Rune.Name.GetLocalizedString() : null)),
             };
             _view.SpellRunes.RefreshString();
             _view.SpellBody.StringReference.SetReference(spell.Description.TableReference, spell.Description.TableEntryReference);

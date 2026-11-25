@@ -4,14 +4,13 @@ using System.Globalization;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Localization;
 using UnityEngine.Localization.Components;
 using UnityEngine.Localization.Tables;
 using UnityEngine.UI;
 
 namespace Mage
 {
-    /// <summary>주문 그리기 패드 (숲 HUD와 책상 코덱스 연습이 같이 씀. 연습이 실전과 같게): F를 꾹(InteractDetector.HoldSeconds) 누르면 시전 상태 → 양피지가 뜨고 누르는 동안 마우스 이동량으로 펜 점을 옮김(커서 잠금, 양피지 안에서만) → 좌클릭을 누른 동안 선을 그음 → F를 떼면(또는 Space) 판정하고 양피지·선이 같이 사라짐. 우클릭은 취소: 그림을 판정해 맞는 마법이면 룬 수 × 1초 동안 갈무리 (아무것도 못 함). 판정은 받은 함수가 하고 결과 글은 여기서 보임. 갈무리·결과 글 시간은 게임 시간 (일시정지 중엔 멈춤)</summary>
+    /// <summary>주문 그리기 패드 (숲 HUD와 책상 코덱스 연습이 같이 씀. 연습이 실전과 같게): F를 꾹(InteractDetector.HoldSeconds) 누르면 시전 상태 → 양피지가 뜨고 누르는 동안 마우스 이동량으로 펜 점을 옮김(커서 잠금, 양피지 안에서만) → 좌클릭을 누른 동안 선을 그음 → F를 떼면(또는 Space) 판정하고 양피지·선이 같이 사라짐. 우클릭은 취소: 그림을 판정해 맞는 마법이면 룬 수 × 1초 동안 갈무리 (아무것도 못 함). 판정·주문 이름은 받은 코덱스 캡슐이 하고, 결과 글(이유·부분 글은 SpellJudgeTextCalculator)은 여기서 보임. 갈무리·결과 글 시간은 게임 시간 (일시정지 중엔 멈춤)</summary>
     public sealed class SpellDrawController : MonoBehaviour
     {
         /// <summary>시전 상태를 시작하고 판정하는 키 입력 액션 경로 (전역 액션, F)</summary>
@@ -52,36 +51,6 @@ namespace Mage
 
         /// <summary>갈무리 중 글 키 ({0} 남은 초)</summary>
         const string RecoverKey = "cast.recover";
-
-        /// <summary>이유: 그린 것이 없음</summary>
-        const string WhyEmptyKey = "cast.why.empty";
-
-        /// <summary>이유: 너무 작음</summary>
-        const string WhySmallKey = "cast.why.small";
-
-        /// <summary>이유: 비교할 주문 그림이 없음</summary>
-        const string WhyNoneKey = "cast.why.none";
-
-        /// <summary>이유: 맞는 주문이 없음</summary>
-        const string WhyNoMatchKey = "cast.why.nomatch";
-
-        /// <summary>이유: 부분이 모자람 ({0} 주문, {1} 모자란 부분, {2} 부분 기준 %)</summary>
-        const string WhyPartsKey = "cast.why.parts";
-
-        /// <summary>이유: 안 익힌 룬 ({0} 주문, {1} 룬)</summary>
-        const string WhyUnlearnedKey = "cast.why.unlearned";
-
-        /// <summary>이유: 하나로 안 정해짐 ({0} 주문 이름 목록)</summary>
-        const string WhyAmbiguousKey = "cast.why.ambiguous";
-
-        /// <summary>이유: 직접 취소</summary>
-        const string WhyCanceledKey = "cast.why.canceled";
-
-        /// <summary>부분 하나 ({0} 룬, {1} 일치율 %)</summary>
-        const string PartKey = "cast.part";
-
-        /// <summary>남는 선 ({0} %)</summary>
-        const string ExtraKey = "cast.extra";
 
         /// <summary>자세히: 부분 일치율 줄 ({0} 부분 목록)</summary>
         const string PartsKey = "cast.parts";
@@ -161,11 +130,8 @@ namespace Mage
         /// <summary>이 칸이 든 캔버스의 UI 클릭 검출 (시전 중엔 꺼서 커서 자리의 버튼이 눌리지 않게)</summary>
         GraphicRaycaster _raycaster;
 
-        /// <summary>판정의 ShapeIndex 번호 → 결과 글에 쓸 주문 이름 (지금 언어). 그리기를 안 받으면 null</summary>
-        Func<int, string> _nameAt;
-
-        /// <summary>판정 (그린 획 → 결과). 그리기를 안 받으면 null</summary>
-        Func<IReadOnlyList<Vector2[]>, SpellJudgeSpec> _judge;
+        /// <summary>판정·주문 이름을 맡는 코덱스 캡슐. 그리기를 안 받으면 null</summary>
+        CodexService _codex;
 
         /// <summary>판정·취소 뒤 할 일</summary>
         Action<SpellJudgeSpec> _onJudged;
@@ -198,7 +164,7 @@ namespace Mage
         public event Action Unlocked;
 
         /// <summary>그리기를 받는 중인지 (Begin ~ End)</summary>
-        public bool IsActive => _judge != null;
+        public bool IsActive => _codex != null;
 
         /// <summary>시전 상태인지</summary>
         public bool IsCasting => _casting;
@@ -237,15 +203,13 @@ namespace Mage
         void OnDisable() => End();
         #endregion
 
-        #region Begin - 그리기 받기 시작: 판정·결과 할 일과 결과 글에 쓸 주문 이름을 받고 입력을 구독, 획·결과를 비움 (다시 부르면 처음부터)
-        /// <param name="nameAt">판정 결과의 ShapeIndex 번호 → 주문 이름 (지금 언어)</param>
-        /// <param name="judge">그린 획 → 판정</param>
+        #region Begin - 그리기 받기 시작: 판정·주문 이름을 맡을 코덱스 캡슐과 판정 뒤 할 일을 받고 입력을 구독, 획·결과를 비움 (다시 부르면 처음부터)
+        /// <param name="codex">판정·주문 이름을 맡는 코덱스 캡슐</param>
         /// <param name="onJudged">판정·취소 뒤 할 일 (없으면 null)</param>
         /// <param name="canStart">시전을 시작해도 되는지 묻는 함수 (없으면 null: 늘 됨)</param>
-        public void Begin(Func<int, string> nameAt, Func<IReadOnlyList<Vector2[]>, SpellJudgeSpec> judge, Action<SpellJudgeSpec> onJudged, Func<bool> canStart = null)
+        public void Begin(CodexService codex, Action<SpellJudgeSpec> onJudged, Func<bool> canStart = null)
         {
-            _nameAt = nameAt ?? throw new ArgumentNullException(nameof(nameAt));
-            _judge = judge ?? throw new ArgumentNullException(nameof(judge));
+            _codex = codex ?? throw new ArgumentNullException(nameof(codex));
             _onJudged = onJudged;
             _canStart = canStart;
             Subscribe(false);
@@ -263,9 +227,8 @@ namespace Mage
             if (_casting) EndCasting();
             _restorePending = false;
             _lockLeft = 0f;
-            _judge = null;
+            _codex = null;
             _onJudged = null;
-            _nameAt = null;
             _canStart = null;
             ResetDrawing();
             if (_view != null && _view.Guide != null) _view.Guide.Clear();
@@ -341,10 +304,10 @@ namespace Mage
         #region JudgeNow - 그리던 획을 끝내고 바로 판정: 양피지·선이 같이 사라지고 결과 글을 보인 뒤 할 일 (시전 상태가 아니면 무시)
         public void JudgeNow()
         {
-            if (!_casting || _judge == null) return;
+            if (!_casting || _codex == null) return;
             EndStroke();
             // 그린 획 복사본으로 한 판정
-            SpellJudgeSpec spec = _judge(_strokes.ToArray());
+            SpellJudgeSpec spec = _codex.Judge(_strokes.ToArray());
             EndCasting();
             ShowResult(spec);
             _resultLeft = _resultSeconds;
@@ -563,10 +526,10 @@ namespace Mage
         #region CancelRecover - 우클릭 취소: 그린 그림을 판정해, 맞는 마법이면 그 마법의 룬 수 × 1초 갈무리 (마법이 아니면 갈무리 없이 취소)
         void CancelRecover()
         {
-            if (!_casting || _judge == null) return;
+            if (!_casting || _codex == null) return;
             EndStroke();
             // 취소 순간 그림의 판정
-            SpellJudgeSpec drawn = _judge(_strokes.ToArray());
+            SpellJudgeSpec drawn = _codex.Judge(_strokes.ToArray());
             // 맞는 마법이면 그 마법의 룬 수 (아니면 0)
             int runes = drawn.IsCast && drawn.Candidate != null ? drawn.Candidate.Shape.PartRuneIds.Count : 0;
             EndCasting();
@@ -736,13 +699,14 @@ namespace Mage
             if (_view == null) return;
             _view.Hint.gameObject.SetActive(false);
             if (spec.IsCast)
-                SetText(_view.Result, spec.Accuracy >= SpellRecognitionCalculator.ExactAccuracy ? CastExactKey : CastKey, SpellName(spec.Candidate), Percent(spec.Accuracy));
+                SetText(_view.Result, spec.Accuracy >= SpellRecognitionCalculator.ExactAccuracy ? CastExactKey : CastKey,
+                    SpellJudgeTextCalculator.SpellName(spec.Candidate, _codex), SpellJudgeTextCalculator.Percent(spec.Accuracy));
             else
-                SetText(_view.Result, spec.IsFailure ? FailKey : CancelKey, ReasonText(spec));
+                SetText(_view.Result, spec.IsFailure ? FailKey : CancelKey, SpellJudgeTextCalculator.Reason(spec, _codex));
             if (spec.Reason == SpellJudgeReason.NoMatch && spec.Candidate != null)
-                SetText(_view.Detail, NearestKey, SpellName(spec.Candidate), Percent(spec.Accuracy));
+                SetText(_view.Detail, NearestKey, SpellJudgeTextCalculator.SpellName(spec.Candidate, _codex), SpellJudgeTextCalculator.Percent(spec.Accuracy));
             else if (spec.Candidate != null && spec.PartCoverage.Count > 0)
-                SetText(_view.Detail, PartsKey, PartsText(spec, false));
+                SetText(_view.Detail, PartsKey, SpellJudgeTextCalculator.Parts(spec, _codex, false));
             else
                 _view.Detail.gameObject.SetActive(false);
         }
@@ -761,71 +725,6 @@ namespace Mage
             text.gameObject.SetActive(true);
             text.RefreshString();
         }
-        #endregion
-
-        #region ReasonText - 취소·실패 이유 글 (부분 부족: 모자란 부분, 미습득: 빠진 룬, 애매함: 겹친 주문 이름)
-        /// <param name="spec">판정 결과</param>
-        string ReasonText(SpellJudgeSpec spec) => spec.Reason switch
-        {
-            SpellJudgeReason.Parts => Text(WhyPartsKey, SpellName(spec.Candidate), PartsText(spec, true), Percent(spec.PartMin)),
-            SpellJudgeReason.Unlearned => Text(WhyUnlearnedKey, SpellName(spec.Candidate), UIManager.Instance.JoinList(spec.MissingRuneIds.Select(RuneName))),
-            SpellJudgeReason.Ambiguous => Text(WhyAmbiguousKey, UIManager.Instance.JoinList(spec.AmbiguousShapes.Select(SpellNameAt))),
-            SpellJudgeReason.Empty => Text(WhyEmptyKey),
-            SpellJudgeReason.Small => Text(WhySmallKey),
-            SpellJudgeReason.NoCandidates => Text(WhyNoneKey),
-            SpellJudgeReason.Canceled => Text(WhyCanceledKey),
-            _ => Text(WhyNoMatchKey),
-        };
-        #endregion
-
-        #region PartsText - 부분 일치율 목록 ("불 96%, …". lowOnly면 부분 기준 아래만) + 남는 선 (lowOnly면 한도를 넘을 때만)
-        /// <param name="spec">판정 결과 (Candidate 있음)</param>
-        /// <param name="lowOnly">모자란 것만 넣을지</param>
-        string PartsText(SpellJudgeSpec spec, bool lowOnly)
-        {
-            // 넣을 항목 글
-            var items = new List<string>();
-            for (int i = 0; i < spec.PartCoverage.Count && i < spec.Candidate.PartRuneIds.Count; i++)
-            {
-                // 이 부분 일치율
-                float coverage = spec.PartCoverage[i];
-                if (lowOnly && coverage >= spec.PartMin) continue;
-                items.Add(Text(PartKey, RuneName(spec.Candidate.PartRuneIds[i]), Percent(coverage)));
-            }
-            if (!lowOnly || spec.Extra > SpellRecognitionCalculator.MaxExtra) items.Add(Text(ExtraKey, Percent(spec.Extra)));
-            return UIManager.Instance.JoinList(items);
-        }
-        #endregion
-
-        #region Text - 이 테이블 문구를 지금 언어로 읽음
-        /// <param name="key">문구 키</param>
-        /// <param name="args">자리 값</param>
-        static string Text(string key, params object[] args) => new LocalizedString(Table, key).GetLocalizedString(args);
-        #endregion
-
-        #region SpellName - 비교 그림의 주문 이름 (지금 언어, 없으면 빈 글)
-        /// <param name="candidate">비교 그림</param>
-        string SpellName(SpellCandidateEntry candidate) => candidate != null ? SpellNameAt(candidate.ShapeIndex) : string.Empty;
-        #endregion
-
-        #region SpellNameAt - 주문 그림 번호의 주문 이름 (지금 언어, 없으면 빈 글)
-        /// <param name="index">주문 그림 번호 (판정의 ShapeIndex)</param>
-        string SpellNameAt(int index) => _nameAt != null ? _nameAt(index) ?? string.Empty : string.Empty;
-        #endregion
-
-        #region RuneName - 룬 id의 이름 (지금 언어, 모르는 id면 id 그대로)
-        /// <param name="id">룬 id</param>
-        static string RuneName(string id)
-        {
-            // 찾은 룬
-            RuneSO rune = DataManager.Instance.FindRune(id);
-            return rune != null ? rune.Name.GetLocalizedString() : id;
-        }
-        #endregion
-
-        #region Percent - 0~1을 % 정수로
-        /// <param name="value">0~1 값</param>
-        static int Percent(float value) => Mathf.RoundToInt(value * 100f);
         #endregion
     }
 }

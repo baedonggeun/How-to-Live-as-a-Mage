@@ -134,14 +134,16 @@ namespace Mage
         }
         #endregion
 
-        #region StartRun - 이름·고른 룬(카드 순서)을 판 데이터에 넣고 전초기지로 (첫 도착이라 역마차 연출부터)
+        #region StartRun - 이름을 판 데이터에 넣고 고른 룬(카드 순서)을 코덱스 캡슐로 익힌 뒤 전초기지로 (첫 도착이라 역마차 연출부터)
         /// <param name="playerName">앞뒤 공백을 지운 이름</param>
         void StartRun(string playerName)
         {
             Game.Run.PlayerName = playerName;
-            Game.Run.LearnedRunes.Clear();
+            // 고른 룬 (카드 순서)
+            var chosen = new List<RuneSO>();
             foreach (var (card, rune) in _cards)
-                if (card.Toggle.isOn) Game.Run.LearnedRunes.Add(rune);
+                if (card.Toggle.isOn) chosen.Add(rune);
+            new CodexService(Game.Run.Codex, DataManager.Instance.Spells, DataManager.Instance.Runes).SetLearned(chosen);
             Game.ChangeState(new HubState());
         }
         #endregion

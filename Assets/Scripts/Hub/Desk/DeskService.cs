@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mage
@@ -39,19 +38,15 @@ namespace Mage
         }
         #endregion
 
-        #region Sit - 책상에 앉음: 커서를 풀고 머리를 책상 시점으로 옮긴 뒤 코덱스를 엶 (판 데이터·마법·룬 목록을 넘김, 일어나기 버튼은 TryLeave). 이미 앉았으면 무시
-        /// <param name="run">이번 판 데이터 (코덱스가 씀)</param>
-        /// <param name="spells">다중 룬 마법 목록</param>
-        /// <param name="runes">룬 목록</param>
-        public void Sit(RunEntry run, IReadOnlyList<SpellSO> spells, IReadOnlyList<RuneSO> runes)
+        #region Sit - 책상에 앉음: 커서를 풀고 머리를 책상 시점으로 옮긴 뒤 코덱스를 엶 (코덱스 캡슐을 넘김, 일어나기 버튼은 TryLeave). 이미 앉았으면 무시
+        /// <param name="codex">코덱스 캡슐 (판정·이름·등록. 상태가 만듦)</param>
+        public void Sit(CodexService codex)
         {
-            if (run == null) throw new ArgumentNullException(nameof(run));
-            if (spells == null) throw new ArgumentNullException(nameof(spells));
-            if (runes == null) throw new ArgumentNullException(nameof(runes));
+            if (codex == null) throw new ArgumentNullException(nameof(codex));
             if (IsActive) return;
             IsActive = true;
             Cursor.lockState = CursorLockMode.None;
-            _sequence.Enter(_head, _seat, () => _codex.Open(run, spells, runes, TryLeave));
+            _sequence.Enter(_head, _seat, () => _codex.Open(codex, TryLeave));
         }
         #endregion
 
