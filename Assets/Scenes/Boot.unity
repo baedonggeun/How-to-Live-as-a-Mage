@@ -5119,6 +5119,7 @@ GameObject:
   - component: {fileID: 619195335}
   - component: {fileID: 619195334}
   - component: {fileID: 619195333}
+  - component: {fileID: 619195336}
   m_Layer: 5
   m_Name: Toast
   m_TagString: Untagged
@@ -5198,6 +5199,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 619195331}
   m_CullTransparentMesh: 1
+--- !u!114 &619195336
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 619195331}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdf7443089bfd594d8e77001e48e878c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Mage::Mage.ToastController
+  _view: {fileID: 619195333}
 --- !u!114 &623676387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7055,12 +7069,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79ae0cffab54a8c4b90cbc9ede30c8e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Mage::Mage.UIManager
-  _toast: {fileID: 619195333}
+  _toast: {fileID: 619195336}
   _settings: {fileID: 1179378751}
-  _confirm: {fileID: 1374160932}
+  _confirm: {fileID: 1374160933}
   _pauseMenu: {fileID: 1362391932}
   _gameMenu: {fileID: 10097120}
-  _subtitle: {fileID: 1025414391}
+  _subtitle: {fileID: 1025414392}
   _tooltip: {fileID: 479279760}
   _fade: {fileID: 1179851790}
   _dialogue: {fileID: 1173697045}
@@ -7082,6 +7096,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1025414390}
   - component: {fileID: 1025414391}
+  - component: {fileID: 1025414392}
   m_Layer: 5
   m_Name: Subtitle
   m_TagString: Untagged
@@ -7124,6 +7139,19 @@ MonoBehaviour:
   _root: {fileID: 1051687696}
   _speaker: {fileID: 397042232}
   _line: {fileID: 254823151}
+--- !u!114 &1025414392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1025414389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3202eea1f49605440985569fa6788443, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Mage::Mage.SubtitleController
+  _view: {fileID: 1025414391}
 --- !u!114 &1045724032
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9605,6 +9633,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4394485357914243838, guid: 41b54dbd9e801c54e8b760ae7a6f92e1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1374160932}
+    - targetCorrespondingSourceObject: {fileID: 4394485357914243838, guid: 41b54dbd9e801c54e8b760ae7a6f92e1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1374160933}
   m_SourcePrefab: {fileID: 100100000, guid: 41b54dbd9e801c54e8b760ae7a6f92e1, type: 3}
 --- !u!224 &1374160929 stripped
 RectTransform:
@@ -9636,6 +9667,19 @@ MonoBehaviour:
   _messageText: {fileID: 22436488}
   _confirmButton: {fileID: 1063813871}
   _cancelButton: {fileID: 168425371}
+--- !u!114 &1374160933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1374160931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2bf5cb954c6a6a43825392875852459, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Mage::Mage.ConfirmController
+  _view: {fileID: 1374160932}
 --- !u!1001 &1382329369
 PrefabInstance:
   m_ObjectHideFlags: 0

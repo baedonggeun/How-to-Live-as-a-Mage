@@ -8,7 +8,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Mage
 {
-    /// <summary>흐름 FSM과 판 데이터 담당. 상태 전환 요청을 받아 순서대로 처리</summary>
+    /// <summary>흐름 FSM과 판 데이터 담당. 상태 전환 요청을 받아 순서대로 처리. 게임 시간 배율 규칙은 TimeScaleService가 정하고 여기선 Time.timeScale·입력 묶음·커서에 넣음</summary>
     public sealed class GameManager : MonoSingleton<GameManager>
     {
         /// <summary>에디터 Play 때 시작할 씬 이름을 PlayModeRouter가 적어 두는 SessionState 키</summary>
@@ -35,14 +35,8 @@ namespace Mage
         /// <summary>상태 전환 진행 중이면 true. 중복 전환 막기용</summary>
         bool _isSwitching;
 
-        /// <summary>로딩창이 떠 있는지. 떠 있는 동안 게임 시간 0</summary>
-        bool _covered;
-
-        /// <summary>일시정지 메뉴가 떠 있는지. 떠 있는 동안 게임 시간 0, 게임 조작 입력 꺼짐</summary>
-        bool _menuPaused;
-
-        /// <summary>게임 속도 (로딩창·일시정지가 아닐 때 Time.timeScale. 기본 1, 숲 죽음 뒤 도망 시뮬만 올림)</summary>
-        float _gameSpeed = 1f;
+        /// <summary>게임 시간 배율 규칙 (로딩창·일시정지 메뉴면 0, 아니면 게임 속도)</summary>
+        readonly TimeScaleService _time = new();
 
         /// <summary>일시정지 메뉴를 열기 전 커서 잠금 상태. 메뉴를 닫으면 이 값으로 되돌림 (숲은 잠겨 있음)</summary>
         CursorLockMode _cursorBeforePause;
@@ -73,7 +67,7 @@ namespace Mage
             if (start is TitleState) TransitionManager.Instance.ShowLogo();
             // 로고 밑 검은 덮개. 에디터에서 중간 씬부터 켜면 이게 화면을 덮음
             TransitionManager.Instance.ShowCover();
-            _covered = true;
+            _time.SetCovered(true);
             ApplyTimeScale();
             // 다국어 초기화 작업
             var localization = LocalizationSettings.InitializationOperation;
@@ -164,7 +158,7 @@ namespace Mage
                 if (showTip) yield return transition.ShowLoading();
                 else transition.ShowCover();
                 // 로딩창 밑에서 물리·애니메이션·적이 안 돌게. 로딩창 연출·로딩 대기는 실제 시간이라 그대로 돎
-                _covered = true;
+                _time.SetCovered(true);
                 ApplyTimeScale();
                 Debug.Log($"[Flow] {_state?.GetType().Name ?? "시작"} → {next.GetType().Name}");
                 _state?.Exit();
@@ -193,7 +187,7 @@ namespace Mage
             {
                 // 중간에 예외가 나도 덮개·잠금·게임 시간이 남지 않게
                 transition.HideCover();
-                _covered = false;
+                _time.SetCovered(false);
                 ApplyTimeScale();
                 _isSwitching = false;
             }
@@ -215,8 +209,7 @@ namespace Mage
         /// <param name="paused">메뉴가 떠 있는지</param>
         public void SetMenuPaused(bool paused)
         {
-            if (paused == _menuPaused) return;
-            _menuPaused = paused;
+            if (!_time.SetMenuPaused(paused)) return;
             ApplyTimeScale();
             // 게임 조작 입력 묶음 (숲 E 귀환 등)
             var player = InputSystem.actions.FindActionMap(PlayerActionMap);
@@ -244,13 +237,13 @@ namespace Mage
         /// <param name="speed">게임 속도 (1 = 보통)</param>
         public void SetGameSpeed(float speed)
         {
-            _gameSpeed = Mathf.Max(0f, speed);
+            _time.SetGameSpeed(speed);
             ApplyTimeScale();
         }
         #endregion
 
-        #region ApplyTimeScale - 멈출 이유(로딩창·일시정지 메뉴)가 하나라도 있으면 게임 시간 0, 없으면 게임 속도
-        void ApplyTimeScale() => Time.timeScale = _covered || _menuPaused ? 0f : _gameSpeed;
+        #region ApplyTimeScale - 게임 시간 배율 규칙의 값을 넣음 (멈출 이유(로딩창·일시정지 메뉴)가 하나라도 있으면 0, 없으면 게임 속도)
+        void ApplyTimeScale() => Time.timeScale = _time.TimeScale;
         #endregion
 
         #region SetUnfocused - 창 비활성 처리: 프레임 제한, 설정 '창이 비활성이면 음소거'가 켜져 있으면 소리 0. 게임은 계속 돎. 돌아오면 되돌림

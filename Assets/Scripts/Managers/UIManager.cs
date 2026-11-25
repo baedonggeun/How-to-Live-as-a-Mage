@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -8,20 +7,14 @@ using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>씬을 넘어 쓰는 공용 UI 담당: 토스트·자막·설정 창·확인창·일시정지 메뉴·메뉴 창(지도·임무 일지·튜토리얼·주문 도감)·툴팁·버튼 클릭음·NPC 대화·영입 창·게시판 창·화면 페이드</summary>
+    /// <summary>씬을 넘어 쓰는 공용 UI 담당: 토스트·자막·설정 창·확인창·일시정지 메뉴·메뉴 창(지도·임무 일지·튜토리얼·주문 도감)·툴팁·버튼 클릭음·NPC 대화·영입 창·게시판 창·화면 페이드. 창마다 Controller가 그리고, 여기선 Esc로 닫는 순서·일시정지 맞추기·출처 연결만 함</summary>
     public sealed class UIManager : MonoSingleton<UIManager>
     {
-        /// <summary>토스트 표시 시간 (초)</summary>
-        const float ToastSeconds = 2f;
-
         /// <summary>창 닫기·일시정지 메뉴 입력 액션 경로 (전역 액션, Esc)</summary>
         const string CancelActionPath = "UI/Cancel";
 
         /// <summary>일시정지 메뉴 '타이틀로' 확인창 문구 키 (UI 테이블)</summary>
         const string ToTitleConfirmKey = "pause.to_title_confirm";
-
-        /// <summary>자막을 보이는 시간 (초, 게임 시간이라 일시정지 중엔 멈춤)</summary>
-        const float SubtitleSeconds = 4f;
 
         /// <summary>메뉴 창 지도 탭 입력 액션 경로 (전역 액션, M)</summary>
         const string MapActionPath = "UI/Map";
@@ -32,14 +25,14 @@ namespace Mage
         /// <summary>테이블을 안 넘긴 토스트·확인창이 쓰는 테이블 (공용 UI 문구)</summary>
         static readonly TableReference UiTable = "UI";
 
-        /// <summary>화면 아래 잠깐 뜨는 알림 (Boot 씬 UICanvas 자식)</summary>
-        [SerializeField] ToastView _toast;
+        /// <summary>화면 아래 잠깐 뜨는 알림 (Boot 씬 UICanvas 자식 Toast)</summary>
+        [SerializeField] ToastController _toast;
 
         /// <summary>설정 창 (Boot 씬 UICanvas 자식)</summary>
         [SerializeField] SettingsView _settings;
 
-        /// <summary>확인창 (Boot 씬 UICanvas 자식)</summary>
-        [SerializeField] ConfirmView _confirm;
+        /// <summary>확인창 (Boot 씬 UICanvas 자식 Confirm)</summary>
+        [SerializeField] ConfirmController _confirm;
 
         /// <summary>일시정지 메뉴 (Boot 씬 UICanvas 자식. 설정 창·확인창보다 아래에 그려짐)</summary>
         [SerializeField] PauseMenuView _pauseMenu;
@@ -47,8 +40,8 @@ namespace Mage
         /// <summary>메뉴 창 (Boot 씬 UICanvas 자식. 일시정지 메뉴보다 아래에 그려짐)</summary>
         [SerializeField] GameMenuController _gameMenu;
 
-        /// <summary>NPC 대사 자막 (Boot 씬 UICanvas 자식)</summary>
-        [SerializeField] SubtitleView _subtitle;
+        /// <summary>NPC 대사 자막 (Boot 씬 UICanvas 자식 Subtitle)</summary>
+        [SerializeField] SubtitleController _subtitle;
 
         /// <summary>툴팁 (Boot 씬 UICanvas 맨 위 자식)</summary>
         [SerializeField] TooltipController _tooltip;
@@ -83,23 +76,11 @@ namespace Mage
         /// <summary>설명창 (Boot 씬 UICanvas 자식. 게시판 창 위)</summary>
         [SerializeField] TutorialWindowController _tutorialWindow;
 
-        /// <summary>자막을 숨기는 코루틴. 새 자막이 오면 끊고 다시 시작</summary>
-        Coroutine _hideSubtitle;
-
-        /// <summary>지금 자막이 끝나면 할 일. 없으면 null</summary>
-        Action _onSubtitleHidden;
-
         /// <summary>지도 탭 입력 액션. OnDestroy에서 구독 해제</summary>
         InputAction _map;
 
         /// <summary>임무 일지 탭 입력 액션. OnDestroy에서 구독 해제</summary>
         InputAction _journal;
-
-        /// <summary>토스트를 숨기는 코루틴. 새 토스트가 오면 끊고 다시 시작</summary>
-        Coroutine _hideToast;
-
-        /// <summary>확인창에서 확인을 누르면 할 일. 창이 닫혀 있으면 null</summary>
-        Action _onConfirm;
 
         /// <summary>창 닫기 입력 액션. OnDestroy에서 구독 해제</summary>
         InputAction _cancel;
@@ -110,10 +91,10 @@ namespace Mage
             InitWindows();
             if (_toast == null)
             {
-                Debug.LogError("[UI] ToastView 연결 안 됨");
+                Debug.LogError("[UI] ToastController 연결 안 됨");
                 return;
             }
-            _toast.Root.SetActive(false);
+            _toast.Hide();
         }
         #endregion
 
@@ -123,44 +104,22 @@ namespace Mage
         public void ShowToast(string key, params object[] args) => ShowToast(UiTable, key, args);
         #endregion
 
-        #region ShowToast - 지정한 테이블의 문구를 잠깐 띄움. 이미 떠 있으면 문구를 바꾸고 시간을 다시 셈
+        #region ShowToast - 지정한 테이블의 문구를 잠깐 띄움 (토스트 Controller가 띄우고 실제 시간 2초 뒤 숨김. 이미 떠 있으면 문구를 바꾸고 시간을 다시 셈)
         /// <param name="table">문구가 든 String Table</param>
         /// <param name="key">문구 키</param>
         /// <param name="args">문구의 {0}, {1}… 자리에 넣을 값</param>
         public void ShowToast(TableReference table, string key, params object[] args)
         {
-            if (table.ReferenceType == TableReference.Type.Empty || string.IsNullOrWhiteSpace(key))
-            {
-                Debug.LogWarning("[UI] 빈 테이블·키 토스트 무시");
-                return;
-            }
             if (_toast == null)
             {
-                Debug.LogError("[UI] ToastView 연결 안 됨");
+                Debug.LogError("[UI] ToastController 연결 안 됨");
                 return;
             }
-            _toast.Root.SetActive(true);
-            // 토스트 글자의 String Reference (테이블·키를 부를 때마다 넣음)
-            var text = _toast.Text.StringReference;
-            text.SetReference(table, key);
-            text.Arguments = args;
-            _toast.Text.RefreshString();
-            if (_hideToast != null) StopCoroutine(_hideToast);
-            _hideToast = StartCoroutine(HideToastAfter(ToastSeconds));
+            _toast.Show(table, key, args);
         }
         #endregion
 
-        #region HideToastAfter - 정해진 시간 뒤 토스트 숨김 (일시정지 중에도 흐르게 실제 시간 기준)
-        /// <param name="seconds">기다릴 시간 (초)</param>
-        IEnumerator HideToastAfter(float seconds)
-        {
-            yield return new WaitForSecondsRealtime(seconds);
-            _toast.Root.SetActive(false);
-            _hideToast = null;
-        }
-        #endregion
-
-        #region InitWindows - 설정 창·확인창·일시정지 메뉴를 끄고 버튼을 한 번만 연결, Esc 구독, 메뉴 창·자막·툴팁·대화·영입·게시판 끄기, 메뉴 탭·설정 창 Binder 연결 확인, 클릭음·툴팁 알림 구독, M·J 구독
+        #region InitWindows - 설정 창·일시정지 메뉴를 끄고 버튼을 한 번만 연결, 확인창 끄기, Esc 구독, 메뉴 창·자막·툴팁·대화·영입·게시판 끄기, 메뉴 탭·설정 창 Binder 연결 확인, 클릭음·툴팁 알림 구독, M·J 구독
         void InitWindows()
         {
             if (_pauseMenu == null)
@@ -181,14 +140,8 @@ namespace Mage
                 _settings.CloseButton.onClick.AddListener(HideSettings);
             }
 
-            if (_confirm == null)
-                Debug.LogError("[UI] ConfirmView 연결 안 됨");
-            else
-            {
-                _confirm.gameObject.SetActive(false);
-                _confirm.ConfirmButton.onClick.AddListener(OnConfirmClicked);
-                _confirm.CancelButton.onClick.AddListener(HideConfirm);
-            }
+            if (_confirm == null) Debug.LogError("[UI] ConfirmController 연결 안 됨");
+            else _confirm.Hide();
 
             if (_gameMenu == null)
                 Debug.LogError("[UI] GameMenuController 연결 안 됨");
@@ -198,8 +151,8 @@ namespace Mage
                 _gameMenu.CloseClicked += HideGameMenu;
             }
 
-            if (_subtitle == null) Debug.LogError("[UI] SubtitleView 연결 안 됨");
-            else _subtitle.Root.SetActive(false);
+            if (_subtitle == null) Debug.LogError("[UI] SubtitleController 연결 안 됨");
+            else _subtitle.Hide();
 
             if (_tooltip == null) Debug.LogError("[UI] TooltipController 연결 안 됨");
             else _tooltip.Hide();
@@ -313,45 +266,25 @@ namespace Mage
         public void ShowConfirm(string messageKey, Action onConfirm) => ShowConfirm(UiTable, messageKey, onConfirm);
         #endregion
 
-        #region ShowConfirm - 지정한 테이블의 문구로 확인창 켜기. 확인을 누르면 onConfirm, 취소·Esc면 그냥 닫힘
+        #region ShowConfirm - 지정한 테이블의 문구로 확인창 켜기 (확인창 Controller가 띄움). 확인을 누르면 onConfirm, 취소·Esc면 그냥 닫힘
         /// <param name="table">문구가 든 String Table</param>
         /// <param name="messageKey">문구 키</param>
         /// <param name="onConfirm">확인을 눌렀을 때 할 일</param>
         public void ShowConfirm(TableReference table, string messageKey, Action onConfirm)
         {
-            if (onConfirm == null) throw new ArgumentNullException(nameof(onConfirm));
-            if (table.ReferenceType == TableReference.Type.Empty || string.IsNullOrWhiteSpace(messageKey))
-            {
-                Debug.LogWarning("[UI] 빈 테이블·키 확인창 무시");
-                return;
-            }
             if (_confirm == null)
             {
-                Debug.LogError("[UI] ConfirmView 연결 안 됨");
+                Debug.LogError("[UI] ConfirmController 연결 안 됨");
                 return;
             }
-            _confirm.MessageText.StringReference.SetReference(table, messageKey);
-            _onConfirm = onConfirm;
-            _confirm.gameObject.SetActive(true);
-            _confirm.MessageText.RefreshString();
+            _confirm.Show(table, messageKey, onConfirm);
         }
         #endregion
 
-        #region OnConfirmClicked - 할 일을 꺼내 두고 창을 닫은 뒤 실행 (할 일이 다른 창을 열어도 안 꼬이게)
-        void OnConfirmClicked()
-        {
-            // 이번 확인으로 할 일
-            Action action = _onConfirm;
-            HideConfirm();
-            action?.Invoke();
-        }
-        #endregion
-
-        #region HideConfirm - 할 일을 비우고 확인창 끄기
+        #region HideConfirm - 할 일을 비우고 확인창 끄기 (Esc)
         void HideConfirm()
         {
-            _onConfirm = null;
-            if (_confirm != null) _confirm.gameObject.SetActive(false);
+            if (_confirm != null) _confirm.Hide();
         }
         #endregion
 
@@ -387,7 +320,7 @@ namespace Mage
         /// <param name="context">입력 정보 (안 씀)</param>
         void OnCancel(InputAction.CallbackContext context)
         {
-            if (_confirm != null && _confirm.gameObject.activeSelf)
+            if (_confirm != null && _confirm.IsOpen)
                 HideConfirm();
             else if (_settings != null && _settings.gameObject.activeSelf)
                 HideSettings();
@@ -463,7 +396,7 @@ namespace Mage
         bool IsWindowOpen() =>
             (_pauseMenu != null && _pauseMenu.gameObject.activeSelf)
             || (_settings != null && _settings.gameObject.activeSelf)
-            || (_confirm != null && _confirm.gameObject.activeSelf)
+            || (_confirm != null && _confirm.IsOpen)
             || IsHubWindowOpen();
         #endregion
 
@@ -648,54 +581,26 @@ namespace Mage
         }
         #endregion
 
-        #region ShowSubtitle - 말한 사람·대사 자막을 게임 시간 4초 보이고, 끝나면 onHidden (앞 자막은 알림 없이 끊음)
+        #region ShowSubtitle - 말한 사람·대사 자막을 게임 시간 4초 보이고, 끝나면 onHidden (자막 Controller가 띄움. 앞 자막은 알림 없이 끊음, 빈 자막이면 바로 onHidden)
         /// <param name="speaker">말한 사람</param>
         /// <param name="line">대사</param>
         /// <param name="onHidden">자막이 끝까지 보이고 사라진 뒤 할 일 (없으면 null)</param>
         public void ShowSubtitle(LocalizedString speaker, LocalizedString line, Action onHidden = null)
         {
-            if (speaker == null || line == null || speaker.IsEmpty || line.IsEmpty)
-            {
-                Debug.LogWarning("[UI] 빈 자막 무시");
-                onHidden?.Invoke();
-                return;
-            }
             if (_subtitle == null)
             {
-                Debug.LogError("[UI] SubtitleView 연결 안 됨");
+                Debug.LogError("[UI] SubtitleController 연결 안 됨");
                 onHidden?.Invoke();
                 return;
             }
-            HideSubtitle();
-            _subtitle.Speaker.StringReference.SetReference(speaker.TableReference, speaker.TableEntryReference);
-            _subtitle.Line.StringReference.SetReference(line.TableReference, line.TableEntryReference);
-            _subtitle.Root.SetActive(true);
-            _onSubtitleHidden = onHidden;
-            _hideSubtitle = StartCoroutine(HideSubtitleAfter(SubtitleSeconds));
-        }
-        #endregion
-
-        #region HideSubtitleAfter - 정해진 시간 뒤 자막을 숨기고 할 일 실행 (게임 시간 기준)
-        /// <param name="seconds">기다릴 시간 (초)</param>
-        IEnumerator HideSubtitleAfter(float seconds)
-        {
-            yield return new WaitForSeconds(seconds);
-            _subtitle.Root.SetActive(false);
-            _hideSubtitle = null;
-            // 끝나면 할 일 (꺼내고 비운 뒤 실행)
-            Action onHidden = _onSubtitleHidden;
-            _onSubtitleHidden = null;
-            onHidden?.Invoke();
+            _subtitle.Show(speaker, line, onHidden);
         }
         #endregion
 
         #region HideSubtitle - 자막을 바로 숨김. 끝나면 할 일은 버림 (상태를 나갈 때)
         public void HideSubtitle()
         {
-            if (_hideSubtitle != null) StopCoroutine(_hideSubtitle);
-            _hideSubtitle = null;
-            _onSubtitleHidden = null;
-            if (_subtitle != null) _subtitle.Root.SetActive(false);
+            if (_subtitle != null) _subtitle.Hide();
         }
         #endregion
 
