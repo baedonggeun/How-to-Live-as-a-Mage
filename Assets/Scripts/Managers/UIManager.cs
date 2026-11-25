@@ -195,7 +195,7 @@ namespace Mage
             else
             {
                 _gameMenu.gameObject.SetActive(false);
-                if (_gameMenu.View != null) _gameMenu.View.CloseButton.onClick.AddListener(HideGameMenu);
+                _gameMenu.CloseClicked += HideGameMenu;
             }
 
             if (_subtitle == null) Debug.LogError("[UI] SubtitleView 연결 안 됨");
@@ -214,7 +214,7 @@ namespace Mage
             else
             {
                 _recruit.gameObject.SetActive(false);
-                if (_recruit.View != null) _recruit.View.CloseButton.onClick.AddListener(HideRecruit);
+                _recruit.CloseClicked += HideRecruit;
             }
 
             if (_questBoard == null)
@@ -222,7 +222,7 @@ namespace Mage
             else
             {
                 _questBoard.gameObject.SetActive(false);
-                if (_questBoard.View != null) _questBoard.View.CloseButton.onClick.AddListener(HideQuestBoard);
+                _questBoard.CloseClicked += HideQuestBoard;
             }
 
             if (_menuMap == null) Debug.LogError("[UI] 메뉴 지도 MapUIBinder 연결 안 됨");
@@ -236,7 +236,7 @@ namespace Mage
             else
             {
                 _tutorialWindow.gameObject.SetActive(false);
-                if (_tutorialWindow.View != null) _tutorialWindow.View.CloseButton.onClick.AddListener(HideTutorialWindow);
+                _tutorialWindow.CloseClicked += HideTutorialWindow;
             }
 
             ClickSoundHandler.Clicked += OnButtonClicked;

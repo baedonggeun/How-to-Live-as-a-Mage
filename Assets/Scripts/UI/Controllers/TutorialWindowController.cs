@@ -23,13 +23,13 @@ namespace Mage
         /// <summary>닫히면 할 일 (창이 닫혀 있으면 null)</summary>
         Action _onClosed;
 
-        /// <summary>같은 창의 참조</summary>
-        public TutorialWindowView View => _view;
-
         /// <summary>창이 떠 있는지</summary>
         public bool IsOpen => gameObject.activeSelf;
 
-        #region Awake - 연결 확인, 다음 버튼 연결 (처음 켜질 때 한 번)
+        /// <summary>닫기 버튼을 누름 (UIManager가 받아 창을 닫음)</summary>
+        public event Action CloseClicked;
+
+        #region Awake - 연결 확인, 다음 버튼·닫기 버튼 연결 (처음 켜질 때 한 번)
         void Awake()
         {
             if (_view == null)
@@ -38,6 +38,7 @@ namespace Mage
                 return;
             }
             _view.NextButton.onClick.AddListener(Next);
+            _view.CloseButton.onClick.AddListener(() => CloseClicked?.Invoke());
         }
         #endregion
 

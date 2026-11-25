@@ -6,7 +6,7 @@ using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>현장 시전 (숲): 그리기(F 꾹 → 양피지 → 선 → F 떼면 판정, 우클릭은 취소·갈무리)는 주문 그리기 패드(SpellDrawController)가 하고, 여기서는 패드 결과를 받아 처리함. 성공(성공 사운드) → 방호막은 바로, 나머지는 3초 조준(시점만, 좌클릭이나 3초 끝 발사, 우클릭은 취소·갈무리) → 효과(투사체·불벽·방호막, 효과 프리팹이 있으면 입힘). 실패(맞는 마법이 아님)는 실패 사운드·피격·체력·마나·스태미나 감소. 마나(초당 9 회복)·방호막 재사용, 만드는 룬 혼자 던지기, 생략 없이 처음 그린 다중 룬 마법 등록. 그리는 동안 이동·시점, 조준·갈무리 중 이동(갈무리는 시점·상호작용까지)을 막음. 처음엔 꺼져 있고 켜고 끄는 건 상태가 함. 판정·이름·등록은 받은 코덱스 캡슐이, 탄·벽은 SpellEffectService가 하고, 성공·실패는 CastAccepted·CastFailed로 알림 (소리는 상태가 냄)</summary>
+    /// <summary>현장 시전 (숲): 그리기(F 꾹 → 양피지 → 선 → F 떼면 판정, 우클릭은 취소·갈무리)는 주문 그리기 패드(SpellDrawController)가 하고, 여기서는 패드 결과를 받아 처리함. 성공(성공 사운드) → 방호막은 바로, 나머지는 3초 조준(시점만, 좌클릭이나 3초 끝 발사, 우클릭은 취소·갈무리) → 효과(투사체·불벽·방호막, 효과 프리팹이 있으면 입힘). 실패(맞는 마법이 아님)는 실패 사운드·피격·체력·마나·스태미나 감소. 마나(초당 9 회복)·방호막 재사용, 만드는 룬 혼자 던지기, 생략 없이 처음 그린 다중 룬 마법 등록. 그리는 동안 이동·시점, 조준·갈무리 중 이동(갈무리는 시점·상호작용까지)을 막음. 처음엔 꺼져 있고 켜고 끄는 건 상태가 함. 판정·이름·등록은 받은 코덱스 캡슐이, 탄·벽은 SpellEffectService가 하고, 성공·실패는 CastAccepted·CastFailed로 알림 (소리·실패 벌칙은 상태가 함). 조작 잠금·상호작용 잠금·방호막 배율도 알림만 내고, 플레이어·몸·감지기는 상태가 바꿈</summary>
     public sealed class FieldCastController : MonoBehaviour
     {
         /// <summary>발사 입력 액션 경로 (전역 액션, 왼쪽 버튼. 조준 중에만)</summary>
@@ -97,18 +97,6 @@ namespace Mage
         /// <summary>탄·벽 효과</summary>
         SpellEffectService _effects;
 
-        /// <summary>현장 규칙</summary>
-        FieldService _service;
-
-        /// <summary>1인칭 조작 (잠금·스태미나)</summary>
-        PlayerController _player;
-
-        /// <summary>마법사 몸 (방호막·피해 출처·실패 피해)</summary>
-        FieldUnitController _unit;
-
-        /// <summary>바라본 지점 찾기 (갈무리 동안 꺼서 상호작용도 못 하게)</summary>
-        InteractDetector _detector;
-
         /// <summary>발사 입력</summary>
         InputAction _fireAction;
 
@@ -148,8 +136,17 @@ namespace Mage
         /// <summary>맞는 주문을 받아들임 (조준·방호막 전. 상태가 성공 사운드를 냄)</summary>
         public event Action<FieldCastSpec> CastAccepted;
 
-        /// <summary>시전 실패 (맞는 마법이 아님. 상태가 실패 사운드를 냄)</summary>
-        public event Action CastFailed;
+        /// <summary>시전 실패 (맞는 마법이 아님. 깎을 체력, 깎을 스태미나). 상태가 실패 사운드를 내고 벌칙을 줌</summary>
+        public event Action<float, float> CastFailed;
+
+        /// <summary>조작 잠금이 바뀜 (이동 잠금, 시점 잠금). 상태가 플레이어에 넣음</summary>
+        public event Action<bool, bool> ControlLockChanged;
+
+        /// <summary>상호작용 잠금이 바뀜 (갈무리 동안 잠금). 상태가 상호작용 감지기를 끄고 켬</summary>
+        public event Action<bool> InteractLockChanged;
+
+        /// <summary>방호막이 켜지거나 끝남 (마법사 몸이 받는 피해 배율, 끝나면 1). 상태가 몸에 넣음</summary>
+        public event Action<float> ShieldChanged;
 
         #region Awake - 연결 확인, 입력 액션 찾기, 처음엔 꺼 둠 (Reveal에서 상태가 켬)
         void Awake()
@@ -173,19 +170,15 @@ namespace Mage
         }
         #endregion
 
-        #region Init - 코덱스 캡슐·현장 규칙·조작·몸·상호작용 감지기를 받아 탄·벽 효과를 만들고 마나를 채움, HUD 조준·방호막 표시를 끔
+        #region Init - 코덱스 캡슐·현장 규칙·마법사 몸(탄·벽의 피해 출처)을 받아 탄·벽 효과를 만들고 마나를 채움, HUD 조준·방호막 표시를 끔
         /// <param name="codex">판정·이름·등록을 맡는 코덱스 캡슐</param>
-        /// <param name="service">현장 규칙</param>
-        /// <param name="player">1인칭 조작</param>
-        /// <param name="unit">마법사 몸</param>
-        /// <param name="detector">바라본 지점 찾기</param>
-        public void Init(CodexService codex, FieldService service, PlayerController player, FieldUnitController unit, InteractDetector detector)
+        /// <param name="service">현장 규칙 (탄·벽이 씀)</param>
+        /// <param name="unit">마법사 몸 (탄·벽의 피해 출처·벽 높이)</param>
+        public void Init(CodexService codex, FieldService service, FieldUnitController unit)
         {
             _codex = codex ?? throw new ArgumentNullException(nameof(codex));
-            _service = service ?? throw new ArgumentNullException(nameof(service));
-            _player = player != null ? player : throw new ArgumentNullException(nameof(player));
-            _unit = unit != null ? unit : throw new ArgumentNullException(nameof(unit));
-            _detector = detector != null ? detector : throw new ArgumentNullException(nameof(detector));
+            if (service == null) throw new ArgumentNullException(nameof(service));
+            if (unit == null) throw new ArgumentNullException(nameof(unit));
             _effects = new SpellEffectService(_projectilePrefab, _wallPrefab, _eye, unit, service);
             Mana = ManaMax;
             _state = CastState.Idle;
@@ -225,7 +218,7 @@ namespace Mage
             }
             if (_state == CastState.Aiming) HideAim();
             if (_state != CastState.Off) _state = CastState.Idle;
-            if (_player != null) UnlockPlayer();
+            if (_state != CastState.Off) UnlockPlayer();
             HideShield();
         }
         #endregion
@@ -252,40 +245,34 @@ namespace Mage
         bool CanStartCast() => _state == CastState.Idle;
         #endregion
 
-        #region OnCastStarted - 패드가 시전 상태를 시작함: 이동·시점 잠금, 조준점 숨김
+        #region OnCastStarted - 패드가 시전 상태를 시작함: 이동·시점 잠금 알림, 조준점 숨김
         void OnCastStarted()
         {
             _state = CastState.Drawing;
-            _player.MoveLocked = true;
-            _player.LookLocked = true;
+            ControlLockChanged?.Invoke(true, true);
             _hud.Crosshair.SetActive(false);
         }
         #endregion
 
-        #region OnLocked - 갈무리 시작: 이동·시점을 막고 상호작용도 못 하게 감지기를 끔
+        #region OnLocked - 갈무리 시작: 이동·시점 잠금과 상호작용 잠금 알림 (상태가 감지기를 끔)
         /// <param name="seconds">갈무리 초 (안 씀)</param>
         void OnLocked(float seconds)
         {
-            _player.MoveLocked = true;
-            _player.LookLocked = true;
-            _detector.enabled = false;
+            ControlLockChanged?.Invoke(true, true);
+            InteractLockChanged?.Invoke(true);
         }
         #endregion
 
-        #region OnUnlocked - 갈무리 끝: 이동·시점·상호작용을 되돌림
+        #region OnUnlocked - 갈무리 끝: 이동·시점·상호작용 잠금을 푸는 알림
         void OnUnlocked()
         {
             UnlockPlayer();
-            _detector.enabled = true;
+            InteractLockChanged?.Invoke(false);
         }
         #endregion
 
-        #region UnlockPlayer - 이동·시점 잠금을 풂
-        void UnlockPlayer()
-        {
-            _player.MoveLocked = false;
-            _player.LookLocked = false;
-        }
+        #region UnlockPlayer - 이동·시점 잠금을 푸는 알림
+        void UnlockPlayer() => ControlLockChanged?.Invoke(false, false);
         #endregion
 
         #region OnFirePressed - 좌클릭: 조준 중이면 발사
@@ -332,13 +319,11 @@ namespace Mage
         }
         #endregion
 
-        #region Fail - 시전 실패: 알림(상태가 실패 사운드), 마나·스태미나를 깎고 체력을 깎음 (깎이면 기존 피격 붉은 번쩍이 저절로 뜸. 체력이 0이 되면 죽음)
+        #region Fail - 시전 실패: 마나를 깎고 알림 (상태가 실패 사운드, 스태미나·체력 벌칙. 체력이 깎이면 피격 붉은 번쩍이 저절로 뜨고 0이 되면 죽음)
         void Fail()
         {
-            CastFailed?.Invoke();
             Mana = Mathf.Max(0f, Mana - FailMana);
-            _player.DrainStamina(FailStamina);
-            _unit.TakeDamage(FailHp, null);
+            CastFailed?.Invoke(FailHp, FailStamina);
         }
         #endregion
 
@@ -405,7 +390,7 @@ namespace Mage
         }
         #endregion
 
-        #region StartAim - 3초 조준 시작: 이동만 잠그고 시점은 풂, 조준 원·글을 켬
+        #region StartAim - 3초 조준 시작: 이동만 잠그고 시점은 푸는 알림, 조준 원·글을 켬
         /// <param name="cast">조준할 주문</param>
         void StartAim(FieldCastSpec cast)
         {
@@ -413,8 +398,7 @@ namespace Mage
             _aimLeft = AimSeconds;
             _aimShown = -1;
             _state = CastState.Aiming;
-            _player.MoveLocked = true;
-            _player.LookLocked = false;
+            ControlLockChanged?.Invoke(true, false);
             _hud.Crosshair.SetActive(false);
             _hud.AimRing.SetActive(true);
             RefreshAimText();
@@ -488,12 +472,12 @@ namespace Mage
             }
             _shieldLeft = cast.Duration * cast.Scale;
             _shieldCooldown = cast.Cooldown;
-            _unit.DamageScale = cast.Power;
+            ShieldChanged?.Invoke(cast.Power);
             ShowShield(cast.EffectPrefab);
         }
         #endregion
 
-        #region UpdateShield - 방호막 재사용 대기를 줄이고, 지속이 끝나면 받는 피해 배율을 되돌리고 방호막 모습을 끔
+        #region UpdateShield - 방호막 재사용 대기를 줄이고, 지속이 끝나면 받는 피해 배율을 되돌리라고 알리고 방호막 모습을 끔
         /// <param name="dt">프레임 시간 (초)</param>
         void UpdateShield(float dt)
         {
@@ -501,7 +485,7 @@ namespace Mage
             if (_shieldLeft <= 0f) return;
             _shieldLeft -= dt;
             if (_shieldLeft > 0f) return;
-            _unit.DamageScale = 1f;
+            ShieldChanged?.Invoke(1f);
             HideShield();
         }
         #endregion

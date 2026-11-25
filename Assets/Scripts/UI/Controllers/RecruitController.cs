@@ -44,11 +44,23 @@ namespace Mage
         /// <summary>내보내기를 누르면 할 일 (상태가 파티 → 후보로 옮김)</summary>
         Action<MercenaryEntry> _onDismiss;
 
-        /// <summary>같은 창의 참조</summary>
-        public RecruitView View => _view;
-
         /// <summary>창이 떠 있는지</summary>
         public bool IsOpen => gameObject.activeSelf;
+
+        /// <summary>닫기 버튼을 누름 (UIManager가 받아 창을 닫음)</summary>
+        public event Action CloseClicked;
+
+        #region Awake - 연결 확인, 닫기 버튼 연결 (처음 켜질 때 한 번)
+        void Awake()
+        {
+            if (_view == null)
+            {
+                Debug.LogError("[Recruit] RecruitView 연결 안 됨", this);
+                return;
+            }
+            _view.CloseButton.onClick.AddListener(() => CloseClicked?.Invoke());
+        }
+        #endregion
 
         #region Show - 목록과 할 일을 받아 창을 켜고 줄을 만듦
         /// <param name="candidates">영입 후보</param>

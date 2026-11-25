@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,14 +20,14 @@ namespace Mage
         Spells,
     }
 
-    /// <summary>메뉴 창 탭 바꾸기: 탭 버튼을 누르면 그 페이지만 켜고 그 탭 버튼은 못 누르게. 여닫기·일시정지는 UIManager</summary>
+    /// <summary>메뉴 창 탭 바꾸기: 탭 버튼을 누르면 그 페이지만 켜고 그 탭 버튼은 못 누르게. 닫기 버튼은 CloseClicked로 알림 (여닫기·일시정지는 UIManager)</summary>
     public sealed class GameMenuController : MonoBehaviour
     {
         /// <summary>같은 창의 참조 (인스펙터에서만 연결)</summary>
         [SerializeField] GameMenuView _view;
 
-        /// <summary>같은 창의 참조</summary>
-        public GameMenuView View => _view;
+        /// <summary>닫기 버튼을 누름 (UIManager가 받아 창을 닫음)</summary>
+        public event Action CloseClicked;
 
         /// <summary>지금 보이는 탭</summary>
         public GameMenuTab CurrentTab { get; private set; }
@@ -34,7 +35,7 @@ namespace Mage
         /// <summary>창이 떠 있는지</summary>
         public bool IsOpen => gameObject.activeSelf;
 
-        #region Awake - 연결 확인, 탭 버튼 연결 (처음 켜질 때 한 번)
+        #region Awake - 연결 확인, 탭 버튼·닫기 버튼 연결 (처음 켜질 때 한 번)
         void Awake()
         {
             if (_view == null)
@@ -42,6 +43,7 @@ namespace Mage
                 Debug.LogError("[Menu] GameMenuView 연결 안 됨", this);
                 return;
             }
+            _view.CloseButton.onClick.AddListener(() => CloseClicked?.Invoke());
             _view.MapTab.onClick.AddListener(() => ShowTab(GameMenuTab.Map));
             _view.JournalTab.onClick.AddListener(() => ShowTab(GameMenuTab.Journal));
             _view.TutorialTab.onClick.AddListener(() => ShowTab(GameMenuTab.Tutorial));

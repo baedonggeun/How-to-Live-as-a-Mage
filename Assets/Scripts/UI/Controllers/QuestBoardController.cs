@@ -28,13 +28,13 @@ namespace Mage
         /// <summary>받기를 누르면 할 일 (상태가 판 데이터에 의뢰를 넣음). 창이 닫혀 있으면 null</summary>
         Action _onTake;
 
-        /// <summary>같은 창의 참조</summary>
-        public QuestBoardView View => _view;
-
         /// <summary>창이 떠 있는지</summary>
         public bool IsOpen => gameObject.activeSelf;
 
-        #region Awake - 연결 확인, 받기 버튼 연결 (처음 켜질 때 한 번)
+        /// <summary>닫기 버튼을 누름 (UIManager가 받아 창을 닫음)</summary>
+        public event Action CloseClicked;
+
+        #region Awake - 연결 확인, 받기 버튼·닫기 버튼 연결 (처음 켜질 때 한 번)
         void Awake()
         {
             if (_view == null)
@@ -43,6 +43,7 @@ namespace Mage
                 return;
             }
             _view.TakeButton.onClick.AddListener(OnTakeClicked);
+            _view.CloseButton.onClick.AddListener(() => CloseClicked?.Invoke());
         }
         #endregion
 
