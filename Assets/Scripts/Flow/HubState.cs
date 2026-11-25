@@ -6,20 +6,11 @@ using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>전초기지. 첫 도착이면 역마차 연출부터. 1인칭으로 돌아다니며 상호작용 키(F)로 여관(방·식량)·여관 방 책상(코덱스: 룬 주문·다중 룬 마법·주문 연습)·길드(영입·게시판)·정문(경비병)을 씀 → 숲</summary>
+    /// <summary>전초기지. 첫 도착이면 역마차 연출부터. 1인칭으로 돌아다니며 상호작용 키(F)로 여관(방·식량)·여관 방 책상(코덱스: 룬 주문·다중 룬 마법·주문 연습)·길드(영입·게시판)·정문(경비병)을 씀 → 숲. 여관·원정·영입·의뢰·책상은 캡슐이 맡고, 여기선 캡슐을 만들어 이음 (대화 선택지·금화·토스트·목표·화면 글자·화면 전환)</summary>
     public sealed class HubState : FlowStateBase
     {
         /// <summary>이 상태의 씬 이름</summary>
         public const string Scene = "Outpost";
-
-        /// <summary>파티에 넣을 수 있는 용병 수 (플레이어 + 2명). 첫 출발에도 이만큼 필요</summary>
-        public const int RequiredMercenaries = 2;
-
-        /// <summary>여관 방값 (금화, 처음 방 잡을 때 한 번. 임시)</summary>
-        public const int RoomPrice = 70;
-
-        /// <summary>원정 식량 1인분 값 (금화, 한 사람 하루치. 임시)</summary>
-        public const int RationPrice = 3;
 
         /// <summary>여관 주인 지점 id</summary>
         const string InnkeeperId = "innkeeper";
@@ -147,6 +138,21 @@ namespace Mage
         /// <summary>이 씬의 화면 참조</summary>
         HubView _view;
 
+        /// <summary>여관 캡슐</summary>
+        InnService _inn;
+
+        /// <summary>원정 캡슐</summary>
+        ExpeditionService _expedition;
+
+        /// <summary>용병 파티 캡슐 (영입 쪽)</summary>
+        RecruitService _recruit;
+
+        /// <summary>의뢰 캡슐 (전초기지 쪽)</summary>
+        QuestService _quest;
+
+        /// <summary>책상 캡슐</summary>
+        DeskService _desk;
+
         /// <summary>이번 진입이 첫 도착이라 역마차 연출을 트는지 (OnSceneReady에서 정함)</summary>
         bool _arriving;
 
@@ -156,24 +162,29 @@ namespace Mage
         /// <summary>이번 진입이 숲에서 죽어 부활한 것인지 (여관 방 침대·정문에서 시작. OnSceneReady에서 정함)</summary>
         bool _respawning;
 
-        /// <summary>책상 시점인지 (앉는·일어나는 연출 중 포함)</summary>
-        bool _atDesk;
-
-        #region OnSceneReady - 첫 도착이면 플레이어를 하차 지점에 두고 숨김·화면 글자 숨김(연출 뒤 켬), 숲에서 죽었으면 여관 방 침대(방이 없으면 정문 안쪽), 숲에서 돌아왔으면 정문 밖, 아니면 시작 위치. 파티 수·금화 표시, 안내 글 숨김, 코덱스 표지(이름·마법진), 스태미나 막대
+        #region OnSceneReady - 캡슐(여관·원정·영입·의뢰·책상)을 만들어 잇고, 첫 도착이면 플레이어를 하차 지점에 두고 숨김·화면 글자 숨김(연출 뒤 켬), 숲에서 죽었으면 여관 방 침대(방이 없으면 정문 안쪽), 숲에서 돌아왔으면 정문 밖, 아니면 시작 위치. 파티 수·금화 표시, 안내 글 숨김, 코덱스 표지(이름·마법진), 스태미나 막대
         protected override void OnSceneReady()
         {
             _view = FindView<HubView>();
             if (_view == null) return;
-            _arriving = !Game.Run.HasArrived;
-            _respawning = !_arriving && Game.Run.RespawningFromDeath;
-            _returning = !_arriving && !_respawning && Game.Run.ReturningFromField;
+            // 이번 판 데이터
+            RunEntry run = Game.Run;
+            _inn = new InnService(run.Inn);
+            _expedition = new ExpeditionService(run.Expedition);
+            _recruit = new RecruitService(run.Party);
+            _quest = new QuestService(run.Quest);
+            _desk = new DeskService(_view.DeskSequence, _view.Codex, _view.Player.Head, _view.DeskSeat);
+            _desk.Left += OnDeskLeft;
+            _arriving = !run.HasArrived;
+            _respawning = !_arriving && run.RespawningFromDeath;
+            _returning = !_arriving && !_respawning && run.ReturningFromField;
             _view.Player.PlaceAt(_arriving ? _view.ArrivalPoint : _respawning ? RespawnPoint() : _returning ? _view.ReturnPoint : _view.Spawn);
             _view.Player.gameObject.SetActive(!_arriving);
             _view.Hud.SetActive(!_arriving);
             _view.InteractPrompt.gameObject.SetActive(false);
             RefreshParty();
             RefreshMoney();
-            _view.Codex.ShowCover(Game.Run.PlayerName, DataManager.Instance.Runes);
+            _view.Codex.ShowCover(run.PlayerName, DataManager.Instance.Runes);
             _view.Stamina.Bind(_view.Player);
         }
         #endregion
@@ -196,7 +207,7 @@ namespace Mage
                 Game.Run.ReturningFromField = false;
                 FinishQuestIfCleared(false);
                 UpdateObjective(false);
-                UIManager.Instance.ShowToast(Table, Game.Run.HasRoom ? RespawnInnKey : RespawnGateKey);
+                UIManager.Instance.ShowToast(Table, _inn.HasRoom ? RespawnInnKey : RespawnGateKey);
                 return;
             }
             if (!_returning)
@@ -213,23 +224,16 @@ namespace Mage
         #endregion
 
         #region RespawnPoint - 숲에서 죽어 깨어나는 곳: 방을 잡았으면 여관 방 침대 옆, 아니면 정문 안쪽
-        Transform RespawnPoint() => Game.Run.HasRoom ? _view.BedPoint : _view.Spawn;
+        Transform RespawnPoint() => _inn.HasRoom ? _view.BedPoint : _view.Spawn;
         #endregion
 
-        #region FinishQuestIfCleared - 받은 의뢰의 소탕을 끝냈으면 끝낸 의뢰로 남기고 비움 (notify면 토스트)
+        #region FinishQuestIfCleared - 받은 의뢰의 소탕을 끝냈으면 의뢰 캡슐이 끝낸 의뢰로 남기고 비움 (notify면 토스트)
         /// <param name="notify">"의뢰를 끝냈어" 토스트를 띄울지</param>
         void FinishQuestIfCleared(bool notify)
         {
-            // 이번 판 데이터
-            RunEntry run = Game.Run;
-            if (run.Quest.Current == null || !run.Quest.Cleared) return;
-            // 끝낸 의뢰
-            QuestSO quest = run.Quest.Current;
-            run.Quest.CompletedIds.Add(quest.Id);
-            run.Quest.Current = null;
-            run.Quest.Cleared = false;
-            run.Quest.Deadline = 0f;
-            if (notify) UIManager.Instance.ShowToast(Table, QuestDoneKey, quest.Title.GetLocalizedString());
+            // 끝낸 의뢰 (안 끝냈으면 null)
+            QuestSO quest = _quest.Finish();
+            if (quest != null && notify) UIManager.Instance.ShowToast(Table, QuestDoneKey, quest.Title.GetLocalizedString());
         }
         #endregion
 
@@ -280,7 +284,7 @@ namespace Mage
         }
         #endregion
 
-        #region Exit - 연출 중이면 알림 없이 멈춤, 알림 구독 해제, 책상이면 코덱스를 바로 덮고 머리를 바로 되돌림, 조작·지점 찾기 끔, 커서 풀기, 조작 안내·자막 정리
+        #region Exit - 연출 중이면 알림 없이 멈춤, 알림 구독 해제, 책상이면 코덱스를 바로 덮고 머리를 바로 되돌림(책상 캡슐), 조작·지점 찾기 끔, 커서 풀기, 조작 안내·자막 정리
         public override void Exit()
         {
             if (_view != null)
@@ -289,11 +293,10 @@ namespace Mage
                 _view.Opening.Cancel();
                 _view.Detector.TargetChanged -= OnTargetChanged;
                 _view.Detector.Interacted -= OnInteracted;
-                if (_atDesk)
+                if (_desk != null)
                 {
-                    _view.Codex.ForceClose();
-                    _view.DeskSequence.Stop();
-                    _atDesk = false;
+                    _desk.Left -= OnDeskLeft;
+                    _desk.ForceStop();
                 }
                 SetControl(false);
             }
@@ -303,12 +306,13 @@ namespace Mage
         }
         #endregion
 
-        #region OnTargetChanged - 바라보는 지점이 있으면 "[키] 이름", 없으면 숨김
+        #region OnTargetChanged - 바라보는 지점이 있으면 "[키] 이름", 없으면 숨김 (Play를 끌 때처럼 안내 글이 먼저 지워졌으면 무시)
         /// <param name="target">바라보는 지점 (없으면 null)</param>
         void OnTargetChanged(InteractPointView target)
         {
-            // 안내 글
-            var prompt = _view.InteractPrompt;
+            // 안내 글 (씬이 내려가는 중이면 없음)
+            var prompt = _view != null ? _view.InteractPrompt : null;
+            if (prompt == null) return;
             if (target == null)
             {
                 prompt.gameObject.SetActive(false);
@@ -352,7 +356,7 @@ namespace Mage
                 Debug.LogError($"[Hub] 문 도착 지점 없음: {target.name}", target);
                 return;
             }
-            if (string.Equals(target.Id, RoomDoorId, StringComparison.Ordinal) && !Game.Run.HasRoom)
+            if (string.Equals(target.Id, RoomDoorId, StringComparison.Ordinal) && !_inn.HasRoom)
             {
                 UIManager.Instance.ShowToast(Table, RoomLockedKey);
                 return;
@@ -362,61 +366,27 @@ namespace Mage
         }
         #endregion
 
-        #region UseDesk - 책상에 앉음: 조작·화면 글자를 끄고 커서를 풀고, 머리를 책상 시점으로 옮긴 뒤 코덱스를 엶
+        #region UseDesk - 책상에 앉음: 조작·화면 글자를 끄고 책상 캡슐이 커서를 풀고 머리를 옮긴 뒤 코덱스를 엶 (판 데이터·마법·룬 목록을 넘김)
         void UseDesk()
         {
-            if (_atDesk) return;
-            _atDesk = true;
+            if (_desk.IsActive) return;
             SetControl(false);
             _view.Hud.SetActive(false);
-            Cursor.lockState = CursorLockMode.None;
-            _view.DeskSequence.Enter(_view.Player.Head, _view.DeskSeat, OpenCodex);
+            _desk.Sit(Game.Run, DataManager.Instance.Spells, DataManager.Instance.Runes);
         }
         #endregion
 
-        #region OpenCodex - 코덱스를 씀 (판 데이터·마법·룬 목록을 넘김, 일어나기는 LeaveDesk). 책은 덮인 채로 시작
-        void OpenCodex()
-        {
-            if (_view == null) return;
-            _view.Codex.Open(Game.Run, DataManager.Instance.Spells, DataManager.Instance.Runes, LeaveDesk);
-        }
-        #endregion
-
-        #region LeaveDesk - 책상에서 일어남: 코덱스를 덮고(펼쳐져 있으면 덮는 연출) 그만 쓴 뒤 일어나기 시작 (머리·코덱스 연출 중이거나 아직 앉는 중이면 무시)
-        void LeaveDesk()
-        {
-            if (!_atDesk || _view == null || _view.DeskSequence.IsPlaying || _view.Codex.IsBusy || !_view.Codex.IsOpen) return;
-            _view.Codex.Close(OnCodexClosed);
-        }
-        #endregion
-
-        #region OnCodexClosed - 코덱스를 다 덮음: 커서를 잠그고 머리를 원래 자리로 되돌린 뒤 조작을 돌려줌
-        void OnCodexClosed()
-        {
-            if (_view == null) return;
-            Cursor.lockState = CursorLockMode.Locked;
-            _view.DeskSequence.Exit(OnDeskLeft);
-        }
-        #endregion
-
-        #region OnDeskLeft - 일어나기 연출이 끝남: 화면 글자·조작 켬
+        #region OnDeskLeft - 책상에서 일어나기 연출이 끝남 (책상 캡슐 알림): 화면 글자·조작 켬
         void OnDeskLeft()
         {
-            _atDesk = false;
             if (_view == null) return;
             _view.Hud.SetActive(true);
             SetControl(true);
         }
         #endregion
 
-        #region HandleCancel - Esc: 책상이면 그리는 중엔 그리기 취소, 아니면 일어남 (일시정지 메뉴 안 엶). 책상이 아니면 처리 안 함
-        public override bool HandleCancel()
-        {
-            if (!_atDesk || _view == null) return false;
-            if (_view.Codex.IsCasting) _view.Codex.CancelCast();
-            else LeaveDesk();
-            return true;
-        }
+        #region HandleCancel - Esc: 책상이면 책상 캡슐이 처리 (그리는 중엔 그리기 취소, 아니면 일어남. 일시정지 메뉴 안 엶). 책상이 아니면 처리 안 함
+        public override bool HandleCancel() => _view != null && _desk != null && _desk.HandleCancel();
         #endregion
 
         #region TalkInnkeeper - 여관 주인 대화: 방 잡기(안 잡았을 때)·식량 하루치 사기·그만
@@ -426,43 +396,43 @@ namespace Mage
         {
             // 이번 선택지
             var choices = new List<DialogueChoiceEntry>();
-            if (!Game.Run.HasRoom) choices.Add(new DialogueChoiceEntry(Table, ChoiceRentKey, RentRoom, RoomPrice));
-            choices.Add(new DialogueChoiceEntry(Table, ChoiceFoodKey, BuyFood, DayFoodPrice()));
+            if (!_inn.HasRoom) choices.Add(new DialogueChoiceEntry(Table, ChoiceRentKey, RentRoom, InnService.RoomPrice));
+            choices.Add(new DialogueChoiceEntry(Table, ChoiceFoodKey, BuyFood, InnService.FoodPrice(PartySize())));
             choices.Add(new DialogueChoiceEntry(Table, ChoiceByeKey, UIManager.Instance.HideDialogue));
             UIManager.Instance.ShowDialogue(Table, InnkeeperKey, lineKey, choices, lineArgs);
         }
         #endregion
 
-        #region RentRoom - 금화가 되면 방값을 내고 방을 잡음 (한 번). 주인이 길드를 알려 주고 목표 갱신
+        #region RentRoom - 금화가 되면 방값을 내고 여관 캡슐로 방을 잡음 (한 번). 주인이 길드를 알려 주고 목표 갱신
         void RentRoom()
         {
-            if (Game.Run.Gold < RoomPrice)
+            if (Game.Run.Gold < InnService.RoomPrice)
             {
                 TalkInnkeeper(InnNoGoldKey);
                 return;
             }
-            Game.Run.Gold -= RoomPrice;
-            Game.Run.HasRoom = true;
+            Game.Run.Gold -= InnService.RoomPrice;
+            _inn.Rent();
             RefreshMoney();
             TalkInnkeeper(InnRentedKey);
             UpdateObjective(true);
         }
         #endregion
 
-        #region BuyFood - 금화가 되면 지금 인원의 하루치 식량을 삼
+        #region BuyFood - 금화가 되면 지금 인원의 하루치 식량을 사서 원정 캡슐에 더함
         void BuyFood()
         {
             // 하루치 값 (금화)
-            int price = DayFoodPrice();
+            int price = InnService.FoodPrice(PartySize());
             if (Game.Run.Gold < price)
             {
                 TalkInnkeeper(InnNoGoldKey);
                 return;
             }
             Game.Run.Gold -= price;
-            Game.Run.Rations += PartySize();
+            _expedition.AddRations(PartySize());
             RefreshMoney();
-            TalkInnkeeper(InnFoodKey, Game.Run.Rations);
+            TalkInnkeeper(InnFoodKey, _expedition.Rations);
         }
         #endregion
 
@@ -479,40 +449,36 @@ namespace Mage
         }
         #endregion
 
-        #region OpenRecruit - 처음이면 후보를 뽑고 영입 창을 엶 (대화는 창을 연 뒤 닫아서 게임이 안 풀림)
+        #region OpenRecruit - 처음이면 영입 캡슐이 후보를 뽑고 영입 창을 엶 (대화는 창을 연 뒤 닫아서 게임이 안 풀림)
         void OpenRecruit()
         {
-            // 이번 판 데이터
-            RunEntry run = Game.Run;
-            if (!run.Party.CandidatesDrawn)
-            {
-                run.Party.Candidates.AddRange(RecruitPool.Draw(DataManager.Instance.Jobs));
-                run.Party.CandidatesDrawn = true;
-            }
-            UIManager.Instance.ShowRecruit(run.Party.Candidates, run.Party.Members, RequiredMercenaries, Hire, Dismiss);
+            _recruit.EnsureCandidates(DataManager.Instance.Jobs);
+            ShowRecruit();
             UIManager.Instance.HideDialogue();
         }
         #endregion
 
-        #region Hire - 후보를 파티로 옮김 (자리가 있을 때)
+        #region ShowRecruit - 영입 창을 지금 후보·파티 복사본으로 띄움 (영입·내보내기 뒤에도 다시 불러 목록을 새로 넘김)
+        void ShowRecruit() => UIManager.Instance.ShowRecruit(_recruit.Candidates, _recruit.Members, RecruitService.MaxMembers, Hire, Dismiss);
+        #endregion
+
+        #region Hire - 영입 캡슐이 후보를 파티로 옮기면(자리가 있을 때) 창 목록·파티 수·목표 갱신
         /// <param name="entry">영입할 후보</param>
         void Hire(MercenaryEntry entry)
         {
-            // 이번 판 데이터
-            RunEntry run = Game.Run;
-            if (run.Party.Members.Count >= RequiredMercenaries || !run.Party.Candidates.Remove(entry)) return;
-            run.Party.Members.Add(entry);
+            if (!_recruit.Hire(entry)) return;
+            ShowRecruit();
             RefreshParty();
             UpdateObjective(true);
         }
         #endregion
 
-        #region Dismiss - 파티원을 후보로 되돌림
+        #region Dismiss - 영입 캡슐이 파티원을 후보로 되돌리면 창 목록·파티 수·목표 갱신
         /// <param name="entry">내보낼 파티원</param>
         void Dismiss(MercenaryEntry entry)
         {
-            if (!Game.Run.Party.Members.Remove(entry)) return;
-            Game.Run.Party.Candidates.Add(entry);
+            if (!_recruit.Dismiss(entry)) return;
+            ShowRecruit();
             RefreshParty();
             UpdateObjective(true);
         }
@@ -530,43 +496,33 @@ namespace Mage
             }
             // 붙어 있는 의뢰
             QuestSO quest = quests[0];
-            UIManager.Instance.ShowQuestBoard(quest, Game.Run.Quest.Current == quest, Game.Run.Quest.CompletedIds.Contains(quest.Id), () => TakeQuest(quest));
+            UIManager.Instance.ShowQuestBoard(quest, _quest.IsTaken(quest), _quest.IsCompleted(quest), () => TakeQuest(quest));
         }
         #endregion
 
-        #region TakeQuest - 의뢰를 받음. 목표가 바뀌면 목표 알림, 아니면 "의뢰를 받았어" 토스트
+        #region TakeQuest - 의뢰 캡슐로 의뢰를 받음. 목표가 바뀌면 목표 알림, 아니면 "의뢰를 받았어" 토스트
         /// <param name="quest">받을 의뢰</param>
         void TakeQuest(QuestSO quest)
         {
-            Game.Run.Quest.Current = quest;
-            Game.Run.Quest.Cleared = false;
-            Game.Run.Quest.Deadline = 0f;
+            _quest.Take(quest);
             if (!UpdateObjective(true)) UIManager.Instance.ShowToast(Table, QuestTakenKey, quest.Title.GetLocalizedString());
         }
         #endregion
 
-        #region TalkGuard - 정문 경비병: 첫 출발 전엔 파티·의뢰·식량이 모자라면 말로 막음. 됐거나 첫 출발 뒤면 출발·아직
+        #region TalkGuard - 정문 경비병: 원정 캡슐이 첫 출발 전 모자란 것(용병·의뢰·식량)을 찾으면 말로 막음. 됐거나 첫 출발 뒤면 출발·아직
         void TalkGuard()
         {
-            // 이번 판 데이터
-            RunEntry run = Game.Run;
-            if (!run.HasDeparted)
+            switch (_expedition.Check(_recruit.MemberCount, RecruitService.MaxMembers, _quest.HasQuest, NeededRations()))
             {
-                if (run.Party.Members.Count < RequiredMercenaries)
-                {
-                    GuardLine(PartyRequiredKey, RequiredMercenaries);
+                case ExpeditionBlock.Party:
+                    GuardLine(PartyRequiredKey, RecruitService.MaxMembers);
                     return;
-                }
-                if (run.Quest.Current == null)
-                {
+                case ExpeditionBlock.Quest:
                     GuardLine(QuestRequiredKey);
                     return;
-                }
-                if (run.Rations < NeededRations())
-                {
+                case ExpeditionBlock.Food:
                     GuardLine(GuardNoFoodKey, NeededRations());
                     return;
-                }
             }
             // 나갈 때 선택지
             var choices = new[]
@@ -589,14 +545,11 @@ namespace Mage
         }
         #endregion
 
-        #region Depart - 원정 식량을 빼고(모자라면 있는 만큼) 출발 표시, 대화를 닫고 숲으로
+        #region Depart - 원정 캡슐이 식량을 빼고(모자라면 있는 만큼) 출발 표시, 의뢰 캡슐이 기한을 정함(처음 한 번), 대화를 닫고 숲으로
         void Depart()
         {
-            // 이번 판 데이터
-            RunEntry run = Game.Run;
-            run.Rations -= Mathf.Min(run.Rations, NeededRations());
-            run.HasDeparted = true;
-            if (run.Quest.Current != null && run.Quest.Deadline <= 0f) run.Quest.Deadline = run.Clock.PlaySeconds + run.Quest.Current.PeriodDays * ClockEntry.DaySeconds;
+            _expedition.Depart(NeededRations());
+            _quest.StartDeadline(Game.Run.Clock.PlaySeconds, ClockEntry.DaySeconds);
             UpdateObjective(false);
             UIManager.Instance.HideDialogue();
             Game.ChangeState(new FieldState());
@@ -604,26 +557,20 @@ namespace Mage
         #endregion
 
         #region PartySize - 원정 인원 (플레이어 + 파티 용병)
-        int PartySize() => 1 + Game.Run.Party.Members.Count;
-        #endregion
-
-        #region DayFoodPrice - 지금 인원의 하루치 식량 값 (금화)
-        int DayFoodPrice() => RationPrice * PartySize();
+        int PartySize() => 1 + _recruit.MemberCount;
         #endregion
 
         #region NeededRations - 받은 의뢰에 필요한 식량 (인원 × 기간 인분. 의뢰가 없으면 0)
-        int NeededRations() => Game.Run.Quest.Current != null ? Game.Run.Quest.Current.Days * PartySize() : 0;
+        int NeededRations() => _quest.NeededDays * PartySize();
         #endregion
 
-        #region NextObjective - 판 데이터로 지금 목표를 정함: 방 → 길드(파티·의뢰) → 정문 → (의뢰를 받고 나간 뒤) 숲 소탕 → (끝낸 뒤) 없음
+        #region NextObjective - 캡슐 상태로 지금 목표를 정함: 방 → 길드(파티·의뢰) → 정문 → (의뢰를 받고 나간 뒤) 숲 소탕 → (끝낸 뒤) 없음
         ObjectiveSO NextObjective()
         {
-            // 이번 판 데이터
-            RunEntry run = Game.Run;
-            if (!run.HasRoom) return _view.FirstObjective;
-            if (run.Quest.Current != null && run.HasDeparted) return _view.ForestObjective;
-            if (run.Party.Members.Count < RequiredMercenaries || run.Quest.Current == null) return run.Quest.CompletedIds.Count > 0 ? null : _view.GuildObjective;
-            return run.HasDeparted ? null : _view.DepartObjective;
+            if (!_inn.HasRoom) return _view.FirstObjective;
+            if (_quest.HasQuest && _expedition.HasDeparted) return _view.ForestObjective;
+            if (_recruit.MemberCount < RecruitService.MaxMembers || !_quest.HasQuest) return _quest.HasCompletedAny ? null : _view.GuildObjective;
+            return _expedition.HasDeparted ? null : _view.DepartObjective;
         }
         #endregion
 
@@ -631,7 +578,7 @@ namespace Mage
         /// <param name="notify">바뀌면 "임무 일지 갱신" 토스트를 띄울지</param>
         bool UpdateObjective(bool notify)
         {
-            // 판 데이터로 정한 목표
+            // 캡슐 상태로 정한 목표
             ObjectiveSO next = NextObjective();
             if (next == Game.Run.CurrentObjective) return false;
             Game.Run.CurrentObjective = next;
@@ -643,7 +590,7 @@ namespace Mage
         #region RefreshParty - 파티 수 표시 갱신 ({0}/{1})
         void RefreshParty()
         {
-            _view.PartyText.StringReference.Arguments = new object[] { Game.Run.Party.Members.Count, RequiredMercenaries };
+            _view.PartyText.StringReference.Arguments = new object[] { _recruit.MemberCount, RecruitService.MaxMembers };
             _view.PartyText.RefreshString();
         }
         #endregion
@@ -651,7 +598,7 @@ namespace Mage
         #region RefreshMoney - 금화·식량 표시 갱신 ({0} 금화, {1} 식량 인분)
         void RefreshMoney()
         {
-            _view.MoneyText.StringReference.Arguments = new object[] { Game.Run.Gold, Game.Run.Rations };
+            _view.MoneyText.StringReference.Arguments = new object[] { Game.Run.Gold, _expedition.Rations };
             _view.MoneyText.RefreshString();
         }
         #endregion

@@ -110,23 +110,20 @@ namespace Mage
         }
         #endregion
 
-        #region FillDebugExpedition - 숲에서 바로 Play할 때 디버그 판에 원정을 채움: 첫 후보 추첨에서 용병 2명(나머지는 후보), 첫 의뢰, 방, 출발함 (숲 소탕·죽은 뒤 여관 부활 확인용)
+        #region FillDebugExpedition - 숲에서 바로 Play할 때 디버그 판에 원정을 채움 (캡슐 API로): 첫 후보 추첨에서 앞의 용병 2명을 영입(나머지는 후보), 첫 의뢰, 방, 출발함 (숲 소탕·죽은 뒤 여관 부활 확인용)
         /// <param name="run">디버그 판 데이터</param>
         static void FillDebugExpedition(RunEntry run)
         {
-            // 첫 후보 추첨
-            List<MercenaryEntry> drawn = RecruitPool.Draw(DataManager.Instance.Jobs);
-            foreach (MercenaryEntry entry in drawn)
-            {
-                if (run.Party.Members.Count < HubState.RequiredMercenaries) run.Party.Members.Add(entry);
-                else run.Party.Candidates.Add(entry);
-            }
-            run.Party.CandidatesDrawn = true;
+            // 파티 캡슐 (영입 쪽)
+            var recruit = new RecruitService(run.Party);
+            recruit.EnsureCandidates(DataManager.Instance.Jobs);
+            foreach (MercenaryEntry entry in recruit.Candidates)
+                if (recruit.MemberCount < RecruitService.MaxMembers) recruit.Hire(entry);
             // 의뢰 목록
             IReadOnlyList<QuestSO> quests = DataManager.Instance.Quests;
-            run.Quest.Current = quests.Count > 0 ? quests[0] : null;
-            run.HasRoom = true;
-            run.HasDeparted = true;
+            if (quests.Count > 0 && quests[0] != null) new QuestService(run.Quest).Take(quests[0]);
+            new InnService(run.Inn).Rent();
+            new ExpeditionService(run.Expedition).Depart(0);
         }
         #endregion
 

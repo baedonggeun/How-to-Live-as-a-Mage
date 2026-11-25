@@ -19,17 +19,14 @@ namespace Mage
         /// <summary>받은 의뢰·기한·끝낸 의뢰 (의뢰 캡슐만 만짐)</summary>
         public QuestEntry Quest { get; } = new();
 
-        /// <summary>금화</summary>
+        /// <summary>금화 (여러 기능이 쓰는 바깥 일이라 상태가 더하고 뺌)</summary>
         public int Gold { get; set; } = StartGold;
 
-        /// <summary>원정 식량 (인분. 한 사람 하루치가 1인분)</summary>
-        public int Rations { get; set; }
+        /// <summary>여관 방 (InnService만 만짐)</summary>
+        public InnEntry Inn { get; } = new();
 
-        /// <summary>여관 방을 잡았는지 (방값은 처음 한 번)</summary>
-        public bool HasRoom { get; set; }
-
-        /// <summary>정문으로 한 번이라도 나갔는지. 그 전(첫 의뢰)엔 경비병이 파티·의뢰·식량을 봄</summary>
-        public bool HasDeparted { get; set; }
+        /// <summary>원정 식량·첫 출발 (ExpeditionService만 만짐)</summary>
+        public ExpeditionEntry Expedition { get; } = new();
 
         /// <summary>숲에서 막 돌아오는 중인지 (전초기지가 정문 밖에서 시작하고 한 번 쓰면 끔)</summary>
         public bool ReturningFromField { get; set; }
