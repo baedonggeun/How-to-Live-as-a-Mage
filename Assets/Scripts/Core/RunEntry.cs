@@ -52,6 +52,9 @@ namespace Mage
         /// <summary>숲 리셋 (ForestResetService만 만짐)</summary>
         public ForestResetEntry ForestReset { get; } = new();
 
+        /// <summary>발견한 차원문 (PortalService만 만짐)</summary>
+        public PortalEntry Portal { get; } = new();
+
         /// <summary>고블린 던전 (DungeonService만 만짐)</summary>
         public DungeonEntry Dungeon { get; } = new();
 

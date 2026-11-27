@@ -27,15 +27,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 60826484737
-    m_Localized: Forest Edge
+    m_Localized: Region 1
     m_Metadata:
       m_Items: []
   - m_Id: 60826484738
-    m_Localized: Mid Forest
+    m_Localized: Region 2
     m_Metadata:
       m_Items: []
   - m_Id: 60826484739
-    m_Localized: Deep Forest
+    m_Localized: Region 3
     m_Metadata:
       m_Items: []
   - m_Id: 60830679040
@@ -93,7 +93,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 60830679053
-    m_Localized: 'Goal complete: {0}. Head back to the forest entrance'
+    m_Localized: 'Goal complete: {0}. Head back to the gate'
     m_Metadata:
       m_Items: []
   - m_Id: 60830679054
@@ -126,6 +126,10 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 245560762859522
     m_Localized: The goblin cave is cleared
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1329588706377728
+    m_Localized: Found a portal (Region {0})
     m_Metadata:
       m_Items: []
   references:

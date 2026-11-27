@@ -191,6 +191,7 @@ GameObject:
   - component: {fileID: 8710021709640766011}
   - component: {fileID: 4143390592129238258}
   - component: {fileID: 9756713022584408}
+  - component: {fileID: 8067210736307008298}
   m_Layer: 0
   m_Name: Portal
   m_TagString: Untagged
@@ -251,6 +252,20 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 4, z: 0}
   m_TimeToStationary: 0.5
+--- !u!114 &8067210736307008298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5242912701760869123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce7b3f3839b29eb4a9bf34fafd00cdad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Mage::Mage.PortalView
+  _id: 
+  _region: 1
 --- !u!1 &8947659114990428516
 GameObject:
   m_ObjectHideFlags: 0

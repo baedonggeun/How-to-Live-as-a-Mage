@@ -6,7 +6,7 @@ using Random = UnityEngine.Random;
 
 namespace Mage
 {
-    /// <summary>숲 리셋·차원문 캡슐 (MonoBehaviour 아님. FieldState가 만들고 이음): 판 데이터·연출·차원문·차원문 놓을 곳·현장 규칙·숲 구역·숲 입구를 받아, 이 판에서 처음이면 차원문 자리를 정해 놓음. 숲이 70% 넘게 빈 채 나갔으면(판 데이터 Pending) 이번 진입에 시체를 받을 때 무리마다 원래 적 자리 구역 안 아무 곳(숲 층 길 위, 입구 30m 밖)을 골라 그 둘레로 옮겨 눕히고, 연출을 틀어 끝나면 그 자리를 집으로 살린 뒤 Finished로 살린 적을 알림. 숲을 나갈 때 쓰러뜨린 비율을 보고 다음 리셋을 정함</summary>
+    /// <summary>숲 리셋 캡슐 (MonoBehaviour 아님. FieldState가 만들고 이음): 판 데이터·연출·현장 규칙·숲 지역·숲 입구를 받아, 숲이 70% 넘게 빈 채 나갔으면(판 데이터 Pending) 이번 진입에 시체를 받을 때 무리마다 원래 적 자리 지역 고리 안 아무 곳(숲 층 길 위, 입구 30m 밖)을 골라 그 둘레로 옮겨 눕히고, 상태가 넘긴 차원문으로 연출을 틀어 끝나면 그 자리를 집으로 살린 뒤 Finished로 살린 적을 알림. 숲을 나갈 때 쓰러뜨린 비율을 보고 다음 리셋을 정함</summary>
     public sealed partial class ForestResetService
     {
         /// <summary>숲 적 자리 대비 쓰러뜨린 적이 이 비율 이상이면 리셋 (기획 70%)</summary>
@@ -24,23 +24,17 @@ namespace Mage
         /// <summary>뽑은 곳에서 길(NavMesh)을 찾는 거리 (m)</summary>
         const float PickSampleDistance = 4f;
 
-        /// <summary>숲 리셋·차원문 판 데이터</summary>
+        /// <summary>숲 리셋 판 데이터</summary>
         readonly ForestResetEntry _data;
 
         /// <summary>리셋 연출</summary>
         readonly ForestResetSequence _sequence;
 
-        /// <summary>차원문</summary>
-        readonly Transform _portal;
-
-        /// <summary>차원문을 놓을 수 있는 곳 (3구역 중 전초기지에서 먼 쪽 절반, 월드)</summary>
-        readonly Bounds _portalArea;
-
         /// <summary>현장 규칙 (살린 적이 씀)</summary>
         readonly FieldService _field;
 
-        /// <summary>숲 구역 (시체를 원래 적 자리 구역 안에 옮길 때)</summary>
-        readonly ForestZoneSpec _zones;
+        /// <summary>숲 지역 (시체를 원래 적 자리 지역 고리 안에 옮길 때)</summary>
+        readonly ForestRegionSpec _regions;
 
         /// <summary>숲 입구 자리 (이 둘레엔 안 옮김)</summary>
         readonly Vector3 _entry;
@@ -60,43 +54,26 @@ namespace Mage
         /// <summary>연출이 끝나 시체가 다 일어남 (살린 적. 받는 쪽이 숲 적·소탕 대상으로 다시 받음)</summary>
         public event Action<IReadOnlyList<EnemyController>> Finished;
 
-        #region ForestResetService - 판 데이터·연출·차원문·놓을 곳·현장 규칙·숲 구역·숲 입구를 받고 이번 진입에 리셋하는지 정함
-        /// <param name="data">숲 리셋·차원문 판 데이터</param>
+        #region ForestResetService - 판 데이터·연출·현장 규칙·숲 지역·숲 입구를 받고 이번 진입에 리셋하는지 정함
+        /// <param name="data">숲 리셋 판 데이터</param>
         /// <param name="sequence">리셋 연출</param>
-        /// <param name="portal">차원문</param>
-        /// <param name="portalArea">차원문을 놓을 수 있는 곳</param>
         /// <param name="field">현장 규칙</param>
-        /// <param name="zones">숲 구역</param>
+        /// <param name="regions">숲 지역</param>
         /// <param name="entry">숲 입구 자리</param>
-        public ForestResetService(ForestResetEntry data, ForestResetSequence sequence, Transform portal, Bounds portalArea, FieldService field, ForestZoneSpec zones, Vector3 entry)
+        public ForestResetService(ForestResetEntry data, ForestResetSequence sequence, FieldService field, ForestRegionSpec regions, Vector3 entry)
         {
             _data = data ?? throw new ArgumentNullException(nameof(data));
             _sequence = sequence != null ? sequence : throw new ArgumentNullException(nameof(sequence));
-            _portal = portal != null ? portal : throw new ArgumentNullException(nameof(portal));
-            _portalArea = portalArea;
             _field = field ?? throw new ArgumentNullException(nameof(field));
-            _zones = zones;
+            _regions = regions;
             _entry = entry;
             IsResetting = _data.Pending;
         }
         #endregion
 
-        #region PlacePortal - 이 판에서 처음이면 놓을 수 있는 곳에서 차원문 자리를 정해 판 데이터에 남기고, 차원문을 그 자리에
-        public void PlacePortal()
-        {
-            if (_data.PortalPosition == null)
-            {
-                // 고른 곳
-                var picked = new Vector3(Random.Range(_portalArea.min.x, _portalArea.max.x), _portalArea.center.y, Random.Range(_portalArea.min.z, _portalArea.max.z));
-                _data.PortalPosition = FieldService.Sample(picked);
-            }
-            _portal.position = _data.PortalPosition.Value;
-        }
-        #endregion
-
-        #region AddCorpse - 리셋하는 진입이면 시체를 받아, 무리 가운데(무리에서 처음이면 원래 적 자리 구역 안에서 고름) 둘레로 옮겨 눕히고 그 가운데를 집으로 받아 둠 (아니면 무시. 로딩창 아래라 옮기는 게 안 보임)
+        #region AddCorpse - 리셋하는 진입이면 시체를 받아, 무리 가운데(무리에서 처음이면 원래 적 자리 지역 고리 안에서 고름) 둘레로 옮겨 눕히고 그 가운데를 집으로 받아 둠 (아니면 무시. 로딩창 아래라 옮기는 게 안 보임)
         /// <param name="corpse">누운 적</param>
-        /// <param name="home">원래 적 자리 (이 자리의 구역 안에서 고름)</param>
+        /// <param name="home">원래 적 자리 (이 자리의 지역 고리 안에서 고름)</param>
         public void AddCorpse(EnemyController corpse, Vector3 home)
         {
             if (!IsResetting || corpse == null) return;
@@ -112,18 +89,18 @@ namespace Mage
         }
         #endregion
 
-        #region PickCenter - 원래 적 자리 구역 안 아무 곳: 지역 너비 × 구역 깊이에서 뽑아 숲 층 길 위·같은 구역·입구 30m 밖이면 그곳 (20번 다 안 맞으면 원래 적 자리)
+        #region PickCenter - 원래 적 자리 지역 안 아무 곳: 그 지역 고리에서 뽑아 숲 층 길 위·같은 지역·입구 30m 밖이면 그곳 (20번 다 안 맞으면 원래 적 자리)
         /// <param name="home">원래 적 자리</param>
         Vector3 PickCenter(Vector3 home)
         {
-            // 원래 적 자리 구역
-            int zone = _zones.ZoneOf(home.z);
+            // 원래 적 자리 지역
+            int region = _regions.RegionOf(home);
             for (int i = 0; i < PickTries; i++)
             {
-                // 구역 안에서 뽑은 곳 (높이는 원래 적 자리)
-                var picked = new Vector3(Random.Range(_zones.Area.xMin, _zones.Area.xMax), home.y, Random.Range(_zones.MinZ(zone), _zones.MaxZ(zone)));
+                // 지역 고리 안에서 뽑은 곳 (높이는 원래 적 자리)
+                Vector3 picked = _regions.RandomPoint(_regions.MinRadius(region), _regions.MaxRadius(region), home.y);
                 if (!NavMesh.SamplePosition(picked, out NavMeshHit hit, PickSampleDistance, NavMesh.AllAreas)) continue;
-                if (!FieldService.SameLevel(hit.position, home) || _zones.ZoneOf(hit.position.z) != zone) continue;
+                if (!FieldService.SameLevel(hit.position, home) || _regions.RegionOf(hit.position) != region) continue;
                 // 숲 입구까지 평면 거리
                 Vector3 fromEntry = hit.position - _entry;
                 fromEntry.y = 0f;
@@ -144,12 +121,19 @@ namespace Mage
         }
         #endregion
 
-        #region Play - 리셋하는 진입이면 연출 시작 (끝나면 시체를 살리고 Finished). 아니면 무시
+        #region Play - 리셋하는 진입이면 그 차원문으로 연출 시작 (끝나면 시체를 살리고 Finished). 차원문이 없으면 경고 후 연출 없이 바로 살림. 리셋 안 하면 무시
+        /// <param name="portal">맥동할 차원문 (상태가 차원문 캡슐에서 고름. 없으면 null)</param>
         /// <param name="focus">카메라가 볼 기준 (플레이어. 가장 가까운 시체를 봄)</param>
-        public void Play(Transform focus)
+        public void Play(Transform portal, Transform focus)
         {
             if (!IsResetting) return;
-            _sequence.Play(_portal, _corpses, focus, OnSequenceDone);
+            if (portal == null)
+            {
+                Debug.LogWarning("[Reset] 차원문 없음. 연출 없이 시체를 살림");
+                OnSequenceDone();
+                return;
+            }
+            _sequence.Play(portal, _corpses, focus, OnSequenceDone);
         }
         #endregion
 

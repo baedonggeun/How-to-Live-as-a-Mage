@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mage
 {
-    /// <summary>지도 칸 ← 안개 지도·플레이어·현재 목표·숲 입구 (출처는 상태가 Bind로 넘김). 밝힌 칸이 바뀌면 그림을 다시 칠하고 매 프레임 표시를 옮김. 보는 범위가 0이면 지역 전체(메뉴 지도 탭), 아니면 플레이어를 가운데 둔 그 범위(미니맵). 출처가 없으면 자리 글만</summary>
+    /// <summary>지도 칸 ← 안개 지도·플레이어·현재 목표·숲 입구·발견한 차원문 (출처는 상태가 Bind로 넘김). 밝힌 칸이 바뀌면 그림을 다시 칠하고 매 프레임 표시를 옮김. 보는 범위가 0이면 지역 전체(메뉴 지도 탭), 아니면 플레이어를 가운데 둔 그 범위(미니맵). 출처가 없으면 자리 글만</summary>
     public sealed class MapUIBinder : MonoBehaviour
     {
         /// <summary>안 밝힌 칸 색</summary>
@@ -30,6 +31,15 @@ namespace Mage
         /// <summary>숲 입구 위치</summary>
         Vector3 _exit;
 
+        /// <summary>발견한 차원문 자리를 채우는 함수 (없으면 차원문 표시 안 함)</summary>
+        Action<List<Vector3>> _portals;
+
+        /// <summary>차원문 자리 (매 프레임 채워 씀)</summary>
+        readonly List<Vector3> _portalPositions = new();
+
+        /// <summary>만든 차원문 표시 (틀을 복제, 늘기만 함)</summary>
+        readonly List<RectTransform> _portalMarkers = new();
+
         /// <summary>안개 지도 그림 (칸 하나 = 픽셀 하나, 아래 줄부터)</summary>
         Texture2D _texture;
 
@@ -54,17 +64,19 @@ namespace Mage
         }
         #endregion
 
-        #region Bind - 안개 지도·플레이어·목표·입구를 받고 그림을 (크기가 다르면 새로) 만들어 지도를 보임
+        #region Bind - 안개 지도·플레이어·목표·입구·발견한 차원문을 받고 그림을 (크기가 다르면 새로) 만들어 지도를 보임
         /// <param name="fog">안개 지도</param>
         /// <param name="player">플레이어</param>
         /// <param name="objective">현재 목표 위치 (없으면 null을 돌려주는 함수, 함수가 null이면 표시 안 함)</param>
         /// <param name="exit">숲 입구 위치</param>
-        public void Bind(FogMapService fog, Transform player, Func<Vector3?> objective, Vector3 exit)
+        /// <param name="portals">발견한 차원문 자리를 채우는 함수 (null이면 표시 안 함)</param>
+        public void Bind(FogMapService fog, Transform player, Func<Vector3?> objective, Vector3 exit, Action<List<Vector3>> portals)
         {
             _fog = fog ?? throw new ArgumentNullException(nameof(fog));
             _player = player != null ? player : throw new ArgumentNullException(nameof(player));
             _objective = objective;
             _exit = exit;
+            _portals = portals;
             if (_texture == null || _texture.width != fog.Width || _texture.height != fog.Height)
             {
                 if (_texture != null) Destroy(_texture);
@@ -89,6 +101,7 @@ namespace Mage
             _fog = null;
             _player = null;
             _objective = null;
+            _portals = null;
             ShowBound(false);
         }
         #endregion
@@ -126,7 +139,7 @@ namespace Mage
         }
         #endregion
 
-        #region PlaceMarkers - 보는 범위(전체 또는 플레이어 가운데)를 그림 uv로 정하고 플레이어(방향 포함)·목표·입구 표시를 옮김. 범위 밖 표시는 끔
+        #region PlaceMarkers - 보는 범위(전체 또는 플레이어 가운데)를 그림 uv로 정하고 플레이어(방향 포함)·목표·입구·발견한 차원문 표시를 옮김. 범위 밖 표시는 끔
         void PlaceMarkers()
         {
             // 플레이어 위치 (지역 비율)
@@ -140,6 +153,7 @@ namespace Mage
             if (_view.Player != null) _view.Player.localRotation = Quaternion.Euler(0f, 0f, -_player.eulerAngles.y);
             PlaceOptional(_view.Objective, _objective?.Invoke(), origin, window);
             PlaceOptional(_view.Exit, _exit, origin, window);
+            PlacePortals(origin, window);
         }
         #endregion
 
@@ -177,6 +191,25 @@ namespace Mage
                 return;
             }
             Place(marker, _fog.ToNormalized(world.Value), origin, window);
+        }
+        #endregion
+
+        #region PlacePortals - 발견한 차원문 자리마다 표시를 옮김 (모자라면 틀을 복제해 늘리고, 남는 표시는 끔. 틀이 없으면 안 함)
+        /// <param name="origin">보는 범위 왼쪽 아래</param>
+        /// <param name="window">보는 범위 크기</param>
+        void PlacePortals(Vector2 origin, Vector2 window)
+        {
+            // 표시 틀 (꺼 둔 채로 둠)
+            RectTransform template = _view.Portal;
+            if (template == null) return;
+            _portalPositions.Clear();
+            _portals?.Invoke(_portalPositions);
+            while (_portalMarkers.Count < _portalPositions.Count) _portalMarkers.Add(Instantiate(template, template.parent));
+            for (int i = 0; i < _portalMarkers.Count; i++)
+            {
+                if (i < _portalPositions.Count) Place(_portalMarkers[i], _fog.ToNormalized(_portalPositions[i]), origin, window);
+                else _portalMarkers[i].gameObject.SetActive(false);
+            }
         }
         #endregion
 

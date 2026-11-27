@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 namespace Mage
 {
-    /// <summary>숲 상태 디버그 진입점 (에디터 전용, 빌드에 안 들어감): 디버그 패널(DebugWindow)에 붙일 곳(이 상태·현장 규칙·시계·캡슐)을 넘기고, 캡슐 여럿에 걸치는 조작(금화·무적·소탕 끝냄·숲 적 쓰러뜨린 수·죽기·나갔다 다시 들어오기·파티 옮기기·의뢰 기한·숲 적 쓰러뜨리기)을 캡슐 진입점과 실제 경로(OnPlayerDied·MarkLeaving·MoveParty·피해)로 만듦</summary>
+    /// <summary>숲 상태 디버그 진입점 (에디터 전용, 빌드에 안 들어감): 디버그 패널(DebugWindow)에 붙일 곳(이 상태·현장 규칙·시계·캡슐)을 넘기고, 캡슐 여럿에 걸치는 조작(금화·무적·소탕 끝냄·숲 적 쓰러뜨린 수·죽기·나갔다 다시 들어오기·파티 옮기기(차원문 근처 포함)·의뢰 기한·숲 적 쓰러뜨리기)을 캡슐 진입점과 실제 경로(OnPlayerDied·MarkLeaving·MoveParty·피해)로 만듦</summary>
     public sealed partial class FieldState
     {
         /// <summary>보스방 앞에서 보스까지 거리 (m)</summary>
@@ -18,13 +18,16 @@ namespace Mage
         /// <summary>'고블린 1마리만 남기고'에서 남길 소탕 대상 수</summary>
         const int DebugKeepTargets = 1;
 
+        /// <summary>안 찾은 차원문에서 띄워 세울 거리 (m, 발견 24m 밖)</summary>
+        const float DebugPortalGap = 30f;
+
         /// <summary>임시 옮길 자리 (보스방 앞·방A 위. 숲 씬에 두어 씬과 같이 지워짐)</summary>
         Transform _debugPoint;
 
         /// <summary>조작을 막을지 (씬 준비 전·죽는 중·리셋 연출 중)</summary>
         public override bool DebugBusy => _view == null || _dying || _reset == null || _reset.IsResetting;
 
-        #region DebugTargets - 조작을 붙일 곳: 기본(이 상태·튜토리얼 담당), 현장 규칙, 시계, 의뢰·숲 적·숲 리셋·떨어진 금화·던전·코덱스 캡슐 (씬 준비 전엔 기본만)
+        #region DebugTargets - 조작을 붙일 곳: 기본(이 상태·튜토리얼 담당), 현장 규칙, 시계, 의뢰·숲 적·숲 리셋·차원문·떨어진 금화·던전·코덱스 캡슐 (씬 준비 전엔 기본만)
         public override IEnumerable<object> DebugTargets()
         {
             foreach (object target in base.DebugTargets()) yield return target;
@@ -34,6 +37,7 @@ namespace Mage
             yield return _quest;
             yield return _forest;
             yield return _reset;
+            yield return _portals;
             yield return _loot;
             yield return _dungeon;
             yield return _codex;
@@ -49,10 +53,10 @@ namespace Mage
         }
         #endregion
 
-        #region DebugWhere - 마법사가 있는 곳 ("숲 N구역" 또는 "던전 안")
+        #region DebugWhere - 마법사가 있는 곳 ("숲 N지역" 또는 "던전 안")
         [DebugControl("숲", "위치")]
         string DebugWhere => FieldService.SameLevel(_view.Player.transform.position, _view.Entry.position)
-            ? string.Format(CultureInfo.InvariantCulture, "숲 {0}구역", ZoneAt())
+            ? string.Format(CultureInfo.InvariantCulture, "숲 {0}지역", RegionAt())
             : "던전 안";
         #endregion
 
@@ -122,6 +126,20 @@ namespace Mage
             // 방A 자리
             Vector3 room = points[0].transform.position;
             return DebugMove(DebugPointAt(new Vector3(room.x, _view.Entry.position.y, room.z), _view.Entry.forward), "방A 바로 위 숲으로");
+        }
+        #endregion
+
+        #region DebugMoveNearPortal - 마법사·용병을 가장 가까운 안 찾은 차원문의 전초기지 쪽 30m 앞으로 (덮개 페이드, 차원문을 봄. 걸어가면 발견)
+        [DebugControl("숲", "안 찾은 차원문 근처로")]
+        string DebugMoveNearPortal()
+        {
+            if (DebugBusy) return "지금은 안 됨";
+            // 가장 가까운 안 찾은 차원문 자리
+            Vector3? hidden = _portals.DebugNearestHidden(_view.Player.transform.position);
+            if (hidden == null) return "다 발견함";
+            // 차원문 → 지역 가운데 평면 방향
+            Vector3 toCenter = Vector3.ProjectOnPlane(_view.RegionCenter - hidden.Value, Vector3.up).normalized;
+            return DebugMove(DebugPointAt(hidden.Value + toCenter * DebugPortalGap, -toCenter), "안 찾은 차원문 30m 앞으로 (걸어가면 발견)");
         }
         #endregion
 

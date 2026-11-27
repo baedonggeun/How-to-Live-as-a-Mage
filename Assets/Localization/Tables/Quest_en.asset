@@ -19,11 +19,11 @@ MonoBehaviour:
     m_Items: []
   m_TableData:
   - m_Id: 19911049216
-    m_Localized: Clear the Forest Edge (temp)
+    m_Localized: Clear Region 1 (temp)
     m_Metadata:
       m_Items: []
   - m_Id: 19927826432
-    m_Localized: Drive off the goblins that appeared at the forest edge.
+    m_Localized: Drive off the goblins that appeared in Region 1.
     m_Metadata:
       m_Items: []
   references:

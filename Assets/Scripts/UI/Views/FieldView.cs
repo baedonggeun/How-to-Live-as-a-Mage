@@ -26,26 +26,29 @@ namespace Mage
         /// <summary>숲 HUD 바인더 (Canvas/Hud. 인스펙터에서만 연결)</summary>
         [SerializeField] FieldHudUIBinder _hudBinder;
 
-        /// <summary>들어오면 서는 곳 (숲 입구 안쪽, 숲을 봄. 인스펙터에서만 연결)</summary>
+        /// <summary>들어오면 서는 곳 (숲 가운데 전초기지 정문 밖, 숲을 봄. 인스펙터에서만 연결)</summary>
         [SerializeField] Transform _entry;
 
-        /// <summary>죽은 뒤 용병이 도망치는 곳 (숲 입구 표지판 앞. 인스펙터에서만 연결)</summary>
+        /// <summary>죽은 뒤 용병이 도망치는 곳 (닫힌 정문 앞. 인스펙터에서만 연결)</summary>
         [SerializeField] Transform _exitPoint;
 
-        /// <summary>차원문 (자리는 판 데이터. 인스펙터에서만 연결)</summary>
-        [SerializeField] Transform _portal;
+        /// <summary>차원문 표지 (Portals 자식. 자리는 차원문 캡슐이 정함. 인스펙터에서만 연결)</summary>
+        [SerializeField] PortalView[] _portals;
 
-        /// <summary>차원문을 놓을 수 있는 곳 (3구역 중 전초기지에서 먼 쪽 절반, 월드)</summary>
-        [SerializeField] Bounds _portalArea = new(new Vector3(0f, 0f, 660f), new Vector3(160f, 0f, 110f));
+        /// <summary>안개 지도 지역 (x·y = 월드 x·z 최소, m. 지역 가운데에 맞춘 정사각형)</summary>
+        [SerializeField] Rect _mapArea = new(-210f, -210f, 420f, 420f);
 
-        /// <summary>안개 지도 지역 (x·y = 월드 x·z 최소, m)</summary>
-        [SerializeField] Rect _mapArea = new(-90f, 0f, 180f, 720f);
+        /// <summary>지역 가운데 (전초기지 가운데, 월드)</summary>
+        [SerializeField] Vector3 _regionCenter = Vector3.zero;
 
-        /// <summary>구역 하나 깊이 (m. 입구에서 z로 잼)</summary>
-        [SerializeField, Min(1f)] float _zoneDepth = 240f;
+        /// <summary>1지역이 시작하는 반지름 (m, 전초기지 성벽 바깥)</summary>
+        [SerializeField, Min(0f)] float _regionInner = 30f;
 
-        /// <summary>구역 수</summary>
-        [SerializeField, Min(1)] int _zoneCount = 3;
+        /// <summary>지역 하나 폭 (m)</summary>
+        [SerializeField, Min(1f)] float _regionWidth = 60f;
+
+        /// <summary>지역 수</summary>
+        [SerializeField, Min(1)] int _regionCount = 3;
 
         /// <summary>적 무리 자리 (인스펙터에서만 연결)</summary>
         [SerializeField] SpawnPointView[] _spawnPoints;
@@ -104,20 +107,23 @@ namespace Mage
         /// <summary>죽은 뒤 용병이 도망치는 곳</summary>
         public Transform ExitPoint => _exitPoint;
 
-        /// <summary>차원문</summary>
-        public Transform Portal => _portal;
-
-        /// <summary>차원문을 놓을 수 있는 곳</summary>
-        public Bounds PortalArea => _portalArea;
+        /// <summary>차원문 표지</summary>
+        public PortalView[] Portals => _portals;
 
         /// <summary>안개 지도 지역</summary>
         public Rect MapArea => _mapArea;
 
-        /// <summary>구역 하나 깊이 (m)</summary>
-        public float ZoneDepth => _zoneDepth;
+        /// <summary>지역 가운데</summary>
+        public Vector3 RegionCenter => _regionCenter;
 
-        /// <summary>구역 수</summary>
-        public int ZoneCount => _zoneCount;
+        /// <summary>1지역이 시작하는 반지름 (m)</summary>
+        public float RegionInner => _regionInner;
+
+        /// <summary>지역 하나 폭 (m)</summary>
+        public float RegionWidth => _regionWidth;
+
+        /// <summary>지역 수</summary>
+        public int RegionCount => _regionCount;
 
         /// <summary>적 무리 자리</summary>
         public SpawnPointView[] SpawnPoints => _spawnPoints;

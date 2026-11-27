@@ -520,14 +520,15 @@ namespace Mage
         }
         #endregion
 
-        #region SetMapSource - 메뉴 창 지도 탭에 안개 지도·플레이어·목표·입구를 넘김 (숲이 부름)
+        #region SetMapSource - 메뉴 창 지도 탭에 안개 지도·플레이어·목표·입구·발견한 차원문을 넘김 (숲이 부름)
         /// <param name="fog">안개 지도</param>
         /// <param name="player">플레이어</param>
         /// <param name="objective">현재 목표 위치 (없으면 null을 돌려줌)</param>
         /// <param name="exit">숲 입구 위치</param>
-        public void SetMapSource(FogMapService fog, Transform player, Func<Vector3?> objective, Vector3 exit)
+        /// <param name="portals">발견한 차원문 자리를 채우는 함수</param>
+        public void SetMapSource(FogMapService fog, Transform player, Func<Vector3?> objective, Vector3 exit, Action<List<Vector3>> portals)
         {
-            if (_menuMap != null) _menuMap.Bind(fog, player, objective, exit);
+            if (_menuMap != null) _menuMap.Bind(fog, player, objective, exit, portals);
         }
         #endregion
 

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace Mage
 {
-    /// <summary>지도 칸 참조 (숲 HUD 미니맵, 메뉴 창 지도 탭). 표시 셋은 그림의 자식, 앵커 가운데</summary>
+    /// <summary>지도 칸 참조 (숲 HUD 미니맵, 메뉴 창 지도 탭). 표시(플레이어·목표·입구·차원문 틀)는 그림의 자식, 앵커 가운데</summary>
     public sealed class MapView : MonoBehaviour
     {
         /// <summary>안개 지도 그림 (인스펙터에서만 연결)</summary>
@@ -18,6 +18,9 @@ namespace Mage
 
         /// <summary>숲 입구 표시 (인스펙터에서만 연결)</summary>
         [SerializeField] RectTransform _exit;
+
+        /// <summary>발견한 차원문 표시 틀 (그림 자식, 꺼 둠. 바인더가 복제해서 씀. 비우면 표시 안 함. 인스펙터에서만 연결)</summary>
+        [SerializeField] RectTransform _portal;
 
         /// <summary>지도가 없을 때 글 (메뉴 지도 탭의 자리 글. 미니맵은 비움)</summary>
         [SerializeField] GameObject _placeholder;
@@ -36,6 +39,9 @@ namespace Mage
 
         /// <summary>숲 입구 표시</summary>
         public RectTransform Exit => _exit;
+
+        /// <summary>발견한 차원문 표시 틀 (없으면 null)</summary>
+        public RectTransform Portal => _portal;
 
         /// <summary>지도가 없을 때 글 (없으면 null)</summary>
         public GameObject Placeholder => _placeholder;

@@ -6,7 +6,7 @@ using UnityEngine.Localization.Tables;
 
 namespace Mage
 {
-    /// <summary>숲. 3구역 회색 숲에 마법사·용병·적(쓰러뜨린 적은 쓰러진 자리에 시체)과 1구역 고블린 던전(지하, 보스)을 두고 현장 시전·안개 지도·시계·12시 안내(전투 중엔 숨김)를 켬. 숲이 70% 넘게 빈 채 나갔으면 들어올 때 리셋 연출 뒤 시체가 일어남. 숲 입구에서 F로 귀환, 소탕 대상을 다 쓰러뜨리면 의뢰 목표 달성, 기간이 지나면 의뢰 실패. 죽으면 금화를 떨구고 덮개 밑에서 용병 도망을 빠르게 돌린 뒤 여관 방 침대(방이 없으면 정문)에서 부활. 숲 적·의뢰·용병·던전·숲 리셋·떨어진 금화·임무 일지·코덱스는 캡슐이 맡고, 여기선 캡슐을 만들어 이음 (토스트·금화·목표·튜토리얼·화면 전환·시전 소리·벌칙·조작 잠금)</summary>
+    /// <summary>숲. 전초기지를 둘러싼 원형 3지역 회색 숲에 마법사·용병·적(쓰러뜨린 적은 쓰러진 자리에 시체), 지역마다 차원문(24m 안에 가면 발견), 1지역 고블린 던전(지하, 보스)을 두고 현장 시전·안개 지도·시계·12시 안내(전투 중엔 숨김)를 켬. 숲이 70% 넘게 빈 채 나갔으면 들어올 때 가장 가까운 차원문의 리셋 연출 뒤 시체가 일어남. 숲 가운데 전초기지 정문에서 F로 귀환, 소탕 대상을 다 쓰러뜨리면 의뢰 목표 달성, 기간이 지나면 의뢰 실패. 죽으면 금화를 떨구고 덮개 밑에서 용병 도망을 빠르게 돌린 뒤 여관 방 침대(방이 없으면 정문)에서 부활. 숲 적·의뢰·용병·던전·숲 리셋·차원문·떨어진 금화·임무 일지·코덱스는 캡슐이 맡고, 여기선 캡슐을 만들어 이음 (토스트·금화·목표·튜토리얼·화면 전환·시전 소리·벌칙·조작 잠금)</summary>
     public sealed partial class FieldState : FlowStateBase
     {
         /// <summary>이 상태의 씬 이름 (지역이 늘면 의뢰 데이터에서 받음)</summary>
@@ -24,7 +24,7 @@ namespace Mage
         /// <summary>상호작용 튜토리얼 id (12시 안내 없음, 처음 F를 쓰면 배움)</summary>
         const string InteractTutorialId = "interact";
 
-        /// <summary>숲 입구 지점 id (귀환)</summary>
+        /// <summary>정문 지점 id (귀환. 숲 가운데 닫힌 정문)</summary>
         const string ExitId = "forest_exit";
 
         /// <summary>떨어진 금화 지점 id (줍기)</summary>
@@ -48,6 +48,9 @@ namespace Mage
         /// <summary>죽은 뒤 도망 시뮬 최대 게임 시간 (초, 임시)</summary>
         const float DeathMaxSeconds = 40f;
 
+        /// <summary>차원문 발견을 확인하는 간격 (초, 게임 시간이라 일시정지·로딩창엔 멈춤)</summary>
+        const float PortalCheckSeconds = 0.5f;
+
         /// <summary>소탕 목표 달성 토스트 키 ({0} 의뢰 이름)</summary>
         const string QuestClearedKey = "field.quest_cleared";
 
@@ -65,6 +68,9 @@ namespace Mage
 
         /// <summary>보관함이 비었을 때 토스트 키</summary>
         const string StashEmptyKey = "field.stash_empty";
+
+        /// <summary>차원문을 발견했을 때 토스트 키 ({0} 지역 번호)</summary>
+        const string PortalFoundKey = "field.portal_found";
 
         /// <summary>던전 보스를 쓰러뜨렸을 때 토스트 키</summary>
         const string DungeonClearedKey = "field.dungeon_cleared";
@@ -114,8 +120,11 @@ namespace Mage
         /// <summary>고블린 던전 캡슐</summary>
         DungeonService _dungeon;
 
-        /// <summary>숲 리셋·차원문 캡슐</summary>
+        /// <summary>숲 리셋 캡슐</summary>
         ForestResetService _reset;
+
+        /// <summary>차원문 캡슐</summary>
+        PortalService _portals;
 
         /// <summary>떨어진 금화 캡슐</summary>
         FieldLootHandler _loot;
@@ -132,27 +141,34 @@ namespace Mage
         /// <summary>죽은 뒤 도망 시뮬 코루틴 (GameManager가 돌림. 없으면 null)</summary>
         Coroutine _death;
 
+        /// <summary>차원문 발견 확인 코루틴 (GameManager가 돌림. 없으면 null)</summary>
+        Coroutine _portalCheck;
+
         /// <summary>죽어서 마을로 가는 중인지</summary>
         bool _dying;
 
         /// <summary>들어올 때 목표가 바뀌었는지 (Reveal에서 알림)</summary>
         bool _objectiveChanged;
 
-        #region OnSceneReady - 현장 규칙(보관 장소 = 던전 입구 밖)·안개 지도와 캡슐(의뢰·임무 일지·숲 리셋·숲 적·용병·던전·떨어진 금화·코덱스)을 만들어 잇고(숲 적 → 의뢰 소탕 대상·리셋 시체, 몬스터가 보관한 금화 → 던전, 코덱스 등록 → 토스트, 시전 성공·실패 → 소리·벌칙, 시전 조작 잠금·방호막 → 플레이어·몸·감지기, 메뉴 임무 일지·주문 도감에 출처), 차원문을 놓고, 마법사를 입구에, 용병·숲 적·던전·떨어진 금화를 놓고, 시전·안개·시계·HUD·지도를 연결, 목표를 정함 (덮개 밑)
+        #region OnSceneReady - 현장 규칙(보관 장소 = 던전 입구 밖)·숲 지역·안개 지도(둥근 숲 안만 진행도)와 캡슐(의뢰·임무 일지·숲 리셋·차원문·숲 적·용병·던전·떨어진 금화·코덱스)을 만들어 잇고(숲 적 → 의뢰 소탕 대상·리셋 시체, 차원문 발견 → 토스트, 몬스터가 보관한 금화 → 던전, 코덱스 등록 → 토스트, 시전 성공·실패 → 소리·벌칙, 시전 조작 잠금·방호막 → 플레이어·몸·감지기, 메뉴 임무 일지·주문 도감·지도에 출처), 차원문을 놓고, 마법사를 입구에, 용병·숲 적·던전·떨어진 금화를 놓고, 시전·안개·시계·HUD·지도(발견한 차원문 포함)를 연결, 목표를 정함 (덮개 밑)
         protected override void OnSceneReady()
         {
             _view = FindView<FieldView>();
             if (_view == null) return;
             // 이번 판 데이터
             RunEntry run = Game.Run;
+            // 숲 지역 (전초기지 둘레 원형)
+            ForestRegionSpec regions = Regions();
             _service = new FieldService(_view.PlayerUnit) { StashPoint = _view.Dungeon.Outside };
-            _fog = new FogMapService(_view.MapArea, run.Fog);
+            _fog = new FogMapService(_view.MapArea, run.Fog, regions.OuterRadius);
             _quest = new FieldQuestService(run.Quest);
             _quest.Cleared += OnQuestCleared;
             _quest.Expired += OnQuestExpired;
             _journal = new JournalService(run.Journal);
-            _reset = new ForestResetService(run.ForestReset, _view.ResetSequence, _view.Portal, _view.PortalArea, _service, Zones(), _view.Entry.position);
+            _reset = new ForestResetService(run.ForestReset, _view.ResetSequence, _service, regions, _view.Entry.position);
             _reset.Finished += OnResetFinished;
+            _portals = new PortalService(run.Portal, _view.Portals, regions, _view.Entry.position);
+            _portals.Found += OnPortalFound;
             _forest = new ForestEnemyService(run.Forest, _view.SpawnPoints, _view.EnemyPrefab, _service);
             _forest.EnemySpawned += _quest.Track;
             _forest.EnemyDied += _quest.Untrack;
@@ -163,7 +179,7 @@ namespace Mage
             _dungeon.Cleared += OnDungeonCleared;
             _loot = new FieldLootHandler(run.Loot, _service, _view.GoldPilePrefab);
             _service.LootStored += _dungeon.AddStash;
-            _reset.PlacePortal();
+            _portals.Place();
             _view.Player.PlaceAt(_view.Entry);
             _view.PlayerUnit.Init(PlayerMaxHp);
             _party.Spawn(_view.Entry);
@@ -180,9 +196,9 @@ namespace Mage
             _view.Cast.ShieldChanged += OnCastShieldChanged;
             _view.FogReveal.Init(_fog);
             _view.Clock.Init(run.Clock);
-            _view.HudBinder.Bind(_view.PlayerUnit, _view.Player, _view.Cast, _party.Mercenaries, _service, _fog, ZoneAt, () => _view.Clock.Day);
-            _view.Hud.Minimap.Bind(_fog, _view.Player.transform, ObjectivePosition, _view.Entry.position);
-            UIManager.Instance.SetMapSource(_fog, _view.Player.transform, ObjectivePosition, _view.Entry.position);
+            _view.HudBinder.Bind(_view.PlayerUnit, _view.Player, _view.Cast, _party.Mercenaries, _service, _fog, RegionAt, () => _view.Clock.Day);
+            _view.Hud.Minimap.Bind(_fog, _view.Player.transform, ObjectivePosition, _view.Entry.position, _portals.CopyFound);
+            UIManager.Instance.SetMapSource(_fog, _view.Player.transform, ObjectivePosition, _view.Entry.position, _portals.CopyFound);
             UIManager.Instance.SetJournalSource(JournalNow);
             UIManager.Instance.SetCodexSource(_codex, run.PlayerName);
             _view.Hud.InteractPrompt.gameObject.SetActive(false);
@@ -191,7 +207,7 @@ namespace Mage
         }
         #endregion
 
-        #region Reveal - 커서 잠금, 지점·죽음·전투 상황 구독, 시계 → 의뢰 기한, M 구독. 리셋이면 조작·HUD를 끄고 연출 → 끝나면 OnResetFinished, 아니면 바로 조작 시작 (로딩창을 넘길 때 누른 키는 구독 전이라 안 들어감)
+        #region Reveal - 커서 잠금, 지점·죽음·전투 상황 구독, 시계 → 의뢰 기한, M 구독, 차원문 발견 확인 시작. 리셋이면 조작·HUD를 끄고 마법사에서 가장 가까운 차원문으로 연출 → 끝나면 OnResetFinished, 아니면 바로 조작 시작 (로딩창을 넘길 때 누른 키는 구독 전이라 안 들어감)
         public override void Reveal()
         {
             if (_view == null) return;
@@ -204,11 +220,12 @@ namespace Mage
             _map = InputSystem.actions.FindAction(MapActionPath);
             if (_map != null) _map.performed += OnMapPressed;
             else Debug.LogError($"[Field] {MapActionPath} 액션 없음. 지도 튜토리얼을 못 배움");
+            _portalCheck = Game.StartCoroutine(PortalCheckRoutine());
             if (_reset.IsResetting)
             {
                 SetControl(false);
                 _view.HudCanvas.enabled = false;
-                _reset.Play(_view.Player.transform);
+                _reset.Play(_portals.Nearest(_view.Player.transform.position), _view.Player.transform);
                 return;
             }
             StartControl();
@@ -224,13 +241,18 @@ namespace Mage
         }
         #endregion
 
-        #region Exit - 도망 시뮬을 멈추고 게임 속도를 되돌림, 구독·캡슐 연결 해제, 조작 끔, HUD·지도·임무 일지·주문 도감 출처를 놓음, 안내 숨김 풀고 정리, 자막 숨김, 커서 풂
+        #region Exit - 도망 시뮬·차원문 확인을 멈추고 게임 속도를 되돌림, 구독·캡슐 연결 해제, 조작 끔, HUD·지도·임무 일지·주문 도감 출처를 놓음, 안내 숨김 풀고 정리, 자막 숨김, 커서 풂
         public override void Exit()
         {
             if (_death != null)
             {
                 Game.StopCoroutine(_death);
                 _death = null;
+            }
+            if (_portalCheck != null)
+            {
+                Game.StopCoroutine(_portalCheck);
+                _portalCheck = null;
             }
             Game.SetGameSpeed(1f);
             if (_view != null)
@@ -266,6 +288,7 @@ namespace Mage
                 _quest.Expired -= OnQuestExpired;
             }
             if (_reset != null) _reset.Finished -= OnResetFinished;
+            if (_portals != null) _portals.Found -= OnPortalFound;
             if (_forest != null)
             {
                 if (_quest != null)
@@ -326,7 +349,7 @@ namespace Mage
         }
         #endregion
 
-        #region OnInteracted - 처음 쓰면 상호작용 배움. 숲 입구면 귀환, 떨어진 금화면 줍기, 던전 입구·나가는 문이면 드나들기, 보관함이면 챙기기. 모르는 id는 경고
+        #region OnInteracted - 처음 쓰면 상호작용 배움. 정문이면 귀환, 떨어진 금화면 줍기, 던전 입구·나가는 문이면 드나들기, 보관함이면 챙기기. 모르는 id는 경고
         /// <param name="target">상호작용 키를 누를 때 바라본 지점</param>
         void OnInteracted(InteractPointView target)
         {
@@ -343,7 +366,7 @@ namespace Mage
         }
         #endregion
 
-        #region Return - 숲 입구로 귀환해 전초기지로 (정문 밖에서 시작)
+        #region Return - 정문에서 귀환해 전초기지로 (정문 밖에서 시작)
         void Return()
         {
             if (_dying) return;
@@ -406,12 +429,12 @@ namespace Mage
         }
         #endregion
 
-        #region ZoneAt - 플레이어가 있는 구역 번호 (입구에서 z로 잰 깊이, 1~구역 수)
-        int ZoneAt() => Zones().ZoneOf(_view.Player.transform.position.z);
+        #region RegionAt - 플레이어가 있는 지역 번호 (전초기지 가운데에서 잰 거리, 1~지역 수)
+        int RegionAt() => Regions().RegionOf(_view.Player.transform.position);
         #endregion
 
-        #region Zones - 숲 화면 값(지역·구역 깊이·구역 수)으로 만든 숲 구역
-        ForestZoneSpec Zones() => new(_view.MapArea, _view.ZoneDepth, _view.ZoneCount);
+        #region Regions - 숲 화면 값(지역 가운데·1지역 반지름·지역 폭·지역 수)으로 만든 숲 지역
+        ForestRegionSpec Regions() => new(_view.RegionCenter, _view.RegionInner, _view.RegionWidth, _view.RegionCount);
         #endregion
 
         #region OnCombatChanged - 전투 상황이면 12시 안내를 숨기고 (이 PC가 처음이면) 게임을 멈추고 설명창. 끝나면 안내를 다시 보임
@@ -504,6 +527,25 @@ namespace Mage
             _view.HudCanvas.enabled = true;
             StartControl();
         }
+        #endregion
+
+        #region PortalCheckRoutine - 0.5초(게임 시간)마다 마법사 자리로 차원문 발견을 확인 (Exit에서 멈춤, 씬이 내려가면 끝)
+        IEnumerator PortalCheckRoutine()
+        {
+            // 확인 간격
+            var wait = new WaitForSeconds(PortalCheckSeconds);
+            while (_view != null)
+            {
+                yield return wait;
+                if (_view == null) yield break;
+                _portals.Check(_view.Player.transform.position);
+            }
+        }
+        #endregion
+
+        #region OnPortalFound - 차원문을 발견함 (차원문 캡슐이 자리를 남김): 토스트
+        /// <param name="region">발견한 차원문 지역 번호</param>
+        void OnPortalFound(int region) => UIManager.Instance.ShowToast(Table, PortalFoundKey, region);
         #endregion
 
         #region OnDungeonCleared - 던전 보스가 쓰러짐: 토스트

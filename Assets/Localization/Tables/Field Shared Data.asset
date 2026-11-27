@@ -150,6 +150,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2778220139109941356
+  - m_Id: 1329588706377728
+    m_Key: field.portal_found
+    m_Metadata:
+      m_Items:
+      - rid: 2778220209598365773
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
@@ -172,19 +177,19 @@ MonoBehaviour:
     - rid: 2778220126650499167
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_CommentText: "1\uAD6C\uC5ED \uC774\uB984 (\uC784\uC2DC)"
+        m_CommentText: "1\uC9C0\uC5ED \uC774\uB984"
     - rid: 2778220126650499168
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_CommentText: "2\uAD6C\uC5ED \uC774\uB984 (\uC784\uC2DC)"
+        m_CommentText: "2\uC9C0\uC5ED \uC774\uB984"
     - rid: 2778220126650499169
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_CommentText: "3\uAD6C\uC5ED \uC774\uB984 (\uC784\uC2DC)"
+        m_CommentText: "3\uC9C0\uC5ED \uC774\uB984"
     - rid: 2778220126650499170
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_CommentText: "\uC232 HUD \uC67C\uCABD \uC704. {0} \uAD6C\uC5ED \uC774\uB984,
+        m_CommentText: "\uC232 HUD \uC67C\uCABD \uC704. {0} \uC9C0\uC5ED \uC774\uB984,
           {1} \uB0A0\uC9DC, {2} \uC9C0\uB3C4 %"
     - rid: 2778220126650499171
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
@@ -232,7 +237,8 @@ MonoBehaviour:
     - rid: 2778220126650499180
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_CommentText: "\uC232 \uC785\uAD6C \uD45C\uC9C0\uD310 \uC9C0\uC810 \uC774\uB984"
+        m_CommentText: "\uC815\uBB38 \uC9C0\uC810 \uC774\uB984 (\uC232 \uAC00\uC6B4\uB370
+          \uB2EB\uD78C \uC815\uBB38, \uADC0\uD658)"
     - rid: 2778220126650499181
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
@@ -281,3 +287,8 @@ MonoBehaviour:
       type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
         m_CommentText: "\uD1A0\uC2A4\uD2B8: \uB358\uC804 \uBCF4\uC2A4\uB97C \uC4F0\uB7EC\uB728\uB9BC"
+    - rid: 2778220209598365773
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\uD1A0\uC2A4\uD2B8: \uCC28\uC6D0\uBB38 \uBC1C\uACAC. {0}
+          \uC9C0\uC5ED \uBC88\uD638"

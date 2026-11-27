@@ -47,21 +47,21 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1103287210901504
-    m_Localized: Clear the Goblins at the Forest Edge
+    m_Localized: Clear the Goblins in Region 1
     m_Metadata:
       m_Items: []
   - m_Id: 1103287215095808
-    m_Localized: Defeat every goblin at the forest edge. You can return from the
-      forest entrance even if you haven't finished.
+    m_Localized: Defeat every goblin in Region 1. You can return at the gate even
+      if you haven't finished.
     m_Metadata:
       m_Items: []
   - m_Id: 1103287231873024
-    m_Localized: Return to the Forest Entrance
+    m_Localized: Return to the Gate
     m_Metadata:
       m_Items: []
   - m_Id: 1103287231873025
-    m_Localized: All the goblins are down. Return at the forest entrance with F to
-      finish the quest.
+    m_Localized: All the goblins are down. Return at the gate with F to finish the
+      quest.
     m_Metadata:
       m_Items: []
   references:
