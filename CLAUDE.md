@@ -4,7 +4,7 @@
 - **Engine**: Unity 6000.3.9f1 (Unity 6), URP 17.3, Input System(새 입력만)
 - **Platform**: Windows
 - **Type**: 1인칭 3D 중세 판타지(용병 파티 의뢰·탐험·룬 조합 주문 그리기 전투, 가제 전초기지)
-- **기획 문서**: `D:\obsidian Documents\Vault\1_Projects\How to live as a mage\` (시작은 `docs/design/README.md` = 기획 지도와 읽는 법. 노드 하나 = 노트 하나, 단계 폴더 `docs/design/NN 단계/`, 고친 뒤 `node docs/design/_지도/check.js`. 옛 주제별 문서는 `docs/archive/v2-topic-docs/`. `docs/prototype/outpost.html`은 v1 기지 운영판, 현장 전투·그리기 수치만 참고)
+- **기획 문서**: `D:\obsidian Documents\Vault\1_Projects\How to live as a mage\` (시작은 `docs/design/README.md` = 기획 지도와 읽는 법. 노드 하나 = 노트 하나, 단계 폴더 `docs/design/NN 단계/`, 고친 뒤 `node docs/design/_지도/check.js`. 옛 주제별·v1 문서는 볼트 `4_Archives\How to live as a mage\docs\archive\`. `docs/prototype/outpost.html`은 v1 기지 운영판, 현장 전투·그리기 수치만 참고)
 - **Unity MCP**: `unity-editor-mcp`. 에디터는 Unity Hub나 터미널 탭에서 열 것
 
 ## 4 Principles (Discipline)
